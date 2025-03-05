@@ -4,13 +4,12 @@ import { TEST_PRIV, TEST_ADDR, sleep } from './common'
 import { test_permission_launch, test_permission_set_guard } from './permission_test'
 import { test_guard_launch_permission_builder, test_guard_launch_everyone, test_guard_launch_substring,
     test_guard_launch_number, test_guard_launch_creator_equal, test_constant_launch_creator_equal, 
-    test_guard_passport, test_guard_future_object, test_guard_to_object, test_guard_true, passport_query} from './gurad_test'
+    test_guard_passport, test_guard_future_object, test_guard_to_object, passport_query} from './gurad_test'
 import { test_repository_launch, test_repository_policy } from './repository_test'
 import { test_machine_edit_nodes, test_machine_launch, test_machine_progress, test_progress_run1, test_progress_run2 } from './machine_test';
 import { test_service_launch, test_service_order, test_service_withdraw } from './service_test';
 import { test_demand_launch, test_demand_yes } from './demand_test';
 import { create_my_resource, manage_my_resource, like, avatar, transfer_resource,  destroy_resource } from './personal_test'
-import { test_agent_objects } from './query_test';
 
 const main = async () => {
     let protocol = new Protocol(ENTRYPOINT.testnet)
@@ -71,8 +70,6 @@ const test_exes = async (protocol:Protocol) => {
     RpcResultParser.objectids_from_response(protocol, await protocol.sign_excute([test_permission_launch], TEST_PRIV(), ids), ids); await sleep(2000)
     console.log('permission id: ' + ids.get('permission::Permission'));  await sleep(2000);
     // object random sequence by rpc-get-objects !!  
-    RpcResultParser.objectids_from_response(protocol, await protocol.sign_excute([test_guard_true], TEST_PRIV(), ids), ids);
-    console.log('guard id: ' + ids.get('guard::Guard'));  await sleep(2000);
     RpcResultParser.objectids_from_response(protocol, await protocol.sign_excute([test_constant_launch_creator_equal], TEST_PRIV(), ids), ids);
     console.log('guard id: ' + ids.get('guard::Guard'));  await sleep(2000);
     RpcResultParser.objectids_from_response(protocol, await protocol.sign_excute(
