@@ -3,7 +3,7 @@ import { call_object, CallGuard_Data, CallTreasury_Data, ResponseData, WOWOK } f
 import { Account } from 'wowok_agent/src/account';
 
 export const airdrop = async () => {
-    console.log('current account: ' + Account.Instance().get_address());
+    console.log('current account: ' + await Account.Instance().get_address());
    
     const TYPE = WOWOK.Protocol.SUI_TOKEN_TYPE;
     var res: any; 

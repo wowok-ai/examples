@@ -1,7 +1,6 @@
-import { call_object, CallBase, CallDemand_Data, CallGuard_Data, ResponseData } from 'wowok_agent'
+import { call_object, CallBase, CallDemand_Data, CallGuard_Data, ResponseData, WOWOK } from 'wowok_agent'
 import { sleep } from './common';
 import { Account } from 'wowok_agent/src/account';
-import { CallResponse, OperatorType, ValueType } from '../../../wowok/src';
 
 export const test_call = async () => {
     //await test_account()
@@ -10,31 +9,31 @@ export const test_call = async () => {
 }
 
 export const account = async () => {
-    Account.Instance().gen('bb', true); await sleep(2000)
-    Account.Instance().rename('bb', 'aa') ; await sleep(2000)
-    Account.Instance().gen('cc', true) ; await sleep(2000)
-    Account.Instance().rename('cc', 'aa', true) ;await sleep(2000)
-    console.log(Account.Instance().list())
-    console.log(Account.Instance().get_pair('aa'))
+    await Account.Instance().gen('bb', true); await sleep(2000)
+    await Account.Instance().rename('bb', 'aa') ; await sleep(2000)
+    await Account.Instance().gen('cc', true) ; await sleep(2000)
+    await Account.Instance().rename('cc', 'aa', true) ;await sleep(2000)
+    console.log(await Account.Instance().list())
+    console.log(await Account.Instance().get_pair('aa'))
 }
 
 export const guard = async () => {
     const data : CallGuard_Data = {description:'launch a guard', table:[
-        {identifier:1, bWitness:true, value_type:ValueType.TYPE_STRING}
-    ], root: {logic:OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-            {value_type:ValueType.TYPE_STRING, value:'aa'},
+        {identifier:1, bWitness:true, value_type:WOWOK.ValueType.TYPE_STRING}
+    ], root: {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
+            {value_type:WOWOK.ValueType.TYPE_STRING, value:'aa'},
             {identifier:1}
         ]}
     }
     const r = await call_object({data:data, type:'Guard'})
     if ((r as any)?.digest) {
-        console.log(ResponseData(r as CallResponse))
+        console.log(ResponseData(r as WOWOK.CallResponse))
     }
 }
 
 export const faucet = async () => {
-    Account.Instance().faucet();
-    console.log(Account.Instance().list());
+    await Account.Instance().faucet();
+    console.log(await Account.Instance().list());
 }
 
 export const demand = async () => {
@@ -48,7 +47,7 @@ export const demand = async () => {
         }
         const r = await call_object({data:data, type:'Demand'})
         if ((r as any)?.digest) {
-            console.log(ResponseData(r as CallResponse))
+            console.log(ResponseData(r as WOWOK.CallResponse))
         }        
     }
 }
