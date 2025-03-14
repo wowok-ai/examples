@@ -11,7 +11,7 @@ enum BUSINESS { // business permission for Permission Object must >= 1000
 
 enum MACHINE_NODE {
     Report_Incident = 'Report Incident',
-    Emergency_Treatment = 'Report Incident',
+    Emergency_Treatment = 'Emergency Treatment',
     Amount_claim = 'Amount Claim',
     Insurance_Payment = 'Insurance Payment',
 }
@@ -50,7 +50,6 @@ const Insurance_Payment:WOWOK.Machine_Node = {
     name: MACHINE_NODE.Insurance_Payment,
     pairs: [
         {prior_node: MACHINE_NODE.Amount_claim, threshold:0, forwards:[
-            {name:'Pay', weight: 1, permission:BUSINESS.finance},
         ]},
     ]
 }
@@ -278,7 +277,7 @@ const arbitration = async () : Promise<string | undefined>=> {
 
 const machine = async (permission_id:string) : Promise<string | undefined>=> {
     const data : CallMachine_Data = { description: 'machine for an insurance',  object:{namedNew:{name:'machine'}},
-        permission:{address:permission_id}, endpoint:'https://wowok.net/',
+        permission:{address:permission_id}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink',
         nodes:{op:'add', data:[Report_Incident, Emergency_Treatment, Amount_claim, Amount_claim, Insurance_Payment]}
     }
     return await launch('Machine', data);
