@@ -1,9 +1,12 @@
 
-import { CallArbitration_Data, CallGuard_Data, CallMachine_Data, 
-    CallPermission_Data, CallRepository_Data, CallService_Data, WOWOK } from 'wowok_agent'
-import { sleep, TESTOR, TEST_ADDR, launch } from './common';
+/**
+ * Simple Insurance Service
+ */
 
-const TYPE = WOWOK.Protocol.SUI_TOKEN_TYPE;
+import { CallGuard_Data, CallMachine_Data, 
+    CallPermission_Data, CallRepository_Data, CallService_Data, WOWOK } from 'wowok_agent'
+import { sleep, TESTOR, TEST_ADDR, launch, PAY_TYPE, PUBKEY } from './common';
+
 enum BUSINESS { // business permission for Permission Object must >= 1000
     adjuster = 1000,
     finance = 1001,
@@ -54,7 +57,7 @@ const Insurance_Payment:WOWOK.Machine_Node = {
     ]
 }
 
-export const insurance = async () => {
+export const insurance = async () : Promise<string> => {
     const permission_id = await permission(); await sleep(2000)
     if (!permission_id)  WOWOK.ERROR(WOWOK.Errors.Fail, 'permission object failed.')
     
@@ -68,6 +71,7 @@ export const insurance = async () => {
     const service_id = await service(machine_id!, permission_id!, repository_id!);
     if (!service_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'service object failed.')
     await service_guards_and_publish(machine_id!, permission_id!, service_id!)
+    return service_id!
 }
 
 const repository = async (permission_id:string) : Promise<string | undefined> => {
@@ -89,15 +93,10 @@ const service = async (machine_id:string, permission_id:string, repository_id:st
         {item:'Outdoor accident insurance', price: '5', stock: '102', endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'}, 
     ]
 
-    const data: CallService_Data = { object:{namedNew:{name:'shop service'}}, permission:{address:permission_id}, type_parameter:TYPE,
+    const data: CallService_Data = { object:{namedNew:{name:'shop service'}}, permission:{address:permission_id}, type_parameter:PAY_TYPE,
         description:'Outdoor accident insurance', machine:machine_id, payee_treasury:{namedNew:{name:'Outdoor accident insurance treasury'}},
         repository:{op:'add', repositories:[repository_id]},
-        customer_required_info:{pubkey:'-----BEGIN PUBLIC KEY----- \
-            MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXFyjaaYXvu26BHM4nYQrPhnjL\
-            7ZBQhHUyeLo+4GQ6NmjXM3TPH9O1qlRerQ0vihYxVy6u5QbhElsxDNHp6JtRNlFZ \
-            qJE0Q/2KEaTTUU9PWtdt5yHY5Tsao0pgd2N4jiPWIx9wNiYJzcvztlbACU91NAif \
-            e6QFRLNGdDVy3RMjOwIDAQAB \
-            -----END PUBLIC KEY-----', required_info:[
+        customer_required_info:{pubkey:PUBKEY, required_info:[
                 WOWOK.BuyRequiredEnum.address, WOWOK.BuyRequiredEnum.phone, WOWOK.BuyRequiredEnum.name
             ]}, sales:{op:'add', sales:sales}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'
     }
@@ -135,7 +134,7 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
     const guard_id = await launch('Guard', data1);
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw');
 
-    const data2 : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:TYPE,
+    const data2 : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:PAY_TYPE,
         withdraw_guard:{op:'add', guards:[{guard:guard_id!, percent:100},]}, bPublished:true
     }
     await launch('Service', data2)
@@ -262,17 +261,6 @@ const permission = async () : Promise<string | undefined>=> {
         admin:{op:'add', address:[TEST_ADDR()]}
     }
     return await launch('Permission', data);
-}
-
-// arbitration with independent permission
-const arbitration = async () : Promise<string | undefined>=> {
-    const data : CallArbitration_Data = { description: 'independent arbitration',  object:{namedNew:{name:'arbitration'}},
-        type_parameter: TYPE,
-        permission:{namedNew:{name:'permission for arbitration'}, description:'permission for arbitration'},
-        fee_treasury:{namedNew:{name:'treasury for arbitration'}, description:'fee treasury for arbitration'},
-        bPaused:false
-    }
-    return await launch('Arbitration', data);
 }
 
 const machine = async (permission_id:string) : Promise<string | undefined>=> {

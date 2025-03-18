@@ -1,6 +1,6 @@
 
-import { call_object, CallArbitration_Data, CallGuard_Data, CallMachine_Data, CallObjectData, CallObjectType, CallPermission, 
-    CallPermission_Data, CallRepository_Data, CallService_Data, ResponseData, WOWOK } from 'wowok_agent'
+import { Account, call_object, CallArbitration_Data, CallGuard_Data, CallMachine_Data, CallObjectData, CallObjectType, CallPermission, 
+    CallPermission_Data, CallRepository_Data, CallService_Data, CallWithWitnessParam, ResponseData, WOWOK } from 'wowok_agent'
 
 export const TEST_ADDR = (): string => {  
     if (process.env.ADDR) {
@@ -42,9 +42,15 @@ export function sleep(ms: number): Promise<void> {
 
 export const PROTOCOL = new WOWOK.Protocol(WOWOK.ENTRYPOINT.testnet);
 export const PAY_TYPE = WOWOK.Protocol.SUI_TOKEN_TYPE; 
+export const PUBKEY = '-----BEGIN PUBLIC KEY----- \
+            MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXFyjaaYXvu26BHM4nYQrPhnjL\
+            7ZBQhHUyeLo+4GQ6NmjXM3TPH9O1qlRerQ0vihYxVy6u5QbhElsxDNHp6JtRNlFZ \
+            qJE0Q/2KEaTTUU9PWtdt5yHY5Tsao0pgd2N4jiPWIx9wNiYJzcvztlbACU91NAif \
+            e6QFRLNGdDVy3RMjOwIDAQAB \
+            -----END PUBLIC KEY-----';
 
-export const launch = async(type:CallObjectType, data:CallObjectData)  : Promise<string | undefined> => {
-    const res = await call_object({type:type, data:data});
+export const launch = async(type:CallObjectType, data:CallObjectData, account?:string, witness?:CallWithWitnessParam)  : Promise<string | undefined> => {
+    const res = await call_object({type:type, data:data, account:account, witness:witness});
     if ((res as any)?.digest) {
         const r = ResponseData(res as WOWOK.CallResponse);
         if (r) {
@@ -53,4 +59,16 @@ export const launch = async(type:CallObjectType, data:CallObjectData)  : Promise
             return i;
         }
     } 
+}
+
+export const check_account = async (name?:string) => {
+    if (!await Account.Instance().get_address(name, name?false:true)) {
+        await Account.Instance().gen(name ?? 'my default', name ? false : true);
+        await Account.Instance().faucet();
+        await sleep(2000);
+        console.log('Gen account: '+await Account.Instance().get_address(name));
+        console.log('Test related functions, please make sure that the account contains SUI test coins');
+    } else {
+        console.log('Account ' + (name?name:'default') + ':' + await Account.Instance().get_address(name));
+    }
 }
