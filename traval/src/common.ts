@@ -1,6 +1,7 @@
 
 import { Account, call_object, CallArbitration_Data, CallGuard_Data, CallMachine_Data, CallObjectData, CallObjectType, CallPermission, 
-    CallPermission_Data, CallRepository_Data, CallService_Data, CallWithWitnessParam, ResponseData, WOWOK } from 'wowok_agent'
+    CallPermission_Data, CallRepository_Data, CallService_Data, CallWithWitnessParam, GuardInfo_forCall, ResponseData, WOWOK } from 'wowok_agent'
+import { Service_Sale } from '../../../wowok/src'
 
 export const TEST_ADDR = (): string => {  
     if (process.env.ADDR) {
@@ -49,7 +50,7 @@ export const PUBKEY = '-----BEGIN PUBLIC KEY----- \
             e6QFRLNGdDVy3RMjOwIDAQAB \
             -----END PUBLIC KEY-----';
 
-export const launch = async(type:CallObjectType, data:CallObjectData, account?:string, witness?:CallWithWitnessParam)  : Promise<string | undefined> => {
+export const launch = async(type:CallObjectType, data:CallObjectData, account?:string, witness?:CallWithWitnessParam)  : Promise<string | undefined | GuardInfo_forCall> => {
     const res = await call_object({type:type, data:data, account:account, witness:witness});
     if ((res as any)?.digest) {
         const r = ResponseData(res as WOWOK.CallResponse);
@@ -58,7 +59,43 @@ export const launch = async(type:CallObjectType, data:CallObjectData, account?:s
             console.log(type + ': ' + i);
             return i;
         }
+    } else if (res) {
+        return res as GuardInfo_forCall
+    }
+}
+
+export interface LaunchOrderResult {
+    order?: string;
+    progress?: string;
+}
+export const launch_order = async(data:CallService_Data, account?:string, witness?:CallWithWitnessParam)  : Promise<LaunchOrderResult | undefined> => {
+    const res = await call_object({type:'Service', data:data, account:account, witness:witness});
+    if ((res as any)?.digest) {
+        const r = ResponseData(res as WOWOK.CallResponse);
+        if (r) {
+            const i = r.find(v => v.type === 'Order')?.object;
+            return {order:r.find(v => v.type === 'Order')?.object, progress:r.find(v => v.type === 'Progress')?.object}
+        }
     } 
+}
+
+export const BUYER_ACCOUNT = 'buyer';
+export const INSURANCE_PRODUCT:Service_Sale = {item:'Outdoor accident insurance', 
+    price: '5', stock: '102', endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'};
+export const TRAVEL_PRODUCT:Service_Sale = {item:'Traveling Iceland', 
+    price: '15', stock: '10', endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'};
+
+export interface ServiceReturn {
+    permission: string;
+    machine: string;
+    service: string;
+}
+
+export const GUARDS = new Map<string, string>();
+export enum GUARDS_NAME {
+    ice_scooting = 'ice_scooting',
+    cancel_ice_scooting = 'cancel_ice_scooting',
+    complete_ice_scooting = 'complete_ice_scooting'
 }
 
 export const check_account = async (name?:string) => {

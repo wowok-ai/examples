@@ -5,14 +5,14 @@
 
 import { CallGuard_Data, CallMachine_Data, 
     CallPermission_Data, CallRepository_Data, CallService_Data, WOWOK } from 'wowok_agent'
-import { sleep, TESTOR, TEST_ADDR, launch, PAY_TYPE, PUBKEY } from './common';
+import { sleep, TESTOR, TEST_ADDR, launch, PAY_TYPE, PUBKEY, INSURANCE_PRODUCT, ServiceReturn } from './common';
 
 enum BUSINESS { // business permission for Permission Object must >= 1000
     adjuster = 1000,
     finance = 1001,
 };
 
-enum MACHINE_NODE {
+export enum INSURANCE_MACHINE_NODE {
     Report_Incident = 'Report Incident',
     Emergency_Treatment = 'Emergency Treatment',
     Amount_claim = 'Amount Claim',
@@ -22,7 +22,7 @@ enum MACHINE_NODE {
 const MEDICAL_ORG = 'medical organization';
 
 const Report_Incident:WOWOK.Machine_Node = {
-    name: MACHINE_NODE.Report_Incident,
+    name: INSURANCE_MACHINE_NODE.Report_Incident,
     pairs: [
         {prior_node: WOWOK.Machine.INITIAL_NODE_NAME, threshold:2, forwards:[
             {name:'Notify insurer within 24 hours', weight: 1, namedOperator:WOWOK.Machine.OPERATOR_ORDER_PAYER},
@@ -31,9 +31,9 @@ const Report_Incident:WOWOK.Machine_Node = {
 }
 
 const Emergency_Treatment:WOWOK.Machine_Node = {
-    name: MACHINE_NODE.Emergency_Treatment,
+    name: INSURANCE_MACHINE_NODE.Emergency_Treatment,
     pairs: [
-        {prior_node: MACHINE_NODE.Report_Incident, threshold:2, forwards:[
+        {prior_node: INSURANCE_MACHINE_NODE.Report_Incident, threshold:2, forwards:[
             {name:'Confirmation visit', weight: 1, namedOperator:WOWOK.Machine.OPERATOR_ORDER_PAYER},
             {name:'Medical fees', weight: 1, namedOperator:MEDICAL_ORG},
         ]},
@@ -41,23 +41,23 @@ const Emergency_Treatment:WOWOK.Machine_Node = {
 }
 
 const Amount_claim:WOWOK.Machine_Node = {
-    name: MACHINE_NODE.Amount_claim,
+    name: INSURANCE_MACHINE_NODE.Amount_claim,
     pairs: [
-        {prior_node: MACHINE_NODE.Emergency_Treatment, threshold:2, forwards:[
+        {prior_node: INSURANCE_MACHINE_NODE.Emergency_Treatment, threshold:2, forwards:[
             {name:'Confirmation amount', weight: 1, namedOperator:WOWOK.Machine.OPERATOR_ORDER_PAYER},
         ]},
     ]
 }
 
 const Insurance_Payment:WOWOK.Machine_Node = {
-    name: MACHINE_NODE.Insurance_Payment,
+    name: INSURANCE_MACHINE_NODE.Insurance_Payment,
     pairs: [
-        {prior_node: MACHINE_NODE.Amount_claim, threshold:0, forwards:[
+        {prior_node: INSURANCE_MACHINE_NODE.Amount_claim, threshold:0, forwards:[
         ]},
     ]
 }
 
-export const insurance = async () : Promise<string> => {
+export const insurance = async () : Promise<ServiceReturn> => {
     const permission_id = await permission(); await sleep(2000)
     if (!permission_id)  WOWOK.ERROR(WOWOK.Errors.Fail, 'permission object failed.')
     
@@ -71,7 +71,7 @@ export const insurance = async () : Promise<string> => {
     const service_id = await service(machine_id!, permission_id!, repository_id!);
     if (!service_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'service object failed.')
     await service_guards_and_publish(machine_id!, permission_id!, service_id!)
-    return service_id!
+    return {permission:permission_id!, service:service_id!, machine:machine_id!}
 }
 
 const repository = async (permission_id:string) : Promise<string | undefined> => {
@@ -85,22 +85,18 @@ const repository = async (permission_id:string) : Promise<string | undefined> =>
         mode:WOWOK.Repository_Policy_Mode.POLICY_MODE_STRICT,
         policy:{op:'add', data:policy},
     }
-    return await launch('Repository', data);
+    return await launch('Repository', data) as string;
 }
 
 const service = async (machine_id:string, permission_id:string, repository_id:string) : Promise<string | undefined> => {
-    const sales:WOWOK.Service_Sale[] = [
-        {item:'Outdoor accident insurance', price: '5', stock: '102', endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'}, 
-    ]
-
     const data: CallService_Data = { object:{namedNew:{name:'shop service'}}, permission:{address:permission_id}, type_parameter:PAY_TYPE,
         description:'Outdoor accident insurance', machine:machine_id, payee_treasury:{namedNew:{name:'Outdoor accident insurance treasury'}},
         repository:{op:'add', repositories:[repository_id]},
         customer_required_info:{pubkey:PUBKEY, required_info:[
                 WOWOK.BuyRequiredEnum.address, WOWOK.BuyRequiredEnum.phone, WOWOK.BuyRequiredEnum.name
-            ]}, sales:{op:'add', sales:sales}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'
+            ]}, sales:{op:'add', sales:[INSURANCE_PRODUCT]}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'
     }
-    return await launch('Service', data)
+    return await launch('Service', data) as string
 }
 
 const machine_guards_and_publish = async (machine_id:string, permission_id:string, repository_id:string) => {
@@ -115,7 +111,7 @@ const machine_guards_and_publish = async (machine_id:string, permission_id:strin
 
 const service_guards_and_publish = async (machine_id:string, permission_id:string, service_id:string) => {
     const data1 : CallGuard_Data = {namedNew:{},
-        description:'Widthdraw on status: '+MACHINE_NODE.Insurance_Payment+service_id,
+        description:'Widthdraw on status: '+INSURANCE_MACHINE_NODE.Insurance_Payment+service_id,
         table:[{identifier:1, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS}, // progress witness
             {identifier:2, bWitness:false, value_type:WOWOK.ValueType.TYPE_ADDRESS, value:machine_id} // machine
         ], 
@@ -126,12 +122,12 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
                 {query:'Current Node', object:1, parameters:[]}, 
-                {value_type:WOWOK.ValueType.TYPE_STRING, value:MACHINE_NODE.Insurance_Payment}
+                {value_type:WOWOK.ValueType.TYPE_STRING, value:INSURANCE_MACHINE_NODE.Insurance_Payment}
             ]}
         ]}
     };
 
-    const guard_id = await launch('Guard', data1);
+    const guard_id = await launch('Guard', data1) as string;
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw');
 
     const data2 : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:PAY_TYPE,
@@ -156,11 +152,11 @@ const guard_accident_recorded = async (machine_id:string, permission_id:string, 
             ]},
         ]}
     };
-    const guard_id = await launch('Guard', data);
+    const guard_id = await launch('Guard', data) as string;
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_accident_recorded');
 
     const data2 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
-        nodes:{op:'add forward', data:[{prior_node_name:WOWOK.Machine.INITIAL_NODE_NAME, node_name:MACHINE_NODE.Report_Incident,
+        nodes:{op:'add forward', data:[{prior_node_name:WOWOK.Machine.INITIAL_NODE_NAME, node_name:INSURANCE_MACHINE_NODE.Report_Incident,
             forward:{name:'Record incident report', weight: 1, permission:BUSINESS.adjuster, guard:guard_id}
         }]}
     }
@@ -183,11 +179,11 @@ const guard_amount_claim = async (machine_id:string, permission_id:string, repos
             ]},
         ]}
     };
-    const guard_id = await launch('Guard', data);
+    const guard_id = await launch('Guard', data) as string;
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_amount_claim');
 
     const data2 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
-        nodes:{op:'add forward', data:[{prior_node_name:MACHINE_NODE.Emergency_Treatment, node_name:MACHINE_NODE.Amount_claim,
+        nodes:{op:'add forward', data:[{prior_node_name:INSURANCE_MACHINE_NODE.Emergency_Treatment, node_name:INSURANCE_MACHINE_NODE.Amount_claim,
             forward:{name:'The claim cost is determined', weight: 1, permission:BUSINESS.adjuster, guard:guard_id}
         }]}
     }
@@ -233,11 +229,11 @@ const guard_insurance_payment = async (machine_id:string, permission_id:string, 
             ]},
         ]}
     };
-    const guard_id = await launch('Guard', data);
+    const guard_id = await launch('Guard', data) as string;
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_insurance_payment');
 
     const data2 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
-        nodes:{op:'add forward', data:[{prior_node_name:MACHINE_NODE.Amount_claim, node_name:MACHINE_NODE.Insurance_Payment,
+        nodes:{op:'add forward', data:[{prior_node_name:INSURANCE_MACHINE_NODE.Amount_claim, node_name:INSURANCE_MACHINE_NODE.Insurance_Payment,
             forward:{name:'Claim insurance payment', weight: 1, permission:BUSINESS.finance, guard:guard_id}
         }]}
     }
@@ -260,7 +256,7 @@ const permission = async () : Promise<string | undefined>=> {
         ]},
         admin:{op:'add', address:[TEST_ADDR()]}
     }
-    return await launch('Permission', data);
+    return await launch('Permission', data) as string;
 }
 
 const machine = async (permission_id:string) : Promise<string | undefined>=> {
@@ -268,6 +264,6 @@ const machine = async (permission_id:string) : Promise<string | undefined>=> {
         permission:{address:permission_id}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink',
         nodes:{op:'add', data:[Report_Incident, Emergency_Treatment, Amount_claim, Amount_claim, Insurance_Payment]}
     }
-    return await launch('Machine', data);
+    return await launch('Machine', data) as string;
 }
 

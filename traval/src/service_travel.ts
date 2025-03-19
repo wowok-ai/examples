@@ -7,60 +7,71 @@
 
 import { CallArbitration_Data, CallGuard_Data, CallMachine_Data, 
     CallPermission_Data, CallRepository_Data, CallService_Data, GuardNode, WOWOK } from 'wowok_agent'
-import { sleep, TESTOR, TEST_ADDR, launch, PAY_TYPE, PUBKEY } from './common';
+import { sleep, TESTOR, TEST_ADDR, launch, PAY_TYPE, PUBKEY, TRAVEL_PRODUCT, ServiceReturn, GUARDS_NAME, GUARDS } from './common';
 import { ABSOLUTE_ZERO_DEGREE, Weather, Weather_Condition } from './weather';
 
 enum BUSINESS { // business permission for Permission Object must >= 1000
     insurance = 1000,
     finance = 1001,
     ice_scooting = 1002,
+    spa = 1003,
 };
 
-enum MACHINE_NODE {
+export enum TRAVEL_MACHINE_NODE {
     Insurance = 'Purchase insurance',
     Ice_scooting = 'Ice scooting',
     Complete = 'Complete',
     Cancel = 'Cancelled due to weather',
     Insurance_Fail = 'Insurance purchase failure',
+    Spa = 'Accommodation and spa',
 }
 
 
 const Insurance:WOWOK.Machine_Node = {
-    name: MACHINE_NODE.Insurance,
+    name: TRAVEL_MACHINE_NODE.Insurance,
     pairs: [
         {prior_node: WOWOK.Machine.INITIAL_NODE_NAME, threshold:0, forwards:[
         ]},
     ]
 }
 
-const Ice_scooting:WOWOK.Machine_Node = {
-    name: MACHINE_NODE.Ice_scooting,
+const Spa:WOWOK.Machine_Node = {
+    name: TRAVEL_MACHINE_NODE.Spa,
     pairs: [
-        {prior_node: MACHINE_NODE.Insurance, threshold:0, forwards:[
+        {prior_node: TRAVEL_MACHINE_NODE.Insurance, threshold:0, forwards:[
+            {name:'Comfirm', weight: 1, namedOperator:WOWOK.Machine.OPERATOR_ORDER_PAYER},
+            {name:'Accommodation and spa', weight: 1, permission:BUSINESS.spa},
+        ]},
+    ]
+}
+
+const Ice_scooting:WOWOK.Machine_Node = {
+    name: TRAVEL_MACHINE_NODE.Ice_scooting,
+    pairs: [
+        {prior_node: TRAVEL_MACHINE_NODE.Spa, threshold:0, forwards:[
             {name:'Comfirm Enter', weight: 1, namedOperator:WOWOK.Machine.OPERATOR_ORDER_PAYER},
         ]},
     ]
 }
 
 const Complete:WOWOK.Machine_Node = {
-    name: MACHINE_NODE.Complete,
+    name: TRAVEL_MACHINE_NODE.Complete,
     pairs: [
-        {prior_node: MACHINE_NODE.Ice_scooting, threshold:0, forwards:[
-            {name:'Complete', weight: 1, permission:BUSINESS.ice_scooting},
+        {prior_node: TRAVEL_MACHINE_NODE.Ice_scooting, threshold:0, forwards:[
         ]},
     ]
 }
 
 const Cancel:WOWOK.Machine_Node = {
-    name: MACHINE_NODE.Cancel,
+    name: TRAVEL_MACHINE_NODE.Cancel,
     pairs: [
-        {prior_node: MACHINE_NODE.Insurance, threshold:0, forwards:[
+        {prior_node: TRAVEL_MACHINE_NODE.Insurance, threshold:0, forwards:[
         ]},
     ]
 }
 
 const Insurance_Fail:WOWOK.Machine_Node = {
-    name: MACHINE_NODE.Insurance_Fail,
+    name: TRAVEL_MACHINE_NODE.Insurance_Fail,
     pairs: [
         {prior_node:WOWOK.Machine.INITIAL_NODE_NAME, threshold:0, forwards:[
             {name:'Failure to purchase insurance', weight: 1, permission:BUSINESS.insurance},
@@ -68,7 +79,7 @@ const Insurance_Fail:WOWOK.Machine_Node = {
     ]
 }
 
-export const travel = async (weather_repository:string, insurance_service:string[]) : Promise<string> => {
+export const travel = async (weather_repository:string, insurance_service:string[]) : Promise<ServiceReturn> => {
     const permission_id = await permission(); await sleep(2000)
     if (!permission_id)  WOWOK.ERROR(WOWOK.Errors.Fail, 'permission object failed.')
 
@@ -82,30 +93,28 @@ export const travel = async (weather_repository:string, insurance_service:string
     const service_id = await service(machine_id!, permission_id!, weather_repository!, arbitration_id!);
     if (!service_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'service object failed.')
     await service_guards_and_publish(machine_id!, permission_id!, service_id!);
-    return service_id!
+    return {machine:machine_id!, service:service_id!, permission:permission_id!}
 }
 
 const service = async (machine_id:string, permission_id:string, repository_id:string, arbitraion_id:string) : Promise<string | undefined> => {
-    const sales:WOWOK.Service_Sale[] = [
-        {item:'traveling Iceland', price: '15', stock: '10', endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'}, 
-    ]
-
     const data: CallService_Data = { permission:{address:permission_id}, type_parameter:PAY_TYPE,
-        description:'traveling Iceland', machine:machine_id,
+        description:`traveling Iceland. There is a small family company for Local Guide of Vatnsjökull and really stand out in terms of quality.\r\n
+        Hotel Djúpavík - way out on a dirt road in the Westfjords. Just a quiet family hotel in the middle of nowhere on a fjord. And the hot spring on the beach at Krossnes. \r\n
+        And ice scooting started the next day.`, machine:machine_id,
         repository:{op:'add', repositories:[repository_id]},
         customer_required_info:{pubkey:PUBKEY, required_info:[
                 WOWOK.BuyRequiredEnum.address, WOWOK.BuyRequiredEnum.phone, WOWOK.BuyRequiredEnum.name
             ]}, 
-        sales:{op:'add', sales:sales}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink',
+        sales:{op:'add', sales:[TRAVEL_PRODUCT]}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink',
         arbitration:{op:'add', arbitrations:[{address:arbitraion_id, type_parameter:PAY_TYPE}]}
     }
-    return await launch('Service', data)
+    return await launch('Service', data) as string
 }
 
 const machine_guards_and_publish = async (machine_id:string, permission_id:string, repository_id:string, insurance_suppliers?:string[]) => {
     await guard_ice_scooting(machine_id, permission_id, repository_id);
     const data : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
-        nodes:{op:'add forward', data:[{prior_node_name:WOWOK.Machine.INITIAL_NODE_NAME, node_name:MACHINE_NODE.Insurance,
+        nodes:{op:'add forward', data:[{prior_node_name:WOWOK.Machine.INITIAL_NODE_NAME, node_name:TRAVEL_MACHINE_NODE.Insurance,
             forward:{name:'Purchase', weight: 1, permission:BUSINESS.insurance, suppliers:insurance_suppliers?.map(v => {return {object:v, pay_token_type:PAY_TYPE, bOptional:true}})}
         }]},
         bPublished:true
@@ -126,7 +135,7 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
                 {query:'Current Node', object:1, parameters:[]}, 
-                {value_type:WOWOK.ValueType.TYPE_STRING, value:MACHINE_NODE.Complete}
+                {value_type:WOWOK.ValueType.TYPE_STRING, value:TRAVEL_MACHINE_NODE.Complete}
             ]}
         ]}
     };
@@ -143,14 +152,14 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
                 {query:'Current Node', object:1, parameters:[]}, 
-                {value_type:WOWOK.ValueType.TYPE_STRING, value:MACHINE_NODE.Cancel}
+                {value_type:WOWOK.ValueType.TYPE_STRING, value:TRAVEL_MACHINE_NODE.Cancel}
             ]}
         ]}
     };
 
-    const withdraw1 = await launch('Guard', data_withdraw1);
+    const withdraw1 = await launch('Guard', data_withdraw1) as string;
     if (!withdraw1) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw 1');
-    const withdraw2 = await launch('Guard', data_withdraw2);
+    const withdraw2 = await launch('Guard', data_withdraw2) as string;
     if (!withdraw2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw 2');
 
     const data_refund1 : CallGuard_Data = {namedNew:{},
@@ -165,7 +174,7 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
                 {query:'Current Node', object:1, parameters:[]}, 
-                {value_type:WOWOK.ValueType.TYPE_STRING, value:MACHINE_NODE.Insurance_Fail}
+                {value_type:WOWOK.ValueType.TYPE_STRING, value:TRAVEL_MACHINE_NODE.Insurance_Fail}
             ]}
         ]}
     };
@@ -181,19 +190,19 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
                 {query:'Current Node', object:1, parameters:[]}, 
-                {value_type:WOWOK.ValueType.TYPE_STRING, value:MACHINE_NODE.Cancel}
+                {value_type:WOWOK.ValueType.TYPE_STRING, value:TRAVEL_MACHINE_NODE.Cancel}
             ]}
         ]}
     };
 
-    const refund1 = await launch('Guard', data_refund1);
+    const refund1 = await launch('Guard', data_refund1) as string;
     if (!refund1) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund 1');
-    const refund2 = await launch('Guard', data_refund2);
+    const refund2 = await launch('Guard', data_refund2) as string;
     if (!refund2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund 2');
 
     const data2 : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:PAY_TYPE,
-        withdraw_guard:{op:'add', guards:[{guard:withdraw1!, percent:100},{guard:withdraw2!, percent:10},]}, 
-        refund_guard:{op:'add', guards:[{guard:refund1!, percent:100},{guard:refund2!, percent:90},]}, 
+        withdraw_guard:{op:'add', guards:[{guard:withdraw1!, percent:100},{guard:withdraw2!, percent:60},]}, 
+        refund_guard:{op:'add', guards:[{guard:refund1!, percent:100},{guard:refund2!, percent:40},]}, 
         bPublished:true
     }
     await launch('Service', data2)
@@ -223,7 +232,7 @@ const guard_ice_scooting = async (machine_id:string, permission_id:string, weath
         description:'Determine if the weather conditions are suitable for ice scooter events',
         root: weather_cond
     };
-    const guard_id = await launch('Guard', data);
+    const guard_id = await launch('Guard', data) as string;
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_ice_scooting');
 
     const data2 : CallGuard_Data = {
@@ -232,19 +241,46 @@ const guard_ice_scooting = async (machine_id:string, permission_id:string, weath
             weather_cond
         ]}
     };
-    const guard_id2 = await launch('Guard', data);
+    const guard_id2 = await launch('Guard', data2) as string;
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_ice_scooting 2');
 
-    const data3 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
-        nodes:{op:'add forward', data:[{prior_node_name:MACHINE_NODE.Insurance, node_name:MACHINE_NODE.Ice_scooting,
+    //{name:'Complete', weight: 1, permission:BUSINESS.ice_scooting},
+    const data3 : CallGuard_Data = {
+        description:'8 hours project time completed',
+        table:[{identifier:1, value_type:WOWOK.ValueType.TYPE_ADDRESS, bWitness:true}],
+        root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[
+            {logic: WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER, parameters:[
+                { context:WOWOK.ContextType.TYPE_CLOCK},
+                { calc: WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[ 
+                    {query:810, object:1, parameters:[]},
+                    {value:8*60*60*1000, value_type:WOWOK.ValueType.TYPE_U64}
+                ]}
+            ]},
+            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
+                {query:800, object:1, parameters:[]},
+                {value:machine_id, value_type:WOWOK.ValueType.TYPE_ADDRESS}
+            ]}
+        ]}
+    };
+    const guard_id3 = await launch('Guard', data3)  as string;
+    if (!guard_id3) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_ice_scooting 3');
+
+    const data4 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
+        nodes:{op:'add forward', data:[{prior_node_name:TRAVEL_MACHINE_NODE.Insurance, node_name:TRAVEL_MACHINE_NODE.Ice_scooting,
             forward:{name:'Enter', weight: 1, permission:BUSINESS.ice_scooting, guard:guard_id}
         }, 
-        {prior_node_name:MACHINE_NODE.Insurance, node_name:MACHINE_NODE.Cancel,
+        {prior_node_name:TRAVEL_MACHINE_NODE.Insurance, node_name:TRAVEL_MACHINE_NODE.Cancel,
             forward:{name:'Weather not suitable', weight: 1, permission:BUSINESS.ice_scooting, guard:guard_id2}
+        },
+        {prior_node_name:TRAVEL_MACHINE_NODE.Ice_scooting, node_name:TRAVEL_MACHINE_NODE.Complete,
+            forward:{name:'Complete', weight: 1, permission:BUSINESS.ice_scooting, guard:guard_id3}
         }
     ]}};
 
-    await launch('Machine', data3) // add new forward to machine
+    GUARDS.set(GUARDS_NAME.ice_scooting, guard_id!);
+    GUARDS.set(GUARDS_NAME.cancel_ice_scooting, guard_id2!);
+    GUARDS.set(GUARDS_NAME.complete_ice_scooting, guard_id3!);
+    await launch('Machine', data4) // add new forward to machine
 }
 
 const permission = async () : Promise<string | undefined>=> {
@@ -263,7 +299,7 @@ const permission = async () : Promise<string | undefined>=> {
         ]},
         admin:{op:'add', address:[TEST_ADDR()]}
     }
-    return await launch('Permission', data);
+    return await launch('Permission', data) as string;
 }
 
 // arbitration with independent permission
@@ -274,14 +310,14 @@ const arbitration = async () : Promise<string | undefined>=> {
         fee_treasury:{namedNew:{name:'treasury for arbitration'}, description:'fee treasury for arbitration'},
         bPaused:false
     }
-    return await launch('Arbitration', data);
+    return await launch('Arbitration', data) as string;
 }
 
 const machine = async (permission_id:string) : Promise<string | undefined>=> {
     const data : CallMachine_Data = { description: 'machine for traveling Iceland',  object:{namedNew:{name:'machine'}},
         permission:{address:permission_id}, endpoint:'',
-        nodes:{op:'add', data:[Insurance, Ice_scooting, Complete, Cancel, Insurance_Fail]}
+        nodes:{op:'add', data:[Insurance, Ice_scooting, Complete, Cancel, Insurance_Fail, Spa]}
     }
-    return await launch('Machine', data);
+    return await launch('Machine', data) as string;
 }
 

@@ -46,7 +46,7 @@ const repository = async (permission_id:string) : Promise<string | undefined> =>
         mode:WOWOK.Repository_Policy_Mode.POLICY_MODE_STRICT,
         policy:{op:'add', data:policy},
     }
-    return await launch('Repository', data);
+    return await launch('Repository', data) as string;
 }
 
 const update_weather = async (repository_id: string, permission_id:string) => {
@@ -76,6 +76,6 @@ const permission = async () : Promise<string | undefined> => {
         biz_permission:{op:'add', data:[{index:WEATHER_DATA_PERMISSION, name:'Update weather data'}]},    
         admin:{op:'add', address:[TEST_ADDR(), TESTOR[6].address]}
     }
-    return await launch('Permission', data);
+    return await launch('Permission', data) as string;
 }
 
