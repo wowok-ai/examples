@@ -21,7 +21,7 @@ export enum TRAVEL_MACHINE_NODE {
     Insurance = 'Purchase insurance',
     Ice_scooting = 'Ice scooting',
     Complete = 'Complete',
-    Cancel = 'Cancelled due to weather',
+    Cancel = 'Cancelled ice scooting',
     Insurance_Fail = 'Insurance purchase failure',
     Spa = 'Accommodation and spa',
 }
@@ -65,7 +65,7 @@ const Complete:WOWOK.Machine_Node = {
 const Cancel:WOWOK.Machine_Node = {
     name: TRAVEL_MACHINE_NODE.Cancel,
     pairs: [
-        {prior_node: TRAVEL_MACHINE_NODE.Insurance, threshold:0, forwards:[
+        {prior_node: TRAVEL_MACHINE_NODE.Spa, threshold:0, forwards:[
         ]},
     ]
 }
@@ -98,8 +98,8 @@ export const travel = async (weather_repository:string, insurance_service:string
 
 const service = async (machine_id:string, permission_id:string, repository_id:string, arbitraion_id:string) : Promise<string | undefined> => {
     const data: CallService_Data = { permission:{address:permission_id}, type_parameter:PAY_TYPE,
-        description:`traveling Iceland. There is a small family company for Local Guide of Vatnsjökull and really stand out in terms of quality.\r\n
-        Hotel Djúpavík - way out on a dirt road in the Westfjords. Just a quiet family hotel in the middle of nowhere on a fjord. And the hot spring on the beach at Krossnes. \r\n
+        description:`traveling Iceland. There is a small family company for Local Guide of Vatnsjökull and really stand out in terms of quality.
+        Hotel Djúpavík - way out on a dirt road in the Westfjords. Just a quiet family hotel in the middle of nowhere on a fjord. And the hot spring on the beach at Krossnes.
         And ice scooting started the next day.`, machine:machine_id,
         repository:{op:'add', repositories:[repository_id]},
         customer_required_info:{pubkey:PUBKEY, required_info:[
@@ -266,10 +266,10 @@ const guard_ice_scooting = async (machine_id:string, permission_id:string, weath
     if (!guard_id3) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_ice_scooting 3');
 
     const data4 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
-        nodes:{op:'add forward', data:[{prior_node_name:TRAVEL_MACHINE_NODE.Insurance, node_name:TRAVEL_MACHINE_NODE.Ice_scooting,
+        nodes:{op:'add forward', data:[{prior_node_name:TRAVEL_MACHINE_NODE.Spa, node_name:TRAVEL_MACHINE_NODE.Ice_scooting,
             forward:{name:'Enter', weight: 1, permission:BUSINESS.ice_scooting, guard:guard_id}
         }, 
-        {prior_node_name:TRAVEL_MACHINE_NODE.Insurance, node_name:TRAVEL_MACHINE_NODE.Cancel,
+        {prior_node_name:TRAVEL_MACHINE_NODE.Spa, node_name:TRAVEL_MACHINE_NODE.Cancel,
             forward:{name:'Weather not suitable', weight: 1, permission:BUSINESS.ice_scooting, guard:guard_id2}
         },
         {prior_node_name:TRAVEL_MACHINE_NODE.Ice_scooting, node_name:TRAVEL_MACHINE_NODE.Complete,

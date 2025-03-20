@@ -89,7 +89,7 @@ const repository = async (permission_id:string) : Promise<string | undefined> =>
 }
 
 const service = async (machine_id:string, permission_id:string, repository_id:string) : Promise<string | undefined> => {
-    const data: CallService_Data = { object:{namedNew:{name:'shop service'}}, permission:{address:permission_id}, type_parameter:PAY_TYPE,
+    const data: CallService_Data = { permission:{address:permission_id}, type_parameter:PAY_TYPE,
         description:'Outdoor accident insurance', machine:machine_id, payee_treasury:{namedNew:{name:'Outdoor accident insurance treasury'}},
         repository:{op:'add', repositories:[repository_id]},
         customer_required_info:{pubkey:PUBKEY, required_info:[
@@ -111,7 +111,7 @@ const machine_guards_and_publish = async (machine_id:string, permission_id:strin
 
 const service_guards_and_publish = async (machine_id:string, permission_id:string, service_id:string) => {
     const data1 : CallGuard_Data = {namedNew:{},
-        description:'Widthdraw on status: '+INSURANCE_MACHINE_NODE.Insurance_Payment+service_id,
+        description:'Widthdraw on status: '+INSURANCE_MACHINE_NODE.Insurance_Payment+' for service '+service_id,
         table:[{identifier:1, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS}, // progress witness
             {identifier:2, bWitness:false, value_type:WOWOK.ValueType.TYPE_ADDRESS, value:machine_id} // machine
         ], 

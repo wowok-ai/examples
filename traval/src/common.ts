@@ -1,6 +1,5 @@
 
-import { Account, call_object, CallArbitration_Data, CallGuard_Data, CallMachine_Data, CallObjectData, CallObjectType, CallPermission, 
-    CallPermission_Data, CallRepository_Data, CallService_Data, CallWithWitnessParam, GuardInfo_forCall, ResponseData, WOWOK } from 'wowok_agent'
+import { Account, call_object, CallObjectData, CallObjectType, CallService_Data, GuardInfo_forCall, ResponseData, WOWOK } from 'wowok_agent'
 import { Service_Sale } from '../../../wowok/src'
 
 export const TEST_ADDR = (): string => {  
@@ -50,7 +49,7 @@ export const PUBKEY = '-----BEGIN PUBLIC KEY----- \
             e6QFRLNGdDVy3RMjOwIDAQAB \
             -----END PUBLIC KEY-----';
 
-export const launch = async(type:CallObjectType, data:CallObjectData, account?:string, witness?:CallWithWitnessParam)  : Promise<string | undefined | GuardInfo_forCall> => {
+export const launch = async(type:CallObjectType, data:CallObjectData, account?:string, witness?:GuardInfo_forCall)  : Promise<string | undefined | GuardInfo_forCall> => {
     const res = await call_object({type:type, data:data, account:account, witness:witness});
     if ((res as any)?.digest) {
         const r = ResponseData(res as WOWOK.CallResponse);
@@ -68,7 +67,7 @@ export interface LaunchOrderResult {
     order?: string;
     progress?: string;
 }
-export const launch_order = async(data:CallService_Data, account?:string, witness?:CallWithWitnessParam)  : Promise<LaunchOrderResult | undefined> => {
+export const launch_order = async(data:CallService_Data, account?:string, witness?:GuardInfo_forCall)  : Promise<LaunchOrderResult | undefined> => {
     const res = await call_object({type:'Service', data:data, account:account, witness:witness});
     if ((res as any)?.digest) {
         const r = ResponseData(res as WOWOK.CallResponse);

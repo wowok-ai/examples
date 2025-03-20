@@ -350,7 +350,7 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
 
 const guard_service_withdraw = async (machine_id:string, permission_id:string, service_id:string, arbitration_id:string) => {
     const data1 : CallGuard_Data = {namedNew:{},
-        description:'Widthdraw on status: '+order_completed.name+' more than 15 days; \r\nService: '+service_id,
+        description:'Widthdraw on status: '+order_completed.name+' more than 15 days; \nService: '+service_id,
         table:[{identifier:1, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS}, // progress witness
             {identifier:2, bWitness:false, value_type:WOWOK.ValueType.TYPE_ADDRESS, value:machine_id} // machine
         ], 

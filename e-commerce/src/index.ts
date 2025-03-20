@@ -376,7 +376,7 @@ const guard_withdraw = async (protocol:Protocol, param:any) => {
 
     const permission = param.get('permission::Permission')[0] ;
     const service = param.get('service::Service')[0] ;
-    var desp = 'Widthdraw on status: '+order_completed.name+' more than 15 days; \r\nService: '+service;
+    var desp = 'Widthdraw on status: '+order_completed.name+' more than 15 days; \nService: '+service;
     const guard = Guard.New(protocol.sessionCurrent(), desp, withdraw.build());
 
     var desp2 = 'Widthdraw on status: '+dispute.name+' Wait 30 days to receive the results of a trusted Arbitration ' + arbitration +'. And within 30 days, the user can initiate a refund at any time based on the Arb arbitration results.';
