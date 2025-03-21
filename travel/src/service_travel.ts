@@ -9,6 +9,7 @@ import { CallArbitration_Data, CallGuard_Data, CallMachine_Data,
     CallPermission_Data, CallRepository_Data, CallService_Data, GuardNode, WOWOK } from 'wowok_agent'
 import { sleep, TESTOR, TEST_ADDR, launch, PAY_TYPE, PUBKEY, TRAVEL_PRODUCT, ServiceReturn, GUARDS_NAME, GUARDS } from './common';
 import { ABSOLUTE_ZERO_DEGREE, Weather, Weather_Condition } from './weather';
+import { ContextType, OperatorType, ValueType } from '../../../wowok/src';
 
 enum BUSINESS { // business permission for Permission Object must >= 1000
     insurance = 1000,
@@ -209,23 +210,17 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
 }
 
 const guard_ice_scooting = async (machine_id:string, permission_id:string, weather_repository:string) => {
-    const date = new Date();  date.setHours(0, 0, 0, 0);  
-    const addr = WOWOK.normalizeSuiAddress((date.getTime()).toString()); 
-    const weather_cond:GuardNode = { logic: WOWOK.OperatorType.TYPE_LOGIC_AND, parameters: [
-        {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-            {query:113, object:weather_repository, parameters:[  
-                {value:addr, value_type:WOWOK.ValueType.TYPE_ADDRESS},
-                {value:Weather.Condition, value_type:WOWOK.ValueType.TYPE_STRING}
-            ]}, 
-            { value:Weather_Condition.sunny, value_type:WOWOK.ValueType.TYPE_STRING}
-        ]}, 
-        {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_LESSER, parameters:[
-            {query:112, object:weather_repository, parameters:[
-                {value:addr, value_type:WOWOK.ValueType.TYPE_ADDRESS},
-                {value:Weather.Maximum_temperature, value_type:WOWOK.ValueType.TYPE_STRING}
-            ]},
-            {value:ABSOLUTE_ZERO_DEGREE, value_type:WOWOK.ValueType.TYPE_U64}
-        ]}
+    const weather_cond:GuardNode = { query: 115, object:weather_repository, parameters: [
+        {calc:OperatorType.TYPE_NUMBER_ADDRESS, parameters:[ // Align by the start time of each day
+            {calc:OperatorType.TYPE_NUMBER_MULTIPLY, parameters:[
+                {calc:OperatorType.TYPE_NUMBER_DEVIDE, parameters:[
+                    {context:ContextType.TYPE_CLOCK},
+                    {value:24*60*60*1000, value_type:ValueType.TYPE_U64} // 1 day
+                ]},
+                {value:24*60*60*1000, value_type:ValueType.TYPE_U64} 
+            ]}
+        ]},
+        {value:Weather.Ice_scooting_suitable, value_type:WOWOK.ValueType.TYPE_STRING}
     ]};
 
     const data : CallGuard_Data = {

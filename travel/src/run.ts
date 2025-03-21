@@ -3,6 +3,7 @@ import { sleep, PAY_TYPE, PUBKEY, launch, check_account, BUYER_ACCOUNT, TRAVEL_P
 import { Account, CallMachine, CallMachine_Data, CallService_Data, GuardInfo_forCall } from 'wowok_agent';
 import { travel, TRAVEL_MACHINE_NODE } from './service_travel';
 import { createRequire } from 'module';
+import { BuyResult } from '../../../wowok/src';
 const require = createRequire(import.meta.url);
 
 export const run_service = async (insurance_service:ServiceReturn, traval_service:ServiceReturn) => {    
@@ -24,6 +25,7 @@ export const run_service = async (insurance_service:ServiceReturn, traval_servic
     }
 
     const traval = await launch_order(buy, BUYER_ACCOUNT);
+    //const traval = {order:'0x900288c808a565b43bfbb1b9afb3f04ff58cdffb96254a55d7735c01e4de634e', progress:'0xa2da17a3efe5aceab4964ce2bb13242dca3dbdea94691f90bc3be9d6d00831c2'}
     console.log('travel order:' + traval?.order + ' progress: ' + traval?.progress);
 
     // run progress
@@ -71,12 +73,12 @@ export const run_service = async (insurance_service:ServiceReturn, traval_servic
     console.log(witness);
 
     // NOTICE: 8 hrs later, could pass the Guard !!!
-    if (typeof(witness) !== 'string' && typeof(witness) !== 'undefined' && traval?.progress) {
+    /*if (typeof(witness) !== 'string' && typeof(witness) !== 'undefined' && traval?.progress) {
         (witness as GuardInfo_forCall).witness.forEach(v => {
             v.witness = traval?.progress; // fill the witness
         })
 
         await launch('Machine', progress_complete, undefined, witness);
         console.log('progress finally.')
-    }
+    }*/
 }  

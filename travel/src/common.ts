@@ -51,6 +51,7 @@ export const PUBKEY = '-----BEGIN PUBLIC KEY----- \
 
 export const launch = async(type:CallObjectType, data:CallObjectData, account?:string, witness?:GuardInfo_forCall)  : Promise<string | undefined | GuardInfo_forCall> => {
     const res = await call_object({type:type, data:data, account:account, witness:witness});
+    //console.log(res)
     if ((res as any)?.digest) {
         const r = ResponseData(res as WOWOK.CallResponse);
         if (r) {
