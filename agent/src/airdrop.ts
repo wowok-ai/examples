@@ -1,5 +1,5 @@
 
-import { call_object, CallGuard_Data, CallTreasury_Data, ResponseData, WOWOK } from 'wowok_agent'
+import { call_guard, call_treasury, CallGuard_Data, CallTreasury_Data, ResponseData, WOWOK } from 'wowok_agent'
 import { Account } from 'wowok_agent/src/account';
 
 export const airdrop = async () => {
@@ -20,7 +20,7 @@ export const airdrop = async () => {
         permission:{namedNew:{name:'my permission', tags:['for treasury']}},
         deposit:{data:{balance:200}}
     }
-    res = await call_object({type:'Treasury', data:treasury});
+    res = await call_treasury({data:treasury});
     if (res?.digest) {
         const r = ResponseData(res as WOWOK.CallResponse);
         if (r) {
@@ -46,7 +46,7 @@ export const airdrop = async () => {
     const treasury_modify: CallTreasury_Data = {withdraw_guard:{op:'add', data:guards.map((v,i) => {return {guard:v, amount:1+i}})},
         type_parameter: TYPE, object:{address:treasury_id!}, permission:{address:permission_id!}, // reference of Treasury created.
         withdraw_mode:WOWOK.Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE};
-    res = await call_object({type:'Treasury', data:treasury_modify});        
+    res = await call_treasury({data:treasury_modify});        
     console.log(res)
 }
 
@@ -109,7 +109,7 @@ const launch_guards = async (treasury_address:string) : Promise<string[] | undef
 }
 
 const launch_guard = async (data: CallGuard_Data) : Promise<string | undefined> => {
-    const res = await call_object({type:"Guard", data:data});
+    const res = await call_guard({data:data});
     if ((res as any)?.digest) {
         return ResponseData(res as WOWOK.CallResponse)?.find(v => v.type === 'Guard')?.object;
     } 

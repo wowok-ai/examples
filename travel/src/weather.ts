@@ -3,8 +3,8 @@
  * Weather data can come from a named service provider or a predictor
  */
 
-import { CallPermission_Data, CallRepository_Data, WOWOK } from 'wowok_agent'
-import { sleep, TESTOR, TEST_ADDR, launch } from './common';
+import { call_permission, call_repository, CallPermission_Data, CallRepository_Data, WOWOK } from 'wowok_agent'
+import { sleep, TESTOR, TEST_ADDR, result } from './common';
 
 export const weather = async () : Promise<string> => {
     const permission_id = await permission(); await sleep(2000)
@@ -46,7 +46,7 @@ const repository = async (permission_id:string) : Promise<string | undefined> =>
         mode:WOWOK.Repository_Policy_Mode.POLICY_MODE_STRICT,
         policy:{op:'add', data:policy},
     }
-    return await launch('Repository', data) as string;
+    return await result('Repository', await call_repository({data:data})) as string;
 }
 
 const update_weather = async (repository_id: string, permission_id:string) => {
@@ -65,10 +65,10 @@ const update_weather = async (repository_id: string, permission_id:string) => {
         Ice_scooting_suitable.data.push({address:addr, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_BOOL, true)})
     }
 
-    await launch('Repository', {object:{address:repository_id}, permission:{address:permission_id}, data:{op:'add', data:Condition}});
-    await launch('Repository', {object:{address:repository_id}, permission:{address:permission_id}, data:{op:'add', data:Minimum_temperature}});
-    await launch('Repository', {object:{address:repository_id}, permission:{address:permission_id}, data:{op:'add', data:Maximum_temperature}});
-    await launch('Repository', {object:{address:repository_id}, permission:{address:permission_id}, data:{op:'add', data:Ice_scooting_suitable}});
+    await result('Repository', await call_repository({data:{object:{address:repository_id}, permission:{address:permission_id}, data:{op:'add', data:Condition}}}));
+    await result('Repository', await call_repository({data:{object:{address:repository_id}, permission:{address:permission_id}, data:{op:'add', data:Minimum_temperature}}}));
+    await result('Repository', await call_repository({data:{object:{address:repository_id}, permission:{address:permission_id}, data:{op:'add', data:Maximum_temperature}}}));
+    await result('Repository', await call_repository({data:{object:{address:repository_id}, permission:{address:permission_id}, data:{op:'add', data:Ice_scooting_suitable}}}));
 }
 
 const permission = async () : Promise<string | undefined> => {
@@ -76,6 +76,6 @@ const permission = async () : Promise<string | undefined> => {
         biz_permission:{op:'add', data:[{index:WEATHER_DATA_PERMISSION, name:'Update weather data'}]},    
         admin:{op:'add', address:[TEST_ADDR(), TESTOR[6].address]}
     }
-    return await launch('Permission', data) as string;
+    return await result('Permission', (await call_permission({data:data})))  as string;
 }
 

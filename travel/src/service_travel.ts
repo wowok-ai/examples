@@ -5,9 +5,9 @@
  * Whether the service can be performed depending on weather conditions; If the service cannot be performed due to weather, a full refund will be made.
  */
 
-import { CallArbitration_Data, CallGuard_Data, CallMachine_Data, 
+import { call_arbitration, call_guard, call_machine, call_permission, call_service, CallArbitration_Data, CallGuard_Data, CallMachine_Data, 
     CallPermission_Data, CallRepository_Data, CallService_Data, GuardNode, WOWOK } from 'wowok_agent'
-import { sleep, TESTOR, TEST_ADDR, launch, PAY_TYPE, PUBKEY, TRAVEL_PRODUCT, ServiceReturn, GUARDS_NAME, GUARDS } from './common';
+import { sleep, TESTOR, TEST_ADDR, result, PAY_TYPE, PUBKEY, TRAVEL_PRODUCT, ServiceReturn, GUARDS_NAME, GUARDS } from './common';
 import { ABSOLUTE_ZERO_DEGREE, Weather, Weather_Condition } from './weather';
 import { ContextType, OperatorType, ValueType } from '../../../wowok/src';
 
@@ -109,7 +109,7 @@ const service = async (machine_id:string, permission_id:string, repository_id:st
         sales:{op:'add', sales:[TRAVEL_PRODUCT]}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink',
         arbitration:{op:'add', arbitrations:[{address:arbitraion_id, type_parameter:PAY_TYPE}]}
     }
-    return await launch('Service', data) as string
+    return await result('Service', await call_service({data:data})) as string
 }
 
 const machine_guards_and_publish = async (machine_id:string, permission_id:string, repository_id:string, insurance_suppliers?:string[]) => {
@@ -120,7 +120,7 @@ const machine_guards_and_publish = async (machine_id:string, permission_id:strin
         }]},
         bPublished:true
     }
-    await launch('Machine', data) // add new forward to machine
+    await result('Machine', await call_machine({data:data})) // add new forward to machine
 }
 
 const service_guards_and_publish = async (machine_id:string, permission_id:string, service_id:string) => {
@@ -158,9 +158,9 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
         ]}
     };
 
-    const withdraw1 = await launch('Guard', data_withdraw1) as string;
+    const withdraw1 = await result('Guard', await call_guard({data:data_withdraw1})) as string;
     if (!withdraw1) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw 1');
-    const withdraw2 = await launch('Guard', data_withdraw2) as string;
+    const withdraw2 = await result('Guard', await call_guard({data:data_withdraw2})) as string;
     if (!withdraw2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw 2');
 
     const data_refund1 : CallGuard_Data = {namedNew:{},
@@ -196,9 +196,9 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
         ]}
     };
 
-    const refund1 = await launch('Guard', data_refund1) as string;
+    const refund1 = await result('Guard', await call_guard({data:data_refund1})) as string;
     if (!refund1) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund 1');
-    const refund2 = await launch('Guard', data_refund2) as string;
+    const refund2 = await result('Guard', await call_guard({data:data_refund2})) as string;
     if (!refund2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund 2');
 
     const data2 : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:PAY_TYPE,
@@ -206,7 +206,7 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
         refund_guard:{op:'add', guards:[{guard:refund1!, percent:100},{guard:refund2!, percent:40},]}, 
         bPublished:true
     }
-    await launch('Service', data2)
+    await result('Service', await call_service({data:data2}))
 }
 
 const guard_ice_scooting = async (machine_id:string, permission_id:string, weather_repository:string) => {
@@ -227,7 +227,7 @@ const guard_ice_scooting = async (machine_id:string, permission_id:string, weath
         description:'Determine if the weather conditions are suitable for ice scooter events',
         root: weather_cond
     };
-    const guard_id = await launch('Guard', data) as string;
+    const guard_id = await result('Guard', await call_guard({data:data})) as string;
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_ice_scooting');
 
     const data2 : CallGuard_Data = {
@@ -236,7 +236,7 @@ const guard_ice_scooting = async (machine_id:string, permission_id:string, weath
             weather_cond
         ]}
     };
-    const guard_id2 = await launch('Guard', data2) as string;
+    const guard_id2 = await result('Guard', await call_guard({data:data2})) as string;
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_ice_scooting 2');
 
     //{name:'Complete', weight: 1, permission:BUSINESS.ice_scooting},
@@ -257,7 +257,7 @@ const guard_ice_scooting = async (machine_id:string, permission_id:string, weath
             ]}
         ]}
     };
-    const guard_id3 = await launch('Guard', data3)  as string;
+    const guard_id3 = await result('Guard', await call_guard({data:data3}))  as string;
     if (!guard_id3) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_ice_scooting 3');
 
     const data4 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
@@ -275,7 +275,7 @@ const guard_ice_scooting = async (machine_id:string, permission_id:string, weath
     GUARDS.set(GUARDS_NAME.ice_scooting, guard_id!);
     GUARDS.set(GUARDS_NAME.cancel_ice_scooting, guard_id2!);
     GUARDS.set(GUARDS_NAME.complete_ice_scooting, guard_id3!);
-    await launch('Machine', data4) // add new forward to machine
+    await result('Machine', await call_machine({data:data4})) // add new forward to machine
 }
 
 const permission = async () : Promise<string | undefined>=> {
@@ -294,7 +294,7 @@ const permission = async () : Promise<string | undefined>=> {
         ]},
         admin:{op:'add', address:[TEST_ADDR()]}
     }
-    return await launch('Permission', data) as string;
+    return await result('Permission', await call_permission({data:data})) as string;
 }
 
 // arbitration with independent permission
@@ -305,7 +305,7 @@ const arbitration = async () : Promise<string | undefined>=> {
         fee_treasury:{namedNew:{name:'treasury for arbitration'}, description:'fee treasury for arbitration'},
         bPaused:false
     }
-    return await launch('Arbitration', data) as string;
+    return await result('Arbitration', await call_arbitration({data:data})) as string;
 }
 
 const machine = async (permission_id:string) : Promise<string | undefined>=> {
@@ -313,6 +313,6 @@ const machine = async (permission_id:string) : Promise<string | undefined>=> {
         permission:{address:permission_id}, endpoint:'',
         nodes:{op:'add', data:[Insurance, Ice_scooting, Complete, Cancel, Insurance_Fail, Spa]}
     }
-    return await launch('Machine', data) as string;
+    return await result('Machine', await call_machine({data:data})) as string;
 }
 

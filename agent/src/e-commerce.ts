@@ -1,5 +1,5 @@
-import { call_object, CallArbitration_Data, CallDemand_Data, CallGuard_Data, CallMachine_Data, CallObjectData, CallObjectType, CallPermission, 
-    CallPermission_Data, CallService_Data, CallTreasury_Data, ResponseData, WOWOK } from 'wowok_agent'
+import { call_arbitration, call_guard, call_machine, call_permission, call_service, CallArbitration_Data, CallDemand_Data, CallGuard_Data, CallMachine_Data, 
+    CallPermission_Data, CallResult, CallService_Data, ResponseData, WOWOK } from 'wowok_agent'
 import { Account } from 'wowok_agent/src/account';
 import { sleep, TESTOR } from './common';
 
@@ -152,7 +152,7 @@ const service = async (machine_id:string, permission_id:string, arbitraion_id:st
                 WOWOK.BuyRequiredEnum.address, WOWOK.BuyRequiredEnum.phone, WOWOK.BuyRequiredEnum.name
             ]}, sales:{op:'add', sales:sales}, endpoint:'https://wowok.net'
     }
-    return await launch('Service', data)
+    return await result('Service', await call_service({data:data}))
 }
 
 const machine_guards_and_publish = async (machine_id:string, permission_id:string) => {
@@ -163,7 +163,7 @@ const machine_guards_and_publish = async (machine_id:string, permission_id:strin
     const data : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
         bPublished:true
     }
-    await launch('Machine', data) // add new forward to machine
+    await result('Machine', await call_machine({data:data})) // add new forward to machine
 }
 
 const service_guards_and_publish = async (machine_id:string, permission_id:string, service_id:string, arbitration_id:string) => {
@@ -172,7 +172,7 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
     const data : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:TYPE,
         bPublished:true,
     }
-    await launch('Service', data) // add new forward to machine
+    await result('Service', await call_service({data:data})) // add new forward to machine
 }
 
 const guard_confirmation_24hrs_more = async (machine_id:string, permission_id:string) => {
@@ -195,7 +195,7 @@ const guard_confirmation_24hrs_more = async (machine_id:string, permission_id:st
             ]}
         ]}
     };
-    const guard_id = await launch('Guard', data);
+    const guard_id = await result('Guard', await call_guard({data:data}));
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_confirmation_24hrs_more');
 
     const data2 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
@@ -203,7 +203,7 @@ const guard_confirmation_24hrs_more = async (machine_id:string, permission_id:st
             forward:{name:'Goods not shipped for more than 24 hours', weight: 1, namedOperator:WOWOK.Machine.OPERATOR_ORDER_PAYER, guard:guard_id}
         }]}
     }
-    await launch('Machine', data2) // add new forward to machine
+    await result('Machine', await call_machine({data:data2})) // add new forward to machine
 }
 
 const guard_auto_receipt = async (machine_id:string, permission_id:string) => {
@@ -226,7 +226,7 @@ const guard_auto_receipt = async (machine_id:string, permission_id:string) => {
             ]}
         ]}
     };
-    const guard_id = await launch('Guard', data);
+    const guard_id = await result('Guard', await call_guard({data:data}));
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_auto_receipt');
 
     const data2 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
@@ -234,7 +234,7 @@ const guard_auto_receipt = async (machine_id:string, permission_id:string) => {
             forward:{name:'Shipper comfirms after 15 days', weight: 5, permission:BUSINESS.shipping, guard:guard_id}
         }]}
     }
-    await launch('Machine', data2) // add new forward to machine
+    await result('Machine', await call_machine({data:data2})) // add new forward to machine
 }
 
 const guard_payer_dispute = async (machine_id:string, permission_id:string) => {
@@ -257,7 +257,7 @@ const guard_payer_dispute = async (machine_id:string, permission_id:string) => {
             ]}
         ]}
     };
-    const guard_id = await launch('Guard', data);
+    const guard_id = await result('Guard', await call_guard({data:data}));
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_auto_receipt');
 
     const data2 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
@@ -265,7 +265,7 @@ const guard_payer_dispute = async (machine_id:string, permission_id:string) => {
             forward:{name:'Confirm no package received within 15 days', weight: 1, permission:BUSINESS.shipping, guard:guard_id}
         }]}
     }
-    await launch('Machine', data2) // add new forward to machine
+    await result('Machine', await call_machine({data:data2})) // add new forward to machine
 }
 
 const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:string) => {
@@ -311,7 +311,7 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
             ]},
         ]}
     };
-    const guard_id1 = await launch('Guard', data1);
+    const guard_id1 = await result('Guard', await call_guard({data:data1}));
     if (!guard_id1) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_lost_comfirm_compensate: more than 24hrs');
 
     const data2 : CallGuard_Data = {namedNew:{},
@@ -333,7 +333,7 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
             ]}
         ]}
     };
-    const guard_id2 = await launch('Guard', data2);
+    const guard_id2 = await result('Guard', await call_guard({data:data2}));
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_lost_comfirm_compensate: less than 24hrs');
 
     const data3 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
@@ -345,7 +345,7 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
             }
         ]}
     }
-    await launch('Machine', data3) // add new forward to machine
+    await result('Machine', await call_machine({data:data3})) // add new forward to machine
 }
 
 const guard_service_withdraw = async (machine_id:string, permission_id:string, service_id:string, arbitration_id:string) => {
@@ -373,7 +373,7 @@ const guard_service_withdraw = async (machine_id:string, permission_id:string, s
         ]}
     };
 
-    const guard_id1 = await launch('Guard', data1);
+    const guard_id1 = await result('Guard', await call_guard({data:data1}));
     if (!guard_id1) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw: guard 1');
 
     const data2 : CallGuard_Data = {namedNew:{},
@@ -400,13 +400,13 @@ const guard_service_withdraw = async (machine_id:string, permission_id:string, s
         ]}
     };
 
-    const guard_id2 = await launch('Guard', data2);
+    const guard_id2 = await result('Guard', await call_guard({data:data2}));
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw: guard 2');
 
     const data3 : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:TYPE,
         withdraw_guard:{op:'add', guards:[{guard:guard_id1!, percent:100}, {guard:guard_id2!, percent:100}]}
     }
-    await launch('Service', data3)
+    await result('Service', await call_service({data:data3}))
 }
 
 const guard_service_refund = async (machine_id:string, permission_id:string, service_id:string, arbitration_id:string) => {
@@ -432,7 +432,7 @@ const guard_service_refund = async (machine_id:string, permission_id:string, ser
             ]}, 
         ]}
     };
-    const guard_id1 = await launch('Guard', data1);
+    const guard_id1 = await result('Guard', await call_guard({data:data1}));
     if (!guard_id1) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund: guard 1');
 
     const data2 : CallGuard_Data = {namedNew:{},
@@ -459,13 +459,13 @@ const guard_service_refund = async (machine_id:string, permission_id:string, ser
         ]}
     };
 
-    const guard_id2 = await launch('Guard', data2);
+    const guard_id2 = await result('Guard', await call_guard({data:data2}));
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund: guard 2');
 
     const data3 : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:TYPE,
         refund_guard:{op:'add', guards:[{guard:guard_id1!, percent:100}, {guard:guard_id2!, percent:100}]}
     };
-    await launch('Service', data3)
+    await result('Service', await call_service({data:data3}))
 }
 
 const permission = async () : Promise<string | undefined>=> {
@@ -488,7 +488,7 @@ const permission = async () : Promise<string | undefined>=> {
         ]},
         admin:{op:'add', address:[TESTOR[0].address]}
     }
-    return await launch('Permission', data);
+    return await result('Permission', await call_permission({data:data}));
 }
 
 // arbitration with independent permission
@@ -499,7 +499,7 @@ const arbitration = async () : Promise<string | undefined>=> {
         fee_treasury:{namedNew:{name:'treasury for arbitration'}, description:'fee treasury for arbitration'},
         bPaused:false
     }
-    return await launch('Arbitration', data);
+    return await result('Arbitration', await call_arbitration({data:data}));
 }
 
 const machine = async (permission_id:string) : Promise<string | undefined>=> {
@@ -507,11 +507,10 @@ const machine = async (permission_id:string) : Promise<string | undefined>=> {
         permission:{address:permission_id}, endpoint:'https://wowok.net/',
         nodes:{op:'add', data:[order_confirmation, order_cancellation, order_completed, goods_shippedout, goods_lost, dispute, return_goods]}
     }
-    return await launch('Machine', data);
+    return await result('Machine', await call_machine({data:data}));
 }
 
-const launch = async(type:CallObjectType, data:CallObjectData)  : Promise<string | undefined> => {
-    const res = await call_object({type:type, data:data});
+const result = async(type:string, res:CallResult)  : Promise<string | undefined> => {
     if ((res as any)?.digest) {
         const r = ResponseData(res as WOWOK.CallResponse);
         if (r) {

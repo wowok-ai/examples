@@ -1,4 +1,4 @@
-import { call_object, CallBase, CallDemand_Data, CallGuard_Data, ResponseData, WOWOK } from 'wowok_agent'
+import { call_demand, call_guard, CallDemand_Data, CallGuard_Data, ResponseData, WOWOK } from 'wowok_agent'
 import { sleep } from './common';
 import { Account } from 'wowok_agent/src/account';
 
@@ -25,7 +25,7 @@ export const guard = async () => {
             {identifier:1}
         ]}
     }
-    const r = await call_object({data:data, type:'Guard'})
+    const r = await call_guard({data:data})
     if ((r as any)?.digest) {
         console.log(ResponseData(r as WOWOK.CallResponse))
     }
@@ -45,7 +45,7 @@ export const demand = async () => {
             description:'this is some sdk test.',
             bounty:{op:'add', object:{address:coin}}
         }
-        const r = await call_object({data:data, type:'Demand'})
+        const r = await call_demand({data:data})
         if ((r as any)?.digest) {
             console.log(ResponseData(r as WOWOK.CallResponse))
         }        

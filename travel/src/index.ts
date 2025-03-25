@@ -1,5 +1,5 @@
 
-import { sleep, PAY_TYPE, PUBKEY, launch, check_account, BUYER_ACCOUNT, ServiceReturn, GUARDS,  } from './common'
+import { sleep, PAY_TYPE, PUBKEY, result, check_account, BUYER_ACCOUNT, ServiceReturn, GUARDS,  } from './common'
 import { insurance } from './service_insurance';
 import { weather } from './weather';
 import { travel, TRAVEL_MACHINE_NODE } from './service_travel';
@@ -24,10 +24,10 @@ const main = async () => {
     console.log(date.getTime())
     date.setHours(0, 0, 0, 0);  
     console.log(date.getTime())
-    console.log(getUTCDayStartByDivision());*/
+    console.log(getUTCDayStartByDivision());
 
     await check_account();
-    await check_account(BUYER_ACCOUNT);
+    await check_account(BUYER_ACCOUNT);*/
 
     await run_service_progress();
     //await run_progress()

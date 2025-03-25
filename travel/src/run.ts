@@ -1,6 +1,6 @@
 
-import { sleep, PAY_TYPE, PUBKEY, launch, check_account, BUYER_ACCOUNT, TRAVEL_PRODUCT, INSURANCE_PRODUCT, launch_order, GUARDS, GUARDS_NAME, ServiceReturn,  } from './common'
-import { Account, CallMachine, CallMachine_Data, CallService_Data, GuardInfo_forCall } from 'wowok_agent';
+import { sleep, PAY_TYPE, PUBKEY, result, check_account, BUYER_ACCOUNT, TRAVEL_PRODUCT, INSURANCE_PRODUCT, launch_order, GUARDS, GUARDS_NAME, ServiceReturn,  } from './common'
+import { Account, call_machine, CallMachine, CallMachine_Data, CallService_Data, GuardInfo_forCall } from 'wowok_agent';
 import { travel, TRAVEL_MACHINE_NODE } from './service_travel';
 import { createRequire } from 'module';
 import { BuyResult } from '../../../wowok/src';
@@ -48,28 +48,28 @@ export const run_service = async (insurance_service:ServiceReturn, traval_servic
             orders:[{object:ins.order!, pay_token_type:PAY_TYPE}], 
         }}
     }
-    await launch('Machine', progress_insurance);
+    await result('Machine', await call_machine({data:progress_insurance}));
 
     console.log('progress start: ' + TRAVEL_MACHINE_NODE.Spa)
     const progress_spa : CallMachine_Data = { object:{address:traval_service.machine}, permission:{address:traval_service.permission},
         progress_next:{progress:traval?.progress!, data:{next_node_name:TRAVEL_MACHINE_NODE.Spa, forward:'Comfirm'}, 
             deliverable:{msg:'funny', orders:[]}}
     }
-    await launch('Machine', progress_spa, BUYER_ACCOUNT);
+    await result('Machine', await call_machine({data:progress_spa}), BUYER_ACCOUNT);
 
     console.log('progress start: ' + TRAVEL_MACHINE_NODE.Ice_scooting)
     const progress_ice_scotting : CallMachine_Data = { object:{address:traval_service.machine}, permission:{address:traval_service.permission},
     progress_next:{progress:traval?.progress!, data:{next_node_name:TRAVEL_MACHINE_NODE.Ice_scooting, forward:'Enter'}, 
         deliverable:{msg:'go go go', orders:[]}, guard:GUARDS.get(GUARDS_NAME.ice_scooting)}
     }
-    await launch('Machine', progress_ice_scotting);
+    await result('Machine', await call_machine({data:progress_ice_scotting}));
 
     console.log('progress start: ' + TRAVEL_MACHINE_NODE.Complete)
     const progress_complete : CallMachine_Data = { object:{address:traval_service.machine}, permission:{address:traval_service.permission},
     progress_next:{progress:traval?.progress!, data:{next_node_name:TRAVEL_MACHINE_NODE.Complete, forward:'Complete'}, 
         deliverable:{msg:'happy nice day', orders:[]},  guard:GUARDS.get(GUARDS_NAME.complete_ice_scooting)}
     }
-    const witness = await launch('Machine', progress_complete);
+    const witness = await result('Machine', await call_machine({data:progress_complete}));
     console.log(witness);
 
     // NOTICE: 8 hrs later, could pass the Guard !!!

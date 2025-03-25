@@ -3,9 +3,9 @@
  * Simple Insurance Service
  */
 
-import { CallGuard_Data, CallMachine_Data, 
+import { call_guard, call_machine, call_permission, call_repository, call_service, CallGuard_Data, CallMachine_Data, 
     CallPermission_Data, CallRepository_Data, CallService_Data, WOWOK } from 'wowok_agent'
-import { sleep, TESTOR, TEST_ADDR, launch, PAY_TYPE, PUBKEY, INSURANCE_PRODUCT, ServiceReturn } from './common';
+import { sleep, TESTOR, TEST_ADDR, result, PAY_TYPE, PUBKEY, INSURANCE_PRODUCT, ServiceReturn } from './common';
 
 enum BUSINESS { // business permission for Permission Object must >= 1000
     adjuster = 1000,
@@ -85,7 +85,7 @@ const repository = async (permission_id:string) : Promise<string | undefined> =>
         mode:WOWOK.Repository_Policy_Mode.POLICY_MODE_STRICT,
         policy:{op:'add', data:policy},
     }
-    return await launch('Repository', data) as string;
+    return await result('Repository', await call_repository({data:data})) as string;
 }
 
 const service = async (machine_id:string, permission_id:string, repository_id:string) : Promise<string | undefined> => {
@@ -96,7 +96,7 @@ const service = async (machine_id:string, permission_id:string, repository_id:st
                 WOWOK.BuyRequiredEnum.address, WOWOK.BuyRequiredEnum.phone, WOWOK.BuyRequiredEnum.name
             ]}, sales:{op:'add', sales:[INSURANCE_PRODUCT]}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'
     }
-    return await launch('Service', data) as string
+    return await result('Service', await call_service({data:data})) as string
 }
 
 const machine_guards_and_publish = async (machine_id:string, permission_id:string, repository_id:string) => {
@@ -106,7 +106,7 @@ const machine_guards_and_publish = async (machine_id:string, permission_id:strin
     const data : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
         bPublished:true
     }
-    await launch('Machine', data) // add new forward to machine
+    await result('Machine', await call_machine({data:data})) // add new forward to machine
 }
 
 const service_guards_and_publish = async (machine_id:string, permission_id:string, service_id:string) => {
@@ -127,13 +127,13 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
         ]}
     };
 
-    const guard_id = await launch('Guard', data1) as string;
+    const guard_id = await result('Guard', await call_guard({data:data1})) as string;
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw');
 
     const data2 : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:PAY_TYPE,
         withdraw_guard:{op:'add', guards:[{guard:guard_id!, percent:100},]}, bPublished:true
     }
-    await launch('Service', data2)
+    await result('Service', await call_service({data:data2}))
 }
 
 const guard_accident_recorded = async (machine_id:string, permission_id:string, repository_id:string) => {
@@ -152,7 +152,7 @@ const guard_accident_recorded = async (machine_id:string, permission_id:string, 
             ]},
         ]}
     };
-    const guard_id = await launch('Guard', data) as string;
+    const guard_id = await result('Guard', await call_guard({data:data})) as string;
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_accident_recorded');
 
     const data2 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
@@ -160,7 +160,7 @@ const guard_accident_recorded = async (machine_id:string, permission_id:string, 
             forward:{name:'Record incident report', weight: 1, permission:BUSINESS.adjuster, guard:guard_id}
         }]}
     }
-    await launch('Machine', data2) // add new forward to machine
+    await result('Machine', await call_machine({data:data2})) // add new forward to machine
 }
 
 const guard_amount_claim = async (machine_id:string, permission_id:string, repository_id:string) => {
@@ -179,7 +179,7 @@ const guard_amount_claim = async (machine_id:string, permission_id:string, repos
             ]},
         ]}
     };
-    const guard_id = await launch('Guard', data) as string;
+    const guard_id = await result('Guard', await call_guard({data:data})) as string;
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_amount_claim');
 
     const data2 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
@@ -187,7 +187,7 @@ const guard_amount_claim = async (machine_id:string, permission_id:string, repos
             forward:{name:'The claim cost is determined', weight: 1, permission:BUSINESS.adjuster, guard:guard_id}
         }]}
     }
-    await launch('Machine', data2) // add new forward to machine
+    await result('Machine', await call_machine({data:data2})) // add new forward to machine
 }
 
 const guard_insurance_payment = async (machine_id:string, permission_id:string, repository_id:string) => {
@@ -229,7 +229,7 @@ const guard_insurance_payment = async (machine_id:string, permission_id:string, 
             ]},
         ]}
     };
-    const guard_id = await launch('Guard', data) as string;
+    const guard_id = await result('Guard', await call_guard({data:data})) as string;
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_insurance_payment');
 
     const data2 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
@@ -237,7 +237,7 @@ const guard_insurance_payment = async (machine_id:string, permission_id:string, 
             forward:{name:'Claim insurance payment', weight: 1, permission:BUSINESS.finance, guard:guard_id}
         }]}
     }
-    await launch('Machine', data2) // add new forward to machine
+    await result('Machine', await call_machine({data:data2})) // add new forward to machine
 }
 
 const permission = async () : Promise<string | undefined>=> {
@@ -256,7 +256,7 @@ const permission = async () : Promise<string | undefined>=> {
         ]},
         admin:{op:'add', address:[TEST_ADDR()]}
     }
-    return await launch('Permission', data) as string;
+    return await result('Permission', await call_permission({data:data})) as string;
 }
 
 const machine = async (permission_id:string) : Promise<string | undefined>=> {
@@ -264,6 +264,6 @@ const machine = async (permission_id:string) : Promise<string | undefined>=> {
         permission:{address:permission_id}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink',
         nodes:{op:'add', data:[Report_Incident, Emergency_Treatment, Amount_claim, Amount_claim, Insurance_Payment]}
     }
-    return await launch('Machine', data) as string;
+    return await result('Machine', await call_machine({data:data})) as string;
 }
 
