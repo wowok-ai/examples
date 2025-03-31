@@ -121,7 +121,7 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
-                {query:'Current Node', object:1, parameters:[]}, 
+                {query:801, object:1, parameters:[]}, // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:INSURANCE_MACHINE_NODE.Insurance_Payment}
             ]}
         ]}
@@ -254,7 +254,7 @@ const permission = async () : Promise<string | undefined>=> {
             {address: TESTOR[1].address, permissions: [ {index:BUSINESS.adjuster}, ],},
             {address: TESTOR[2].address, permissions: [ {index:BUSINESS.finance}],},
         ]},
-        admin:{op:'add', address:[TEST_ADDR()]}
+        admin:{op:'add', addresses:[TEST_ADDR()]}
     }
     return await result('Permission', await call_permission({data:data})) as string;
 }

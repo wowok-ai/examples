@@ -24,6 +24,7 @@
     "@mysten/sui": "^1.7.0"
   },
   "devDependencies": {
+    "@types/node": "^22.13.13",
     "tsx": "^4.7.1",
     "typescript": "^5.4.3"
   }

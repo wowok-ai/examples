@@ -107,7 +107,7 @@ const service = async (machine_id:string, permission_id:string, repository_id:st
                 WOWOK.BuyRequiredEnum.address, WOWOK.BuyRequiredEnum.phone, WOWOK.BuyRequiredEnum.name
             ]}, 
         sales:{op:'add', sales:[TRAVEL_PRODUCT]}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink',
-        arbitration:{op:'add', arbitrations:[{address:arbitraion_id, type_parameter:PAY_TYPE}]}
+        arbitration:{op:'add', arbitrations:[{address:arbitraion_id, token_type:PAY_TYPE}]}
     }
     return await result('Service', await call_service({data:data})) as string
 }
@@ -116,7 +116,7 @@ const machine_guards_and_publish = async (machine_id:string, permission_id:strin
     await guard_ice_scooting(machine_id, permission_id, repository_id);
     const data : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
         nodes:{op:'add forward', data:[{prior_node_name:WOWOK.Machine.INITIAL_NODE_NAME, node_name:TRAVEL_MACHINE_NODE.Insurance,
-            forward:{name:'Purchase', weight: 1, permission:BUSINESS.insurance, suppliers:insurance_suppliers?.map(v => {return {object:v, pay_token_type:PAY_TYPE, bOptional:true}})}
+            forward:{name:'Purchase', weight: 1, permission:BUSINESS.insurance, suppliers:insurance_suppliers?.map(v => {return {object:v, pay_token_type:PAY_TYPE, bRequired:false}})}
         }]},
         bPublished:true
     }
@@ -135,7 +135,7 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
-                {query:'Current Node', object:1, parameters:[]}, 
+                {query:801, object:1, parameters:[]}, // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:TRAVEL_MACHINE_NODE.Complete}
             ]}
         ]}
@@ -152,7 +152,7 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
-                {query:'Current Node', object:1, parameters:[]}, 
+                {query:801, object:1, parameters:[]}, // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:TRAVEL_MACHINE_NODE.Cancel}
             ]}
         ]}
@@ -174,7 +174,7 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
-                {query:'Current Node', object:1, parameters:[]}, 
+                {query:801, object:1, parameters:[]}, // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:TRAVEL_MACHINE_NODE.Insurance_Fail}
             ]}
         ]}
@@ -190,7 +190,7 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
-                {query:'Current Node', object:1, parameters:[]}, 
+                {query:801, object:1, parameters:[]}, // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:TRAVEL_MACHINE_NODE.Cancel}
             ]}
         ]}
@@ -292,7 +292,7 @@ const permission = async () : Promise<string | undefined>=> {
             {address: TESTOR[1].address, permissions: [ {index:BUSINESS.ice_scooting}, ],},
             {address: TESTOR[2].address, permissions: [ {index:BUSINESS.finance}],},
         ]},
-        admin:{op:'add', address:[TEST_ADDR()]}
+        admin:{op:'add', addresses:[TEST_ADDR()]}
     }
     return await result('Permission', await call_permission({data:data})) as string;
 }

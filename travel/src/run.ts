@@ -44,7 +44,7 @@ export const run_service = async (insurance_service:ServiceReturn, traval_servic
     console.log('insurance order:' + ins?.order + ' progress: ' + ins?.progress);
 
     const progress_insurance : CallMachine_Data = { object:{address:traval_service.machine}, permission:{address:traval_service.permission},
-        progress_next:{progress:traval?.progress!, data:{next_node_name:TRAVEL_MACHINE_NODE.Insurance, forward:'Purchase'}, deliverable:{msg:'purchase success!',
+        progress_next:{progress:traval?.progress!, operation:{next_node_name:TRAVEL_MACHINE_NODE.Insurance, forward:'Purchase'}, deliverable:{msg:'purchase success!',
             orders:[{object:ins.order!, pay_token_type:PAY_TYPE}], 
         }}
     }
@@ -52,21 +52,21 @@ export const run_service = async (insurance_service:ServiceReturn, traval_servic
 
     console.log('progress start: ' + TRAVEL_MACHINE_NODE.Spa)
     const progress_spa : CallMachine_Data = { object:{address:traval_service.machine}, permission:{address:traval_service.permission},
-        progress_next:{progress:traval?.progress!, data:{next_node_name:TRAVEL_MACHINE_NODE.Spa, forward:'Comfirm'}, 
+        progress_next:{progress:traval?.progress!, operation:{next_node_name:TRAVEL_MACHINE_NODE.Spa, forward:'Comfirm'}, 
             deliverable:{msg:'funny', orders:[]}}
     }
     await result('Machine', await call_machine({data:progress_spa}), BUYER_ACCOUNT);
 
     console.log('progress start: ' + TRAVEL_MACHINE_NODE.Ice_scooting)
     const progress_ice_scotting : CallMachine_Data = { object:{address:traval_service.machine}, permission:{address:traval_service.permission},
-    progress_next:{progress:traval?.progress!, data:{next_node_name:TRAVEL_MACHINE_NODE.Ice_scooting, forward:'Enter'}, 
+    progress_next:{progress:traval?.progress!, operation:{next_node_name:TRAVEL_MACHINE_NODE.Ice_scooting, forward:'Enter'}, 
         deliverable:{msg:'go go go', orders:[]}, guard:GUARDS.get(GUARDS_NAME.ice_scooting)}
     }
     await result('Machine', await call_machine({data:progress_ice_scotting}));
 
     console.log('progress start: ' + TRAVEL_MACHINE_NODE.Complete)
     const progress_complete : CallMachine_Data = { object:{address:traval_service.machine}, permission:{address:traval_service.permission},
-    progress_next:{progress:traval?.progress!, data:{next_node_name:TRAVEL_MACHINE_NODE.Complete, forward:'Complete'}, 
+    progress_next:{progress:traval?.progress!, operation:{next_node_name:TRAVEL_MACHINE_NODE.Complete, forward:'Complete'}, 
         deliverable:{msg:'happy nice day', orders:[]},  guard:GUARDS.get(GUARDS_NAME.complete_ice_scooting)}
     }
     const witness = await result('Machine', await call_machine({data:progress_complete}));

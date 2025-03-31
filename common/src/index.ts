@@ -93,8 +93,13 @@ const test_exes = async (protocol:Protocol) => {
     console.log('run progress ready.')
 
     RpcResultParser.objectids_from_response(protocol, await protocol.sign_excute(
-        [test_service_launch, test_demand_launch,  test_service_launch], TEST_PRIV(), ids), ids); await sleep(2000)
+        [test_service_launch], TEST_PRIV(), ids), ids); await sleep(2000)
     console.log('service id: ' + ids.get('service::Service'))
+    RpcResultParser.objectids_from_response(protocol, await protocol.sign_excute(
+        [test_demand_launch], TEST_PRIV(), ids), ids); await sleep(2000)
+    console.log('demand id: ' + ids.get('demand::Demand'))
+    RpcResultParser.objectids_from_response(protocol, await protocol.sign_excute(
+        [test_service_launch], TEST_PRIV(), ids), ids); await sleep(2000)
     console.log('discount id: ' + ids.get('order::Discount'))
     RpcResultParser.objectids_from_response(protocol, await protocol.sign_excute(
         [test_service_order], TEST_PRIV(), ids), ids);

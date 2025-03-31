@@ -29,7 +29,7 @@ const service_buy2: Service_Buy = {
 }
     const discount1 : DicountDispatch = {
         receiver: TEST_ADDR(),
-        count: BigInt(10),
+        count: 6,
         discount:{
             name:'discounts for cup service ',
             price_greater: BigInt(100),
@@ -40,7 +40,7 @@ const service_buy2: Service_Buy = {
     }
 const discount2 : DicountDispatch = {
     receiver: TEST_ADDR(),
-    count: BigInt(1),
+    count: 11,
     discount:{
         name:'discount',
         type:Service_Discount_Type.minus,

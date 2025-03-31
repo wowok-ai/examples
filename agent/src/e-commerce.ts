@@ -130,19 +130,19 @@ const service = async (machine_id:string, permission_id:string, arbitraion_id:st
         duration_minutes: 60000000,        
     }
     const discounts_dispatch:WOWOK.DicountDispatch[] = [
-        {receiver: TESTOR[5].address, count: BigInt(2), discount: discount_type_a},
-        {receiver: TESTOR[6].address, count: BigInt(2), discount: discount_type_a},
-        {receiver: TESTOR[7].address, count: BigInt(2), discount: discount_type_a},
-        {receiver: TESTOR[8].address, count: BigInt(2), discount: discount_type_a},
-        {receiver: TESTOR[9].address, count: BigInt(2), discount: discount_type_a},
-        {receiver: TESTOR[7].address, count: BigInt(1), discount: discount_type_b},
-        {receiver: TESTOR[8].address, count: BigInt(1), discount: discount_type_b},
-        {receiver: TESTOR[9].address, count: BigInt(1), discount: discount_type_b},
+        {receiver: TESTOR[5].address, count: 2, discount: discount_type_a},
+        {receiver: TESTOR[6].address, count: 2, discount: discount_type_a},
+        {receiver: TESTOR[7].address, count: 2, discount: discount_type_a},
+        {receiver: TESTOR[8].address, count: 2, discount: discount_type_a},
+        {receiver: TESTOR[9].address, count: 2, discount: discount_type_a},
+        {receiver: TESTOR[7].address, count: 2, discount: discount_type_b},
+        {receiver: TESTOR[8].address, count: 2, discount: discount_type_b},
+        {receiver: TESTOR[9].address, count: 3, discount: discount_type_b},
     ]
 
     const data: CallService_Data = { object:{namedNew:{name:'shop service'}}, permission:{address:permission_id}, type_parameter:TYPE,
         description:'A fun shop selling toys', machine:machine_id, payee_treasury:{namedNew:{name:'shop treasury'}},
-        arbitration:{op:'add', arbitrations:[{address:arbitraion_id, type_parameter:TYPE}]},
+        arbitration:{op:'add', arbitrations:[{address:arbitraion_id, token_type:TYPE}]},
         gen_discount:discounts_dispatch, customer_required_info:{pubkey:'-----BEGIN PUBLIC KEY----- \
             MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXFyjaaYXvu26BHM4nYQrPhnjL\
             7ZBQhHUyeLo+4GQ6NmjXM3TPH9O1qlRerQ0vihYxVy6u5QbhElsxDNHp6JtRNlFZ \
@@ -367,7 +367,7 @@ const guard_service_withdraw = async (machine_id:string, permission_id:string, s
                 ]}
             ]}, 
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
-                {query:'Current Node', object:1, parameters:[]}, 
+                {query:801, object:1, parameters:[]}, // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:order_completed.name}
             ]}
         ]}
@@ -394,7 +394,7 @@ const guard_service_withdraw = async (machine_id:string, permission_id:string, s
                 ]}
             ]}, 
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == dispute
-                {query:'Current Node', object:1, parameters:[]}, 
+                {query:801, object:1, parameters:[]}, //'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:dispute.name}
             ]}
         ]}
@@ -422,11 +422,11 @@ const guard_service_refund = async (machine_id:string, permission_id:string, ser
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_OR, parameters:[ 
                 {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == goods_lost
-                    {query:'Current Node', object:1, parameters:[]}, 
+                    {query:801, object:1, parameters:[]}, // 'Current Node'
                     {value_type:WOWOK.ValueType.TYPE_STRING, value:goods_lost.name}
                 ]},
                 {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_cancellation
-                    {query:'Current Node', object:1, parameters:[]}, 
+                    {query:801, object:1, parameters:[]}, // 'Current Node'
                     {value_type:WOWOK.ValueType.TYPE_STRING, value:order_cancellation.name}
                 ]}
             ]}, 
@@ -446,7 +446,7 @@ const guard_service_refund = async (machine_id:string, permission_id:string, ser
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == return_goods
-                {query:'Current Node', object:1, parameters:[]}, 
+                {query:801, object:1, parameters:[]},  // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:return_goods.name}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[ //current tx time >= (last session time + 15 days)
@@ -486,7 +486,7 @@ const permission = async () : Promise<string | undefined>=> {
             {address: TESTOR[5].address, permissions: [ {index:BUSINESS.finance},],},
             {address: TESTOR[6].address, permissions: [ {index:BUSINESS.dispute}, ],},
         ]},
-        admin:{op:'add', address:[TESTOR[0].address]}
+        admin:{op:'add', addresses:[TESTOR[0].address]}
     }
     return await result('Permission', await call_permission({data:data}));
 }

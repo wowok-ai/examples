@@ -74,7 +74,7 @@ const update_weather = async (repository_id: string, permission_id:string) => {
 const permission = async () : Promise<string | undefined> => {
     const data : CallPermission_Data = { description: 'An entity that provides weather data',  object:{namedNew:{name:'insurance permission'}},
         biz_permission:{op:'add', data:[{index:WEATHER_DATA_PERMISSION, name:'Update weather data'}]},    
-        admin:{op:'add', address:[TEST_ADDR(), TESTOR[6].address]}
+        admin:{op:'add', addresses:[TEST_ADDR(), TESTOR[6].address]}
     }
     return await result('Permission', (await call_permission({data:data})))  as string;
 }
