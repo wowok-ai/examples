@@ -8,10 +8,6 @@ export const node_order_comfirmed:Machine_Node = {
             {name:'confirm order', weight: 5, permission:10000},
             {name:'confirm express', weight: 5, permission:10002},
         ]},
-        {prior_node: 'order confirmed', threshold:10, forwards:[ // self-self
-            {name:'confirm order', weight: 5, permission:10000},
-            {name:'confirm express', weight: 5, permission:10002},
-        ]}
     ]
 }
 export const node_order_delivered:Machine_Node = {
