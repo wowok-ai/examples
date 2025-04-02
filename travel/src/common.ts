@@ -108,3 +108,8 @@ export const check_account = async (name?:string) => {
         console.log('Account ' + (name?name:'default') + ':' + await Account.Instance().get_address(name));
     }
 }
+
+export const uint2address = (value: number) : string => {
+    const buf = WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_U256, value);
+    return WOWOK.normalizeSuiAddress(WOWOK.toHEX(buf)); 
+}

@@ -58,7 +58,7 @@ const update_weather = async (repository_id: string, permission_id:string) => {
     // Provide daily data for the next 7 days
     const time = WOWOK.getUTCDayStartByDivision(); 
     for (let i = 0; i < 7; i++) {
-        const addr = WOWOK.normalizeSuiAddress((time + 24*60*60*1000*i).toString()); 
+        const addr = WOWOK.uint2address(time + 24*60*60*1000*i); 
         Condition.data.push({address:addr, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_STRING, Weather_Condition.sunny)})
         Minimum_temperature.data.push({address:addr, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_U64, -10 + ABSOLUTE_ZERO_DEGREE)})
         Maximum_temperature.data.push({address:addr, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_U64, -3 + ABSOLUTE_ZERO_DEGREE)})
