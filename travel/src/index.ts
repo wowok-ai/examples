@@ -4,7 +4,6 @@ import { insurance } from './service_insurance';
 import { Weather, weather } from './weather';
 import { travel, TRAVEL_MACHINE_NODE } from './service_travel';
 import { run_service } from './run'
-import { Account, call_guard, CallGuard_Data, GuardNode, queryTableItem_ArbVote, tableItemQuery_RepositoryData, WOWOK } from 'wowok_agent';
 
 const service = async () : Promise<{insurance_service:ServiceReturn, travel_service: ServiceReturn}> => {
     // service
