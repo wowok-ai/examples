@@ -22,8 +22,8 @@ const main = async () => {
     await check_account();
     await check_account(BUYER_ACCOUNT);
 
-    //await run_service_progress();
-    //await run_progress()
+    await run_service_progress();
+    //await run_progress_only()
 }  
 
 const run_service_progress = async () => {
@@ -37,12 +37,16 @@ const run_service_progress = async () => {
     await run_service(res.insurance_service, res.travel_service);
 }
 
-const run_progress = async () => {
-    GUARDS.set('ice_scooting', '0xbf8d75ed665ad80b5f13767e682fe66034b7b6c8830cd0c8a7f2f244dd190928');
-    GUARDS.set('cancel_ice_scooting', '0xaf9a13536e2af85bbd8f2fda1f6aa82fded615713d9f48ec98d6c3f3e372807f');
-    GUARDS.set('complete_ice_scooting', '0x74e609707ab49588add5694b76bbfd3599a28725e45b8e42f0f3074146e67a00');
-    const insurance_service: ServiceReturn = {service:'0x04ed97da8f4ff7b4ac11c5ee9c50fe4aae2f028351285e81bde1248b78595878', machine:'0x6ca07015faa0fa452b328bfdc7cdeb0831d8cbaf3bd1369381c595cc0328705f', permission:'0x779446a937d86b99a45eb756dd0015d621fab0f75e346e71b610d25812068d60'}
-    const travel_service: ServiceReturn = {service:'0xdc68b7b592e500ea8ede36b642800366e5103c07c1bb5b53884ed9fd9e4a08f5', machine:'0xa3875a5306e9a06e86554a5ae1e6c9aa0c0571442f064ec5fbf6459d2f60e068', permission:'0x327bec4f347c41e404beb53a0f11d9b851c2d28d49ae2c0574f23a69a69b7e58'}
+const run_progress_only = async () => {
+    GUARDS.set('ice_scooting', '0xf06c2eb446ec96b442a8889b65ec5fc18a84f5adc7207fda9f9ac55e73ffabea');
+    GUARDS.set('cancel_ice_scooting', '0x01a01f6e10f7bd444a9f09181f19d298ad4ee2bcac32e0437cc768c6a81fb6eb');
+    GUARDS.set('complete_ice_scooting', '0xea40855d27960a6af0dfb869730fd8a6cc8665eebae43ced2624907f7c1ebd3e');
+    const insurance_service: ServiceReturn = {service:'0x6a30ad87fea3722e5a15985d86ea10684156b67df0824f52998d9b323f6b2f59', 
+        machine:'0x8da4c77525448b3ac2468a672175e8f9a4c2108fa3a92790f8022a7178debd05', 
+        permission:'0xd9774ea7d232bda7b9d2f94cc9de7d1337e270d40c72b6f13a34617336295669'}
+    const travel_service: ServiceReturn = {service:'0xc534debf4a465240e58c400ac5645bddc2cdd13a91f145e16d7c32cb7cf4254c', 
+        machine:'0x42fc96e487403f869d3f26d683051f25c14d93656f37b3d434fcaa50aea284bf', 
+        permission:'0x61bca0ee95c6a99cf5a76638273036348350dd49a99e11f9e765f9cc541a17d2'}
     await run_service(insurance_service, travel_service);
 }
 

@@ -247,7 +247,7 @@ const guard_ice_scooting = async (machine_id:string, permission_id:string, weath
                 { context:WOWOK.ContextType.TYPE_CLOCK},
                 { calc: WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[ 
                     {query:810, object:1, parameters:[]},
-                    {value:8*60*60*1000, value_type:WOWOK.ValueType.TYPE_U64}
+                    {value:/*8*60*60*1000*/1000, value_type:WOWOK.ValueType.TYPE_U64} // 1s for test
                 ]}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[

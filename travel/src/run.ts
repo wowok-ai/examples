@@ -48,29 +48,36 @@ export const run_service = async (insurance_service:ServiceReturn, traval_servic
             orders:[{object:ins.order!, pay_token_type:PAY_TYPE}], 
         }}
     }
-    await result('Machine', await call_machine({data:progress_insurance}));
+    await result('Progress', await call_machine({data:progress_insurance}));
 
     console.log('progress start: ' + TRAVEL_MACHINE_NODE.Spa)
     const progress_spa : CallMachine_Data = { object:{address:traval_service.machine}, permission:{address:traval_service.permission},
         progress_next:{progress:traval?.progress!, operation:{next_node_name:TRAVEL_MACHINE_NODE.Spa, forward:'Comfirm'}, 
             deliverable:{msg:'funny', orders:[]}}
     }
-    await result('Machine', await call_machine({data:progress_spa}), BUYER_ACCOUNT);
+    await result('Progress', await call_machine({data:progress_spa}), BUYER_ACCOUNT);
 
     console.log('progress start: ' + TRAVEL_MACHINE_NODE.Ice_scooting)
     const progress_ice_scotting : CallMachine_Data = { object:{address:traval_service.machine}, permission:{address:traval_service.permission},
     progress_next:{progress:traval?.progress!, operation:{next_node_name:TRAVEL_MACHINE_NODE.Ice_scooting, forward:'Enter'}, 
         deliverable:{msg:'go go go', orders:[]}, guard:GUARDS.get(GUARDS_NAME.ice_scooting)}
     }
-    await result('Machine', await call_machine({data:progress_ice_scotting}));
+    await result('Progress', await call_machine({data:progress_ice_scotting}));
 
     console.log('progress start: ' + TRAVEL_MACHINE_NODE.Complete)
     const progress_complete : CallMachine_Data = { object:{address:traval_service.machine}, permission:{address:traval_service.permission},
     progress_next:{progress:traval?.progress!, operation:{next_node_name:TRAVEL_MACHINE_NODE.Complete, forward:'Complete'}, 
         deliverable:{msg:'happy nice day', orders:[]},  guard:GUARDS.get(GUARDS_NAME.complete_ice_scooting)}
     }
-    const witness = await result('Machine', await call_machine({data:progress_complete}));
-    console.log(witness);
+    const result_witness = await result('Progress', await call_machine({data:progress_complete}));
+    console.log(result_witness);
+    if (result_witness && (result_witness as any)?.witness) {
+        const w = result_witness as GuardInfo_forCall;
+        w.witness[0].witness = traval?.progress!;
+        const r = await result('Progress', await call_machine({data:progress_complete, witness:w}));
+        console.log('call machine with guard witness.');
+        console.log(r);
+    }
 
     // NOTICE: 8 hrs later, could pass the Guard !!!
     /*if (typeof(witness) !== 'string' && typeof(witness) !== 'undefined' && traval?.progress) {

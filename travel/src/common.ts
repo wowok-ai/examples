@@ -53,11 +53,12 @@ export const result = async(type:string, res:CallResult, account?:string, witnes
     //console.log(res)
     if ((res as any)?.digest) {
         const r = ResponseData(res as WOWOK.CallResponse);
-        if (r) {
-            const i = r.find(v => v.type === type)?.object;
-            console.log(type + ': ' + i);
-            return i;
+        const i = r.find(v => v.type === type)?.object;
+        if (i) {
+            console.log(type + ': ' + i);     
+            await sleep(2000);
         }
+        return i;
     } else if (res) {
         return res as GuardInfo_forCall
     }
@@ -101,7 +102,7 @@ export const check_account = async (name?:string) => {
     if (!await Account.Instance().get_address(name, name?false:true)) {
         await Account.Instance().gen(name ?? 'my default', name ? false : true);
         await Account.Instance().faucet();
-        await sleep(2000);
+        await sleep(1000);
         console.log('Gen account: '+await Account.Instance().get_address(name));
         console.log('Test related functions, please make sure that the account contains SUI test coins');
     } else {
@@ -109,7 +110,3 @@ export const check_account = async (name?:string) => {
     }
 }
 
-export const uint2address = (value: number) : string => {
-    const buf = WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_U256, value);
-    return WOWOK.normalizeSuiAddress(WOWOK.toHEX(buf)); 
-}
