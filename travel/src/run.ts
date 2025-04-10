@@ -3,7 +3,7 @@ import { sleep, PAY_TYPE, PUBKEY, result, check_account, BUYER_ACCOUNT, TRAVEL_P
 import { Account, call_machine, CallMachine, CallMachine_Data, CallService_Data, GuardInfo_forCall } from 'wowok_agent';
 import { travel, TRAVEL_MACHINE_NODE } from './service_travel';
 import { createRequire } from 'module';
-import { BuyResult } from '../../../wowok/src';
+
 const require = createRequire(import.meta.url);
 
 export const run_service = async (insurance_service:ServiceReturn, traval_service:ServiceReturn) => {    
@@ -80,12 +80,12 @@ export const run_service = async (insurance_service:ServiceReturn, traval_servic
     }
 
     // NOTICE: 8 hrs later, could pass the Guard !!!
-    /*if (typeof(witness) !== 'string' && typeof(witness) !== 'undefined' && traval?.progress) {
-        (witness as GuardInfo_forCall).witness.forEach(v => {
+    /*if (typeof(result_witness) !== 'string' && typeof(result_witness) !== 'undefined' && traval?.progress) {
+        (result_witness as GuardInfo_forCall).witness.forEach(v => {
             v.witness = traval?.progress; // fill the witness
         })
 
-        await launch('Machine', progress_complete, undefined, witness);
+        await result('Progress', await call_machine({data:progress_complete, witness:result_witness}));
         console.log('progress finally.')
     }*/
 }  

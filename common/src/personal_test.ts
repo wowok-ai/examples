@@ -1,5 +1,5 @@
 import { Demand, DemandObject, Entity, Protocol, Resource, Entity_Info, TagName} from 'wowok';
-import { ERROR, Errors } from 'wowok/src/exception';
+import { ERROR, Errors } from 'wowok';
 
 export const create_my_resource = (protocol:Protocol) => {
     let wowok_entity =  Entity.From(protocol.sessionCurrent());

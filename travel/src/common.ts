@@ -1,6 +1,5 @@
 
 import { Account, call_service, CallResult, CallService_Data, GuardInfo_forCall, ResponseData, WOWOK } from 'wowok_agent'
-import { Service_Sale } from '../../../wowok/src'
 
 export const TEST_ADDR = (): string => {  
     if (process.env.ADDR) {
@@ -80,9 +79,9 @@ export const launch_order = async(data:CallService_Data, account?:string, witnes
 }
 
 export const BUYER_ACCOUNT = 'buyer';
-export const INSURANCE_PRODUCT:Service_Sale = {item:'Outdoor accident insurance', 
+export const INSURANCE_PRODUCT:WOWOK.Service_Sale = {item:'Outdoor accident insurance', 
     price: '5', stock: '102', endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'};
-export const TRAVEL_PRODUCT:Service_Sale = {item:'Traveling Iceland', 
+export const TRAVEL_PRODUCT:WOWOK.Service_Sale = {item:'Traveling Iceland', 
     price: '15', stock: '10', endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'};
 
 export interface ServiceReturn {

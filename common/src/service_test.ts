@@ -2,7 +2,7 @@
 import { Protocol, Service_Discount_Type, Service_Buy, Service_Sale, Service, MachineObject, PermissionObject,
     DicountDispatch, TxbObject, Treasury,
     Arbitration} from 'wowok';
-import { TEST_ADDR } from './common'
+import { TEST_ADDR } from './common.js'
 
 
 export const SERVICE_PAY_TYPE = Protocol.SUI_TOKEN_TYPE;

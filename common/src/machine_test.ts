@@ -1,4 +1,4 @@
-import { TEST_ADDR } from './common'
+import { TEST_ADDR } from './common.js'
 import { MachineObject, ProgressObject, Machine_Node, Protocol, Machine, Progress, Guard, Permission, TxbObject} from 'wowok';
 
 export const node_order_comfirmed:Machine_Node = {
@@ -159,6 +159,6 @@ export const test_progress_run2 = async (protocol:Protocol, param:any) => {
     let child = Progress.From(protocol.sessionCurrent(), machine, permission, param.get('progress::Progress')[1]);
 
     child.parent({parent_id:param.get('progress::Progress')[0],
-        parent_session_id:0, next_node:node_order_canceled.name, forward:'payed canceled'
+        parent_session_id:0, operation:{next_node_name:node_order_canceled.name, forward:'payed canceled'}
     })
 }

@@ -1,5 +1,5 @@
 import { Permission_Entity, PermissionIndex, Permission, Protocol} from 'wowok';
-import { TEST_ADDR } from './common'
+import { TEST_ADDR } from './common.js'
 
 const permission_entity_1 : Permission_Entity = {
     address: TEST_ADDR(),
