@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "npx tsx ./src/index.ts"
+    "start": "tsx src/index.ts"
   },
   "keywords": [
     "web3",
@@ -21,7 +21,7 @@
   "author": "wowok",
   "license": "ISC",
   "dependencies": {
-    "esm": "^3.2.25",
+    "esm": "^3.2.25"
   },
   "devDependencies": {
     "tsx": "^4.7.1",

@@ -3,7 +3,7 @@ import { sleep } from './common'
 import { test_call } from './call_test';
 import { airdrop } from './airdrop';
 import { e_commerce } from './e-commerce';
-import { Account } from 'wowok_agent';
+import { Account, query_objects } from 'wowok_agent';
 
 const main = async () => {
     if (!await Account.Instance().get_address()) {
@@ -17,9 +17,9 @@ const main = async () => {
     }
 
 
-    //await test_call()
+    //await test_call()*/
     //await airdrop();
-    await e_commerce();
+    //await e_commerce();
 }  
 
 main().catch(console.error)
