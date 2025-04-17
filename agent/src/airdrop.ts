@@ -1,6 +1,5 @@
 
-import { call_guard, call_treasury, CallGuard_Data, CallTreasury_Data, ResponseData, WOWOK } from 'wowok_agent'
-import { Account } from 'wowok_agent/src/account';
+import { call_guard, call_treasury, CallGuard_Data, CallTreasury_Data, ResponseData, WOWOK, Account } from 'wowok_agent'
 
 export const airdrop = async () => {
     console.log('current account: ' + await Account.Instance().get_address());

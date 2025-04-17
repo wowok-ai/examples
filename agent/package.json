@@ -2,8 +2,8 @@
   "name": "sdk-test",
   "version": "1.1.1",
   "description": "AI-oriented web3 collaboration protocol, driving innovaion and making it more likely to happen.",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "module": "node",
   "type": "module",
   "scripts": {
@@ -11,6 +11,9 @@
     "build": "tsc",
     "start": "tsx src/index.ts"
   },
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "web3",
     "AI",

@@ -1,11 +1,10 @@
 import { call_demand, call_guard, CallDemand_Data, CallGuard_Data, ResponseData, WOWOK } from 'wowok_agent'
-import { sleep } from './common';
-import { Account } from 'wowok_agent/src/account';
+import { sleep } from './common.js';
+import { Account } from 'wowok_agent/src/account.js';
 
 export const test_call = async () => {
-    //await test_account()
-    //await guard()
-    await demand()
+    await guard()
+    //await demand()
 }
 
 export const account = async () => {

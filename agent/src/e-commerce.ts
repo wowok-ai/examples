@@ -1,7 +1,6 @@
 import { call_arbitration, call_guard, call_machine, call_permission, call_service, CallArbitration_Data, CallDemand_Data, CallGuard_Data, CallMachine_Data, 
-    CallPermission_Data, CallResult, CallService_Data, ResponseData, WOWOK } from 'wowok_agent'
-import { Account } from 'wowok_agent/src/account';
-import { sleep, TESTOR } from './common';
+    CallPermission_Data, CallResult, CallService_Data, ResponseData, WOWOK, Account } from 'wowok_agent'
+import { sleep, TESTOR } from './common.js';
 
 const TYPE = WOWOK.Protocol.SUI_TOKEN_TYPE;
 enum BUSINESS { // business permission for Permission Object must >= 1000
