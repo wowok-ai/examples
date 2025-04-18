@@ -1,5 +1,5 @@
 
-import { Account, call_service, CallResult, CallService_Data, GuardInfo_forCall, ResponseData, WOWOK } from 'wowok_agent'
+import { Account, call_service, CallResult, CallService_Data, GuardInfo_forCall, LocalMark, ResponseData, WOWOK } from 'wowok_agent'
 
 export const TEST_ADDR = (): string => {  
     if (process.env.ADDR) {
@@ -98,14 +98,12 @@ export enum GUARDS_NAME {
 }
 
 export const check_account = async (name?:string) => {
-    if (!await Account.Instance().get_address(name, name?false:true)) {
-        await Account.Instance().gen(name ?? 'my default', name ? false : true);
-        await Account.Instance().faucet();
-        await sleep(1000);
-        console.log('Gen account: '+await Account.Instance().get_address(name));
-        console.log('Test related functions, please make sure that the account contains SUI test coins');
-    } else {
-        console.log('Account ' + (name?name:'default') + ':' + await Account.Instance().get_address(name));
+    var acc = await LocalMark.Instance().get_account(name, true);
+    if (!acc) {
+        console.log('Account not found, please check the account name: ' + name);
+        return;
     }
+    await Account.Instance().faucet(acc);
+    await sleep(1000);
 }
 

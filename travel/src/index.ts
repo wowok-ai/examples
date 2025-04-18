@@ -4,6 +4,7 @@ import { insurance } from './service_insurance';
 import { Weather, weather } from './weather';
 import { travel, TRAVEL_MACHINE_NODE } from './service_travel';
 import { run_service } from './run'
+import { Account } from 'wowok_agent';
 
 const service = async () : Promise<{insurance_service:ServiceReturn, travel_service: ServiceReturn}> => {
     // service
@@ -20,6 +21,8 @@ const service = async () : Promise<{insurance_service:ServiceReturn, travel_serv
 const main = async () => {
     await check_account();
     await check_account(BUYER_ACCOUNT);
+    console.log('Account list: ' + await Account.Instance().list());
+    console.log('Default Account ' + ':' + await Account.Instance().default());
 
     await run_service_progress();
     //await run_progress_only()

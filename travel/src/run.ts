@@ -1,6 +1,6 @@
 
 import { sleep, PAY_TYPE, PUBKEY, result, check_account, BUYER_ACCOUNT, TRAVEL_PRODUCT, INSURANCE_PRODUCT, launch_order, GUARDS, GUARDS_NAME, ServiceReturn,  } from './common'
-import { Account, call_machine, CallMachine, CallMachine_Data, CallService_Data, GuardInfo_forCall } from 'wowok_agent';
+import { Account, call_machine, CallMachine, CallMachine_Data, CallService_Data, GuardInfo_forCall, LocalMark } from 'wowok_agent';
 import { travel, TRAVEL_MACHINE_NODE } from './service_travel';
 import { createRequire } from 'module';
 
@@ -21,7 +21,7 @@ export const run_service = async (insurance_service:ServiceReturn, traval_servic
         order_new:{buy_items:[{item:TRAVEL_PRODUCT.item, max_price:TRAVEL_PRODUCT.price, count:'1'}], 
             customer_info_crypto:{customer_pubkey:PUBKEY, customer_info_crypt:info},namedNewOrder:{name:'travel order'}, 
             namedNewProgress:{name:'travel progress'}, machine:traval_service.machine},
-        order_payer:{payer_new:(await Account.Instance().get_address(BUYER_ACCOUNT))!} // change payer to user
+        order_payer:{payer_new:(await LocalMark.Instance().get_account(BUYER_ACCOUNT))!} // change payer to user
     }
 
     const traval = await launch_order(buy, BUYER_ACCOUNT);

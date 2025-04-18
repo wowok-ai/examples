@@ -1,6 +1,5 @@
-import { call_guard, call_treasury, ResponseData, WOWOK, Account } from 'wowok_agent';
+import { call_guard, call_treasury, ResponseData, WOWOK } from 'wowok_agent';
 export const airdrop = async () => {
-    console.log('current account: ' + await Account.Instance().get_address());
     const TYPE = WOWOK.Protocol.SUI_TOKEN_TYPE;
     var res;
     var treasury_id;

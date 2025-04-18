@@ -1,9 +1,8 @@
 
-import { call_guard, call_treasury, CallGuard_Data, CallTreasury_Data, ResponseData, WOWOK, Account } from 'wowok_agent'
+import { call_guard, call_treasury, CallGuard_Data, CallTreasury_Data, ResponseData, WOWOK } from 'wowok_agent'
+import { sleep } from './common.js';
 
-export const airdrop = async () => {
-    console.log('current account: ' + await Account.Instance().get_address());
-   
+export const airdrop = async () => {   
     const TYPE = WOWOK.Protocol.SUI_TOKEN_TYPE;
     var res: any; 
     var treasury_id: string | undefined;
@@ -34,6 +33,7 @@ export const airdrop = async () => {
     
     console.log('treasury: ' + treasury_id);
     console.log('permission: ' + permission_id);
+    await sleep(2000);
     
     const guards = await launch_guards(treasury_id!);
     if (!guards) {

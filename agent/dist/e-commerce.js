@@ -85,7 +85,7 @@ const dispute = {
     ]
 };
 export const e_commerce = async () => {
-    console.log('current account: ' + await Account.Instance().get_address());
+    console.log('current account: ' + await Account.Instance().default());
     const permission_id = await permission();
     await sleep(2000);
     if (!permission_id)

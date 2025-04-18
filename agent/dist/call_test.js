@@ -1,22 +1,8 @@
-import { call_demand, call_guard, ResponseData, WOWOK } from 'wowok_agent';
+import { call_demand, call_guard, ResponseData, WOWOK, Account } from 'wowok_agent';
 import { sleep } from './common.js';
-import { Account } from 'wowok_agent/src/account.js';
 export const test_call = async () => {
-    //await test_account()
-    //await guard()
-    await demand();
-};
-export const account = async () => {
-    await Account.Instance().gen('bb', true);
-    await sleep(2000);
-    await Account.Instance().rename('bb', 'aa');
-    await sleep(2000);
-    await Account.Instance().gen('cc', true);
-    await sleep(2000);
-    await Account.Instance().rename('cc', 'aa', true);
-    await sleep(2000);
-    console.log(await Account.Instance().list());
-    console.log(await Account.Instance().get_pair('aa'));
+    await guard();
+    //await demand()
 };
 export const guard = async () => {
     const data = { description: 'launch a guard', table: [
@@ -36,7 +22,7 @@ export const faucet = async () => {
     console.log(await Account.Instance().list());
 };
 export const demand = async () => {
-    const coin = await Account.Instance().coin_with_balance(1);
+    const coin = await Account.Instance().coinObject_with_balance(1);
     await sleep(2000);
     if (coin) {
         const data = {
