@@ -1,8 +1,66 @@
-import { call_demand, call_guard, ResponseData, WOWOK, Account } from 'wowok_agent';
+import { call_demand, call_guard, ResponseData, WOWOK, Account, call_permission_json } from 'wowok_agent';
 import { sleep } from './common.js';
 export const test_call = async () => {
-    await guard();
+    //await guard()
     //await demand()
+};
+var GUARD = '0x569ab7a2efab4ca46ab588bc6730dbc163c6b3e6dc7b6447b89dd99fa8caa1b8';
+export const permission = async () => {
+    const data = `
+        "data": {
+          "namedNew": {
+            "name": "外卖",
+            "tags": [
+              "权限管理"
+            ],
+            "useAddressIfNameExist": false,
+            "onChain": true
+          },
+          "biz_permission": {
+            "op": "add",
+            "data": [
+              {
+                "index": 1000,
+                "name": "出餐权限"
+              },
+              {
+                "index": 1001,
+                "name": "送餐权限"
+              }
+            ]
+          },
+          "permission": {
+            "op": "add entity",
+            "entities": [
+              {
+                "address": "张1",
+                "permissions": [
+                  {
+                    "index": 1000
+                  }
+                ]
+              },
+              {
+                "address": "王2",
+                "permissions": [
+                  {
+                    "index": 1000
+                  }
+                ]
+              },
+              {
+                "address": "刘3",
+                "permissions": [
+                  {
+                    "index": 1001
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }`;
+    await call_permission_json(data);
 };
 export const guard = async () => {
     const data = { description: 'launch a guard', table: [
@@ -14,7 +72,12 @@ export const guard = async () => {
     };
     const r = await call_guard({ data: data });
     if (r?.digest) {
-        console.log(ResponseData(r));
+        const res = ResponseData(r);
+        console.log(res);
+        const g = res.find(v => v.change === 'created' && v.type === 'Guard');
+        if (g) {
+            GUARD = g.object;
+        }
     }
 };
 export const faucet = async () => {
@@ -27,7 +90,7 @@ export const demand = async () => {
     if (coin) {
         const data = {
             type_parameter: '0x2::coin::Coin<0x2::sui::SUI>',
-            guard: { address: '0x7333b947b1467dd43009077baa58154acf8fa8b139636ef0835cd17fdf057e84' },
+            guard: { address: GUARD },
             description: 'this is some sdk test.',
             bounty: { op: 'add', object: { address: coin } }
         };

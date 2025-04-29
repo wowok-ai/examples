@@ -1,13 +1,71 @@
-import { call_demand, call_guard, CallDemand_Data, CallGuard_Data, ResponseData, WOWOK, Account } from 'wowok_agent'
+import { call_demand, call_guard, CallDemand_Data, CallGuard_Data, ResponseData, WOWOK, Account, call_permission, call_permission_json } from 'wowok_agent'
 import { sleep } from './common.js';
 
 export const test_call = async () => {
-    await guard()
-    await demand()
+    await permission();
+    //await guard()
+    //await demand()
 }
 
 var GUARD = '0x569ab7a2efab4ca46ab588bc6730dbc163c6b3e6dc7b6447b89dd99fa8caa1b8';
 
+export const permission = async () => {
+    const data = `
+        "data": {
+          "namedNew": {
+            "name": "外卖",
+            "tags": [
+              "权限管理"
+            ],
+            "useAddressIfNameExist": false,
+            "onChain": true
+          },
+          "biz_permission": {
+            "op": "add",
+            "data": [
+              {
+                "index": 1000,
+                "name": "出餐权限"
+              },
+              {
+                "index": 1001,
+                "name": "送餐权限"
+              }
+            ]
+          },
+          "permission": {
+            "op": "add entity",
+            "entities": [
+              {
+                "address": "张1",
+                "permissions": [
+                  {
+                    "index": 1000
+                  }
+                ]
+              },
+              {
+                "address": "王2",
+                "permissions": [
+                  {
+                    "index": 1000
+                  }
+                ]
+              },
+              {
+                "address": "刘3",
+                "permissions": [
+                  {
+                    "index": 1001
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }`;
+    await call_permission_json(data);
+}
 export const guard = async () => {
     const data : CallGuard_Data = {description:'launch a guard', table:[
         {identifier:1, bWitness:true, value_type:WOWOK.ValueType.TYPE_STRING}

@@ -11,9 +11,10 @@ const main = async () => {
     console.log('Default account: '+ acc);
 
 
+
     await test_call()
-    await airdrop();
-    await e_commerce();
+    //await airdrop();
+    //await e_commerce();
 }  
 
 main().catch(console.error)

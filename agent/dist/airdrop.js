@@ -1,4 +1,5 @@
 import { call_guard, call_treasury, ResponseData, WOWOK } from 'wowok_agent';
+import { sleep } from './common.js';
 export const airdrop = async () => {
     const TYPE = WOWOK.Protocol.SUI_TOKEN_TYPE;
     var res;
@@ -28,6 +29,7 @@ export const airdrop = async () => {
     }
     console.log('treasury: ' + treasury_id);
     console.log('permission: ' + permission_id);
+    await sleep(2000);
     const guards = await launch_guards(treasury_id);
     if (!guards) {
         console.log('invalid guard ');
