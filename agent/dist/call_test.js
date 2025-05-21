@@ -1,66 +1,70 @@
-import { call_demand, call_guard, ResponseData, WOWOK, Account, call_permission_json } from 'wowok_agent';
+import { call_demand, call_guard, ResponseData, WOWOK, Account, call_permission, LocalMark } from 'wowok_agent';
 import { sleep } from './common.js';
 export const test_call = async () => {
+    console.log(await LocalMark.Instance().list());
+    //await permission();
     //await guard()
     //await demand()
 };
 var GUARD = '0x569ab7a2efab4ca46ab588bc6730dbc163c6b3e6dc7b6447b89dd99fa8caa1b8';
 export const permission = async () => {
-    const data = `
-        "data": {
-          "namedNew": {
-            "name": "外卖",
-            "tags": [
-              "权限管理"
-            ],
-            "useAddressIfNameExist": false,
-            "onChain": true
-          },
-          "biz_permission": {
-            "op": "add",
-            "data": [
-              {
-                "index": 1000,
-                "name": "出餐权限"
-              },
-              {
-                "index": 1001,
-                "name": "送餐权限"
-              }
-            ]
-          },
-          "permission": {
-            "op": "add entity",
-            "entities": [
-              {
-                "address": "张1",
-                "permissions": [
-                  {
-                    "index": 1000
-                  }
+    const data = {
+        data: {
+            object: {
+                namedNew: {
+                    name: "外卖",
+                    tags: [
+                        "权限管理"
+                    ],
+                    useAddressIfNameExist: false,
+                    onChain: true
+                }
+            },
+            biz_permission: {
+                op: "add",
+                data: [
+                    {
+                        index: 1000,
+                        name: "出餐权限"
+                    },
+                    {
+                        index: 1001,
+                        name: "送餐权限"
+                    }
                 ]
-              },
-              {
-                "address": "王2",
-                "permissions": [
-                  {
-                    "index": 1000
-                  }
+            },
+            permission: {
+                op: "add entity",
+                entities: [
+                    {
+                        address: "张1",
+                        permissions: [
+                            {
+                                index: 1000
+                            }
+                        ]
+                    },
+                    {
+                        address: "王2",
+                        permissions: [
+                            {
+                                index: 1000
+                            }
+                        ]
+                    },
+                    {
+                        address: "刘3",
+                        permissions: [
+                            {
+                                index: 1001
+                            }
+                        ]
+                    }
                 ]
-              },
-              {
-                "address": "刘3",
-                "permissions": [
-                  {
-                    "index": 1001
-                  }
-                ]
-              }
-            ]
-          }
+            }
         }
-      }`;
-    await call_permission_json(data);
+    };
+    await call_permission(data);
 };
 export const guard = async () => {
     const data = { description: 'launch a guard', table: [

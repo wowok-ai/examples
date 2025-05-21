@@ -98,12 +98,16 @@ export enum GUARDS_NAME {
 }
 
 export const check_account = async (name?:string) => {
-    var acc = await LocalMark.Instance().get_account(name, true);
+    var acc = await Account.Instance().get(name);
+    if (!acc) {
+       acc = await Account.Instance().gen(false, name);
+    }
+
     if (!acc) {
         console.log('Account not found, please check the account name: ' + name);
         return;
     }
-    await Account.Instance().faucet(acc);
+    await Account.Instance().faucet(acc.address);
     await sleep(1000);
 }
 

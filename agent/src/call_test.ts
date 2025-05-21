@@ -3,7 +3,7 @@ import { sleep } from './common.js';
 
 export const test_call = async () => {
   console.log(await LocalMark.Instance().list())
-    //await permission();
+  console.log(await permission());
     //await guard()
     //await demand()
 }
@@ -67,8 +67,9 @@ export const permission = async () => {
           }
         }
       };
-    await call_permission(data);
+   return await call_permission(data);
 }
+
 export const guard = async () => {
     const data : CallGuard_Data = {description:'launch a guard', table:[
         {identifier:1, bWitness:true, value_type:WOWOK.ValueType.TYPE_STRING}
@@ -80,7 +81,6 @@ export const guard = async () => {
     const r = await call_guard({data:data})
     if ((r as any)?.digest) {
         const res = ResponseData(r as WOWOK.CallResponse);
-        console.log(res);
         const g = res.find(v => v.change === 'created' && v.type === 'Guard');
         if (g) {
             GUARD = g.object;

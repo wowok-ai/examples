@@ -6,10 +6,19 @@ import { e_commerce } from './e-commerce.js';
 import { Account, query_objects } from 'wowok_agent';
 
 const main = async () => {
-    const acc = await Account.Instance().default(true);
-    await Account.Instance().faucet(acc);
-    console.log('Default account: '+ acc);
+    var acc = await Account.Instance().default();
+    if (!acc) {
+        acc = await Account.Instance().gen(true);
+    }
 
+    if (!acc) {
+        console.error('default account error!');
+        return;
+    } else {
+        console.log('default account: '+ acc.address);
+    }
+
+    //await Account.Instance().faucet(acc.address);
 
 
     await test_call()

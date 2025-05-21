@@ -21,11 +21,11 @@ const service = async () : Promise<{insurance_service:ServiceReturn, travel_serv
 const main = async () => {
     await check_account();
     await check_account(BUYER_ACCOUNT);
-    console.log('Account list: ' + await Account.Instance().list());
-    console.log('Default Account ' + ':' + await Account.Instance().default());
+    console.log('Account list: ' + JSON.stringify(await Account.Instance().list()));
+    console.log('Default Account ' + ':' + JSON.stringify(await Account.Instance().default()));
 
-    await run_service_progress();
-    //await run_progress_only()
+    //await run_service_progress();
+    await run_progress_only()
 }  
 
 const run_service_progress = async () => {
@@ -43,12 +43,12 @@ const run_progress_only = async () => {
     GUARDS.set('ice_scooting', '0xf06c2eb446ec96b442a8889b65ec5fc18a84f5adc7207fda9f9ac55e73ffabea');
     GUARDS.set('cancel_ice_scooting', '0x01a01f6e10f7bd444a9f09181f19d298ad4ee2bcac32e0437cc768c6a81fb6eb');
     GUARDS.set('complete_ice_scooting', '0xea40855d27960a6af0dfb869730fd8a6cc8665eebae43ced2624907f7c1ebd3e');
-    const insurance_service: ServiceReturn = {service:'0x6a30ad87fea3722e5a15985d86ea10684156b67df0824f52998d9b323f6b2f59', 
-        machine:'0x8da4c77525448b3ac2468a672175e8f9a4c2108fa3a92790f8022a7178debd05', 
-        permission:'0xd9774ea7d232bda7b9d2f94cc9de7d1337e270d40c72b6f13a34617336295669'}
-    const travel_service: ServiceReturn = {service:'0xc534debf4a465240e58c400ac5645bddc2cdd13a91f145e16d7c32cb7cf4254c', 
-        machine:'0x42fc96e487403f869d3f26d683051f25c14d93656f37b3d434fcaa50aea284bf', 
-        permission:'0x61bca0ee95c6a99cf5a76638273036348350dd49a99e11f9e765f9cc541a17d2'}
+    const insurance_service: ServiceReturn = {service:'0xf5ed69241a2a5e2e46f96972fb23f6352047282150ebdf6bfd9ee6ff80c9e4e1', 
+        machine:'0x2a82662598b94df9f7463df86699c2a21efc4f8896ac35a72f21e339347fa48c', 
+        permission:'0xe7176323c04f7b2ee8d29012a2847b5258fb0258c657d27757bd68a8790ec95b'}
+    const travel_service: ServiceReturn = {service:'0x992a3e00fd2d7d83a766e82bdfbd512f2b786ec52a0d67b06ad5988ce0c529bb', 
+        machine:'0xae590b273bff608bc14760fcc0ed3fc5034f46844eea19e1c3116ce34889a6d0', 
+        permission:'0x7314628c4ff8e5030c5a245d4ab7dc13b831870f48f16ab0b45c819e7d64b4bf'}
     await run_service(insurance_service, travel_service);
 }
 
