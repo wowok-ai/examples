@@ -43,10 +43,10 @@ const run_progress_only = async () => {
     GUARDS.set('ice_scooting', '0x0713c6d7e6e66c2d1a414270207a09b19cb98211c1ded48e6814183a14451d6a');
     GUARDS.set('cancel_ice_scooting', '0x92284108960db1e44646a2f2ff9c54b4037d184a98e7e923f8e34d3c94705db2');
     GUARDS.set('complete_ice_scooting', '0x77d15b99e228dd82ee13d4fadc2ac688be4f2641865dd7efd04b6f148f0e9950');
-    const insurance_service: ServiceReturn = {service:'0x7f1aca4e465d1541f670ecab76bd24129522fd83eb8418c0a78fde37e368a2df',
-        machine:'0xc2ec4926ee3ccfd3c2325438a2ba5663dccb0eac025a1b1207202013221e24df'}
-    const travel_service: ServiceReturn = {service:'0xcf943e9530900ca807ed5bbfcaec797e414b566e5703ea3670d0a0ba341dd4d1', 
-        machine:'0x49546223f8598103684f0af7dfec7ef1394a81012c90893854031cdf4096062f'}
+    const insurance_service: ServiceReturn = {service:'0xc876d3aca727422a97ce038b7d00494635323d9d8526b14178cff096bfec84cb',
+        machine:'0xba92cae06675231a6288dfbb0e874a49e32c32e0f3413902f6514cdfdeebc53f'}
+    const travel_service: ServiceReturn = {service:'0x3e04af89d36ba6a8af8d9e0895cb8e9adf49d83ecfd0bc5f43342bef09554706', 
+        machine:'0xf8b02ca29b47e77fc312e2229941ed24890c5e999ec825937bb34d66c02851ff'}
     await run_service(insurance_service, travel_service);
 }
 
