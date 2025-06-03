@@ -24,8 +24,8 @@ const main = async () => {
     console.log('Account list: ' + JSON.stringify(await Account.Instance().list()));
     console.log('Default Account ' + ':' + JSON.stringify(await Account.Instance().default()));
 
-    //await run_service_progress();
-    await run_progress_only()
+    await run_service_progress();
+    //await run_progress_only()
 }  
 
 const run_service_progress = async () => {
@@ -40,15 +40,13 @@ const run_service_progress = async () => {
 }
 
 const run_progress_only = async () => {
-    GUARDS.set('ice_scooting', '0xf06c2eb446ec96b442a8889b65ec5fc18a84f5adc7207fda9f9ac55e73ffabea');
-    GUARDS.set('cancel_ice_scooting', '0x01a01f6e10f7bd444a9f09181f19d298ad4ee2bcac32e0437cc768c6a81fb6eb');
-    GUARDS.set('complete_ice_scooting', '0xea40855d27960a6af0dfb869730fd8a6cc8665eebae43ced2624907f7c1ebd3e');
-    const insurance_service: ServiceReturn = {service:'0xf5ed69241a2a5e2e46f96972fb23f6352047282150ebdf6bfd9ee6ff80c9e4e1', 
-        machine:'0x2a82662598b94df9f7463df86699c2a21efc4f8896ac35a72f21e339347fa48c', 
-        permission:'0xe7176323c04f7b2ee8d29012a2847b5258fb0258c657d27757bd68a8790ec95b'}
-    const travel_service: ServiceReturn = {service:'0x992a3e00fd2d7d83a766e82bdfbd512f2b786ec52a0d67b06ad5988ce0c529bb', 
-        machine:'0xae590b273bff608bc14760fcc0ed3fc5034f46844eea19e1c3116ce34889a6d0', 
-        permission:'0x7314628c4ff8e5030c5a245d4ab7dc13b831870f48f16ab0b45c819e7d64b4bf'}
+    GUARDS.set('ice_scooting', '0x0713c6d7e6e66c2d1a414270207a09b19cb98211c1ded48e6814183a14451d6a');
+    GUARDS.set('cancel_ice_scooting', '0x92284108960db1e44646a2f2ff9c54b4037d184a98e7e923f8e34d3c94705db2');
+    GUARDS.set('complete_ice_scooting', '0x77d15b99e228dd82ee13d4fadc2ac688be4f2641865dd7efd04b6f148f0e9950');
+    const insurance_service: ServiceReturn = {service:'0x7f1aca4e465d1541f670ecab76bd24129522fd83eb8418c0a78fde37e368a2df',
+        machine:'0xc2ec4926ee3ccfd3c2325438a2ba5663dccb0eac025a1b1207202013221e24df'}
+    const travel_service: ServiceReturn = {service:'0xcf943e9530900ca807ed5bbfcaec797e414b566e5703ea3670d0a0ba341dd4d1', 
+        machine:'0x49546223f8598103684f0af7dfec7ef1394a81012c90893854031cdf4096062f'}
     await run_service(insurance_service, travel_service);
 }
 

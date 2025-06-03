@@ -14,15 +14,13 @@ export const permission = async () => {
     const data : CallPermissionObject = {
         data: {
           object: {
-            namedNew: {
               name: "外卖",
               tags: [
                 "权限管理"
               ],
               useAddressIfNameExist: false,
               onChain: true
-            }            
-          },
+            },            
           biz_permission: {
             op: "add",
             data: [
@@ -40,7 +38,7 @@ export const permission = async () => {
             op: "add entity",
             entities: [
               {
-                address: "张1",
+                entity: {name_or_address:"张1"},
                 permissions: [
                   {
                     index: 1000
@@ -48,7 +46,7 @@ export const permission = async () => {
                 ]
               },
               {
-                address: "王2",
+                entity: {name_or_address:"王2"},
                 permissions: [
                   {
                     index: 1000
@@ -56,7 +54,7 @@ export const permission = async () => {
                 ]
               },
               {
-                address: "刘3",
+                entity: {name_or_address:"刘3"},
                 permissions: [
                   {
                     index: 1001
@@ -97,7 +95,7 @@ export const demand = async () => {
     const coin = await Account.Instance().coinObject_with_balance(1); await sleep(2000)
     if (coin) {
         const data: CallDemand_Data = {
-            type_parameter:'0x2::coin::Coin<0x2::sui::SUI>', 
+            object:{type_parameter:'0x2::coin::Coin<0x2::sui::SUI>'}, 
             guard:{address:GUARD},
             description:'this is some sdk test.',
             bounty:{op:'add', object:{address:coin}}

@@ -41,8 +41,8 @@ const repository = async (permission_id:string) : Promise<string | undefined> =>
         { key:Weather.Ice_scooting_suitable, description:'Is the weather suitable for ice scooting?', dataType:WOWOK.RepositoryValueType.Bool, permissionIndex:WEATHER_DATA_PERMISSION}, 
     ];
 
-    const data : CallRepository_Data = {
-        description:`The weather conditions of Langjökull, Iceland; Temperature is based on absolute 0 degrees(${ABSOLUTE_ZERO_DEGREE} °C)`, permission:{address:permission_id},
+    const data : CallRepository_Data = { object:{permission:permission_id},
+        description:`The weather conditions of Langjökull, Iceland; Temperature is based on absolute 0 degrees(${ABSOLUTE_ZERO_DEGREE} °C)`,
         mode:WOWOK.Repository_Policy_Mode.POLICY_MODE_STRICT,
         policy:{op:'add', data:policy},
     }
@@ -65,16 +65,16 @@ const update_weather = async (repository_id: string, permission_id:string) => {
         Ice_scooting_suitable.data.push({address:addr, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_BOOL, true)})
     }
 
-    await result('Repository', await call_repository({data:{object:{address:repository_id}, permission:{address:permission_id}, data:{op:'add', data:Condition}}}));
-    await result('Repository', await call_repository({data:{object:{address:repository_id}, permission:{address:permission_id}, data:{op:'add', data:Minimum_temperature}}}));
-    await result('Repository', await call_repository({data:{object:{address:repository_id}, permission:{address:permission_id}, data:{op:'add', data:Maximum_temperature}}}));
-    await result('Repository', await call_repository({data:{object:{address:repository_id}, permission:{address:permission_id}, data:{op:'add', data:Ice_scooting_suitable}}}));
+    await result('Repository', await call_repository({data:{object:repository_id, data:{op:'add', data:Condition}}}));
+    await result('Repository', await call_repository({data:{object:repository_id, data:{op:'add', data:Minimum_temperature}}}));
+    await result('Repository', await call_repository({data:{object:repository_id, data:{op:'add', data:Maximum_temperature}}}));
+    await result('Repository', await call_repository({data:{object:repository_id, data:{op:'add', data:Ice_scooting_suitable}}}));
 }
 
 const permission = async () : Promise<string | undefined> => {
-    const data : CallPermission_Data = { description: 'An entity that provides weather data',  object:{namedNew:{name:'insurance permission'}},
+    const data : CallPermission_Data = { description: 'An entity that provides weather data',  object:{name:'insurance permission'},
         biz_permission:{op:'add', data:[{index:WEATHER_DATA_PERMISSION, name:'Update weather data'}]},    
-        admin:{op:'add', addresses:[TEST_ADDR(), TESTOR[6].address]}
+        admin:{op:'add', entities:[{name_or_address:TEST_ADDR()}, {name_or_address:TESTOR[6].address}]}
     }
     return await result('Permission', (await call_permission({data:data})))  as string;
 }

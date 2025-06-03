@@ -85,7 +85,6 @@ export const TRAVEL_PRODUCT:WOWOK.Service_Sale = {item:'Traveling Iceland',
     price: '15', stock: '10', endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'};
 
 export interface ServiceReturn {
-    permission: string;
     machine: string;
     service: string;
 }

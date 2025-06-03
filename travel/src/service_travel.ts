@@ -93,11 +93,11 @@ export const travel = async (weather_repository:string, insurance_service:string
     const service_id = await service(machine_id!, permission_id!, weather_repository!, arbitration_id!);
     if (!service_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'service object failed.')
     await service_guards_and_publish(machine_id!, permission_id!, service_id!);
-    return {machine:machine_id!, service:service_id!, permission:permission_id!}
+    return {machine:machine_id!, service:service_id!}
 }
 
 const service = async (machine_id:string, permission_id:string, repository_id:string, arbitraion_id:string) : Promise<string | undefined> => {
-    const data: CallService_Data = { permission:{address:permission_id}, type_parameter:PAY_TYPE,
+    const data: CallService_Data = { object:{permission:permission_id, type_parameter:PAY_TYPE},
         description:`traveling Iceland. There is a small family company for Local Guide of Vatnsjökull and really stand out in terms of quality.
         Hotel Djúpavík - way out on a dirt road in the Westfjords. Just a quiet family hotel in the middle of nowhere on a fjord. And the hot spring on the beach at Krossnes.
         And ice scooting started the next day.`, machine:machine_id,
@@ -106,14 +106,14 @@ const service = async (machine_id:string, permission_id:string, repository_id:st
                 WOWOK.BuyRequiredEnum.address, WOWOK.BuyRequiredEnum.phone, WOWOK.BuyRequiredEnum.name
             ]}, 
         sales:{op:'add', sales:[TRAVEL_PRODUCT]}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink',
-        arbitration:{op:'add', arbitrations:[{address:arbitraion_id, token_type:PAY_TYPE}]}
+        arbitration:{op:'add', arbitrations:[arbitraion_id]}
     }
     return await result('Service', await call_service({data:data})) as string
 }
 
 const machine_guards_and_publish = async (machine_id:string, permission_id:string, repository_id:string, insurance_suppliers?:string[]) => {
     await guard_ice_scooting(machine_id, permission_id, repository_id);
-    const data : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
+    const data : CallMachine_Data = { object:machine_id, 
         nodes:{op:'add forward', data:[{prior_node_name:WOWOK.Machine.INITIAL_NODE_NAME, node_name:TRAVEL_MACHINE_NODE.Insurance,
             forward:{name:'Purchase', weight: 1, permission:BUSINESS.insurance, suppliers:insurance_suppliers?.map(v => {return {object:v, pay_token_type:PAY_TYPE, bRequired:false}})}
         }]},
@@ -200,7 +200,7 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
     const refund2 = await result('Guard', await call_guard({data:data_refund2})) as string;
     if (!refund2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund 2');
 
-    const data2 : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:PAY_TYPE,
+    const data2 : CallService_Data = { object:service_id,
         withdraw_guard:{op:'add', guards:[{guard:withdraw1!, percent:100},{guard:withdraw2!, percent:60},]}, 
         refund_guard:{op:'add', guards:[{guard:refund1!, percent:100},{guard:refund2!, percent:40},]}, 
         bPublished:true
@@ -259,7 +259,7 @@ const guard_ice_scooting = async (machine_id:string, permission_id:string, weath
     const guard_id3 = await result('Guard', await call_guard({data:data3}))  as string;
     if (!guard_id3) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_ice_scooting 3');
 
-    const data4 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
+    const data4 : CallMachine_Data = { object:machine_id, 
         nodes:{op:'add forward', data:[{prior_node_name:TRAVEL_MACHINE_NODE.Spa, node_name:TRAVEL_MACHINE_NODE.Ice_scooting,
             forward:{name:'Enter', weight: 1, permission:BUSINESS.ice_scooting, guard:guard_id}
         }, 
@@ -284,32 +284,32 @@ const permission = async () : Promise<string | undefined>=> {
            biz.push({index:parseInt(BUSINESS[key]), name:key})
         }
     }
-    const data : CallPermission_Data = { description: 'Iceland travel Service Providers',
+    const data : CallPermission_Data = { description: 'Iceland travel Service Providers', object:{},
         biz_permission:{op:'add', data:biz},
         permission:{op:'add entity', entities:[
-            {address: TESTOR[0].address, permissions: [ {index:BUSINESS.insurance}, ],},
-            {address: TESTOR[1].address, permissions: [ {index:BUSINESS.ice_scooting}, ],},
-            {address: TESTOR[2].address, permissions: [ {index:BUSINESS.finance}],},
+            {entity: {name_or_address:TESTOR[0].address}, permissions: [ {index:BUSINESS.insurance}, ],},
+            {entity: {name_or_address:TESTOR[1].address}, permissions: [ {index:BUSINESS.ice_scooting}, ],},
+            {entity: {name_or_address:TESTOR[2].address}, permissions: [ {index:BUSINESS.finance}],},
         ]},
-        admin:{op:'add', addresses:[TEST_ADDR()]}
+        admin:{op:'add', entities:[{name_or_address:TEST_ADDR()}]}
     }
     return await result('Permission', await call_permission({data:data})) as string;
 }
 
 // arbitration with independent permission
 const arbitration = async () : Promise<string | undefined>=> {
-    const data : CallArbitration_Data = { description: 'independent arbitration',  object:{namedNew:{name:'arbitration'}},
-        type_parameter: PAY_TYPE,
-        permission:{namedNew:{name:'permission for arbitration'}, description:'permission for arbitration'},
-        fee_treasury:{namedNew:{name:'treasury for arbitration'}, description:'fee treasury for arbitration'},
+    const data : CallArbitration_Data = { description: 'independent arbitration',  
+        object:{name:'arbitration', type_parameter: PAY_TYPE, 
+            permission:{name:'permission for arbitration', description:'permission for arbitration'}},
+        fee_treasury:{name:'treasury for arbitration', description:'fee treasury for arbitration'},
         bPaused:false
     }
     return await result('Arbitration', await call_arbitration({data:data})) as string;
 }
 
 const machine = async (permission_id:string) : Promise<string | undefined>=> {
-    const data : CallMachine_Data = { description: 'machine for traveling Iceland',  object:{namedNew:{name:'machine'}},
-        permission:{address:permission_id}, endpoint:'',
+    const data : CallMachine_Data = { description: 'machine for traveling Iceland',  
+        object:{name:'machine', permission:permission_id}, endpoint:'',
         nodes:{op:'add', data:[Insurance, Ice_scooting, Complete, Cancel, Insurance_Fail, Spa]}
     }
     return await result('Machine', await call_machine({data:data})) as string;

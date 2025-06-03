@@ -13,10 +13,9 @@ export const airdrop = async () => {
     desp += 'Guard 1. Freshman who have never claimed can claim 300 at a time; \n';
     desp += 'Guard 2. Everyone can claim 100 for every more than 1 day; \n';
     desp += 'Guard 3. Everyone can claim 200 for every more than 1 day, if claimed already more than 10 times.'
-    const treasury : CallTreasury_Data = { description: desp,  object:{namedNew:{name:'airdrop treasury'}},
-        type_parameter: TYPE, 
-        permission:{namedNew:{name:'my permission', tags:['for treasury']}},
-        deposit:{data:{balance:200}}
+    const treasury : CallTreasury_Data = { description: desp,  
+        object:{name:'airdrop treasury',type_parameter: TYPE, permission:{name:'my permission', tags:['for treasury']}},    
+        deposit:{balance:200}
     }
     res = await call_treasury({data:treasury});
     if (res?.digest) {
@@ -41,10 +40,10 @@ export const airdrop = async () => {
         return ;
     }
     console.log('guards: '+guards);
-
+    await sleep(2000);
+    
     const treasury_modify: CallTreasury_Data = {withdraw_guard:{op:'add', data:guards.map((v,i) => {return {guard:v, amount:1+i}})},
-        type_parameter: TYPE, object:{address:treasury_id!}, permission:{address:permission_id!}, // reference of Treasury created.
-        withdraw_mode:WOWOK.Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE};
+        object:treasury_id!, withdraw_mode:WOWOK.Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE};
     res = await call_treasury({data:treasury_modify});        
     console.log(res)
 }

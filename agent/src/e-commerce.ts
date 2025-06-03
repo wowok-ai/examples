@@ -1,5 +1,6 @@
 import { call_arbitration, call_guard, call_machine, call_permission, call_service, CallArbitration_Data, CallDemand_Data, CallGuard_Data, CallMachine_Data, 
-    CallPermission_Data, CallResult, CallService_Data, ResponseData, WOWOK, Account } from 'wowok_agent'
+    CallPermission_Data, CallResult, CallService_Data, ResponseData, WOWOK, Account, 
+    DicountDispatch} from 'wowok_agent'
 import { sleep, TESTOR } from './common.js';
 
 const TYPE = WOWOK.Protocol.SUI_TOKEN_TYPE;
@@ -91,7 +92,7 @@ const dispute: WOWOK.Machine_Node = {
 }
 
 export const e_commerce = async () => {
-    console.log('current account: ' + await Account.Instance().default());
+    console.log('current account: ' + (await Account.Instance().default())?.address);
 
     const permission_id = await permission(); await sleep(2000)
     if (!permission_id)  WOWOK.ERROR(WOWOK.Errors.Fail, 'permission object failed.')
@@ -102,7 +103,6 @@ export const e_commerce = async () => {
     const machine_id = await machine(permission_id!); await sleep(2000)
     if (!machine_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'machine object failed.')
     await machine_guards_and_publish(machine_id!, permission_id!); 
-    
     const service_id = await service(machine_id!, permission_id!, arbitration_id!);
     if (!service_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'service object failed.')
     await service_guards_and_publish(machine_id!, permission_id!, service_id!, arbitration_id!)
@@ -128,20 +128,16 @@ const service = async (machine_id:string, permission_id:string, arbitraion_id:st
         off: 2,
         duration_minutes: 60000000,        
     }
-    const discounts_dispatch:WOWOK.DicountDispatch[] = [
-        {receiver: TESTOR[5].address, count: 2, discount: discount_type_a},
-        {receiver: TESTOR[6].address, count: 2, discount: discount_type_a},
-        {receiver: TESTOR[7].address, count: 2, discount: discount_type_a},
-        {receiver: TESTOR[8].address, count: 2, discount: discount_type_a},
-        {receiver: TESTOR[9].address, count: 2, discount: discount_type_a},
-        {receiver: TESTOR[7].address, count: 2, discount: discount_type_b},
-        {receiver: TESTOR[8].address, count: 2, discount: discount_type_b},
-        {receiver: TESTOR[9].address, count: 3, discount: discount_type_b},
+    const discounts_dispatch:DicountDispatch[] = [
+        {receiver: {name_or_address:TESTOR[5].address}, count: 2, discount: discount_type_a},
+        {receiver: {name_or_address:TESTOR[6].address}, count: 2, discount: discount_type_a},
+        {receiver: {name_or_address:TESTOR[7].address}, count: 2, discount: discount_type_b},
+        {receiver: {name_or_address:TESTOR[8].address}, count: 2, discount: discount_type_a},
+        {receiver: {name_or_address:TESTOR[9].address}, count: 2, discount: discount_type_a},
     ]
-
-    const data: CallService_Data = { object:{namedNew:{name:'shop service'}}, permission:{address:permission_id}, type_parameter:TYPE,
-        description:'A fun shop selling toys', machine:machine_id, payee_treasury:{namedNew:{name:'shop treasury'}},
-        arbitration:{op:'add', arbitrations:[{address:arbitraion_id, token_type:TYPE}]},
+    const data: CallService_Data = { object:{name:'shop service', permission:permission_id, type_parameter:TYPE}, 
+        description:'A fun shop selling toys', machine:machine_id, payee_treasury:{name:'shop treasury'},
+        arbitration:{op:'add', arbitrations:[arbitraion_id]},
         gen_discount:discounts_dispatch, customer_required_info:{pubkey:'-----BEGIN PUBLIC KEY----- \
             MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXFyjaaYXvu26BHM4nYQrPhnjL\
             7ZBQhHUyeLo+4GQ6NmjXM3TPH9O1qlRerQ0vihYxVy6u5QbhElsxDNHp6JtRNlFZ \
@@ -159,18 +155,14 @@ const machine_guards_and_publish = async (machine_id:string, permission_id:strin
     await guard_auto_receipt(machine_id!, permission_id!);
     await guard_payer_dispute(machine_id!, permission_id!);
     await guard_lost_comfirm_compensate(machine_id!, permission_id!);
-    const data : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
-        bPublished:true
-    }
+    const data : CallMachine_Data = { object:machine_id, bPublished:true}
     await result('Machine', await call_machine({data:data})) // add new forward to machine
 }
 
 const service_guards_and_publish = async (machine_id:string, permission_id:string, service_id:string, arbitration_id:string) => {
     await guard_service_refund(machine_id!, permission_id!, service_id, arbitration_id);
     await guard_service_withdraw(machine_id!, permission_id!, service_id, arbitration_id);
-    const data : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:TYPE,
-        bPublished:true,
-    }
+    const data : CallService_Data = { object:service_id, bPublished:true,}
     await result('Service', await call_service({data:data})) // add new forward to machine
 }
 
@@ -196,8 +188,7 @@ const guard_confirmation_24hrs_more = async (machine_id:string, permission_id:st
     };
     const guard_id = await result('Guard', await call_guard({data:data}));
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_confirmation_24hrs_more');
-
-    const data2 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
+    const data2 : CallMachine_Data = { object:machine_id, 
         nodes:{op:'add forward', data:[{prior_node_name:order_confirmation.name, node_name:order_cancellation.name,
             forward:{name:'Goods not shipped for more than 24 hours', weight: 1, namedOperator:WOWOK.Machine.OPERATOR_ORDER_PAYER, guard:guard_id}
         }]}
@@ -228,7 +219,7 @@ const guard_auto_receipt = async (machine_id:string, permission_id:string) => {
     const guard_id = await result('Guard', await call_guard({data:data}));
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_auto_receipt');
 
-    const data2 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
+    const data2 : CallMachine_Data = { object:machine_id, 
         nodes:{op:'add forward', data:[{prior_node_name:goods_shippedout.name, node_name:order_completed.name,
             forward:{name:'Shipper comfirms after 15 days', weight: 5, permission:BUSINESS.shipping, guard:guard_id}
         }]}
@@ -259,7 +250,7 @@ const guard_payer_dispute = async (machine_id:string, permission_id:string) => {
     const guard_id = await result('Guard', await call_guard({data:data}));
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_auto_receipt');
 
-    const data2 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
+    const data2 : CallMachine_Data = { object:machine_id,
         nodes:{op:'add forward', data:[{prior_node_name:order_completed.name, node_name:dispute.name,
             forward:{name:'Confirm no package received within 15 days', weight: 1, permission:BUSINESS.shipping, guard:guard_id}
         }]}
@@ -335,7 +326,7 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
     const guard_id2 = await result('Guard', await call_guard({data:data2}));
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_lost_comfirm_compensate: less than 24hrs');
 
-    const data3 : CallMachine_Data = { object:{address:machine_id}, permission:{address:permission_id},
+    const data3 : CallMachine_Data = { object:machine_id, 
         nodes:{op:'add forward', data:[
             {prior_node_name:dispute.name, node_name:goods_lost.name,
                 forward:{name:'Compensation 100000000 exceeding 24 hours', weight: 5, permission:BUSINESS.express, guard:guard_id1}
@@ -402,7 +393,7 @@ const guard_service_withdraw = async (machine_id:string, permission_id:string, s
     const guard_id2 = await result('Guard', await call_guard({data:data2}));
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw: guard 2');
 
-    const data3 : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:TYPE,
+    const data3 : CallService_Data = { object:service_id,
         withdraw_guard:{op:'add', guards:[{guard:guard_id1!, percent:100}, {guard:guard_id2!, percent:100}]}
     }
     await result('Service', await call_service({data:data3}))
@@ -461,7 +452,7 @@ const guard_service_refund = async (machine_id:string, permission_id:string, ser
     const guard_id2 = await result('Guard', await call_guard({data:data2}));
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund: guard 2');
 
-    const data3 : CallService_Data = { object:{address:service_id}, permission:{address:permission_id}, type_parameter:TYPE,
+    const data3 : CallService_Data = { object:service_id,
         refund_guard:{op:'add', guards:[{guard:guard_id1!, percent:100}, {guard:guard_id2!, percent:100}]}
     };
     await result('Service', await call_service({data:data3}))
@@ -474,36 +465,35 @@ const permission = async () : Promise<string | undefined>=> {
            biz.push({index:parseInt(BUSINESS[key]), name:key})
         }
     }
-    const data : CallPermission_Data = { description: 'A fun shop selling toys',  object:{namedNew:{name:'shop permission'}},
+    const data : CallPermission_Data = { description: 'A fun shop selling toys',  object:{name:'shop permission'},
         biz_permission:{op:'add', data:biz},
         permission:{op:'add entity', entities:[
-            {address: TESTOR[0].address, permissions: [ {index:BUSINESS.confirmOrder}, ],},
-            {address: TESTOR[1].address, permissions: [ {index:BUSINESS.confirmOrder}, {index:BUSINESS.shipping}],},
-            {address: TESTOR[2].address, permissions: [ {index:BUSINESS.shipping}],},
-            {address: TESTOR[3].address, permissions: [ {index:BUSINESS.express}, ],},
-            {address: TESTOR[4].address, permissions: [ {index:BUSINESS.express}, ],},
-            {address: TESTOR[5].address, permissions: [ {index:BUSINESS.finance},],},
-            {address: TESTOR[6].address, permissions: [ {index:BUSINESS.dispute}, ],},
+            {entity: {name_or_address:TESTOR[0].address}, permissions: [ {index:BUSINESS.confirmOrder}, ],},
+            {entity: {name_or_address:TESTOR[1].address}, permissions: [ {index:BUSINESS.confirmOrder}, {index:BUSINESS.shipping}],},
+            {entity: {name_or_address:TESTOR[2].address}, permissions: [ {index:BUSINESS.shipping}],},
+            {entity: {name_or_address:TESTOR[3].address}, permissions: [ {index:BUSINESS.express}, ],},
+            {entity: {name_or_address:TESTOR[4].address}, permissions: [ {index:BUSINESS.express}, ],},
+            {entity: {name_or_address:TESTOR[5].address}, permissions: [ {index:BUSINESS.finance},],},
+            {entity: {name_or_address:TESTOR[6].address}, permissions: [ {index:BUSINESS.dispute}, ],},
         ]},
-        admin:{op:'add', addresses:[TESTOR[0].address]}
+        admin:{op:'add', entities:[{name_or_address:TESTOR[0].address}]}
     }
     return await result('Permission', await call_permission({data:data}));
 }
 
 // arbitration with independent permission
 const arbitration = async () : Promise<string | undefined>=> {
-    const data : CallArbitration_Data = { description: 'independent arbitration',  object:{namedNew:{name:'arbitration'}},
-        type_parameter: TYPE,
-        permission:{namedNew:{name:'permission for arbitration'}, description:'permission for arbitration'},
-        fee_treasury:{namedNew:{name:'treasury for arbitration'}, description:'fee treasury for arbitration'},
-        bPaused:false
-    }
+    const data : CallArbitration_Data = { description: 'independent arbitration',  
+        object:{name:'arbitration', type_parameter: TYPE, permission:{name:'permission for arbitration', description:'permission for arbitration'},},
+        fee_treasury:{name:'treasury for arbitration', description:'fee treasury for arbitration'},
+        bPaused:false };
     return await result('Arbitration', await call_arbitration({data:data}));
 }
 
 const machine = async (permission_id:string) : Promise<string | undefined>=> {
-    const data : CallMachine_Data = { description: 'machine for a fun shop selling toys',  object:{namedNew:{name:'machine'}},
-        permission:{address:permission_id}, endpoint:'https://wowok.net/',
+    const data : CallMachine_Data = { description: 'machine for a fun shop selling toys',  
+        object:{name:'machine', permission:permission_id,},
+        endpoint:'https://wowok.net/',
         nodes:{op:'add', data:[order_confirmation, order_cancellation, order_completed, goods_shippedout, goods_lost, dispute, return_goods]}
     }
     return await result('Machine', await call_machine({data:data}));
