@@ -3,7 +3,8 @@
  * Weather data can come from a named service provider or a predictor
  */
 
-import { call_permission, call_repository, CallPermission_Data, CallRepository_Data, WOWOK } from 'wowok_agent'
+import { call_permission, call_repository, CallPermission_Data, CallRepository_Data, 
+    Repository_Policy_Data, WOWOK } from 'wowok_agent'
 import { sleep, TESTOR, TEST_ADDR, result } from './common';
 
 export const weather = async () : Promise<string> => {
@@ -50,19 +51,19 @@ const repository = async (permission_id:string) : Promise<string | undefined> =>
 }
 
 const update_weather = async (repository_id: string, permission_id:string) => {
-    const Condition:WOWOK.Repository_Policy_Data = {key:Weather.Condition, data:[], value_type:WOWOK.ValueType.TYPE_STRING};
-    const Minimum_temperature:WOWOK.Repository_Policy_Data = {key:Weather.Minimum_temperature, data:[], value_type:WOWOK.ValueType.TYPE_U64};
-    const Maximum_temperature:WOWOK.Repository_Policy_Data = {key:Weather.Maximum_temperature, data:[], value_type:WOWOK.ValueType.TYPE_U64};
-    const Ice_scooting_suitable:WOWOK.Repository_Policy_Data = {key:Weather.Ice_scooting_suitable, data:[], value_type:WOWOK.ValueType.TYPE_BOOL};
+    const Condition:Repository_Policy_Data = {key:Weather.Condition, data:[], value_type:WOWOK.ValueType.TYPE_STRING};
+    const Minimum_temperature:Repository_Policy_Data = {key:Weather.Minimum_temperature, data:[], value_type:WOWOK.ValueType.TYPE_U64};
+    const Maximum_temperature:Repository_Policy_Data = {key:Weather.Maximum_temperature, data:[], value_type:WOWOK.ValueType.TYPE_U64};
+    const Ice_scooting_suitable:Repository_Policy_Data = {key:Weather.Ice_scooting_suitable, data:[], value_type:WOWOK.ValueType.TYPE_BOOL};
     
     // Provide daily data for the next 7 days
     const time = WOWOK.getUTCDayStartByDivision(); 
     for (let i = 0; i < 7; i++) {
         const addr = WOWOK.uint2address(time + 24*60*60*1000*i); 
-        Condition.data.push({address:addr, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_STRING, Weather_Condition.sunny)})
-        Minimum_temperature.data.push({address:addr, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_U64, -10 + ABSOLUTE_ZERO_DEGREE)})
-        Maximum_temperature.data.push({address:addr, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_U64, -3 + ABSOLUTE_ZERO_DEGREE)})
-        Ice_scooting_suitable.data.push({address:addr, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_BOOL, true)})
+        Condition.data.push({address:{mark_or_address:addr}, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_STRING, Weather_Condition.sunny)})
+        Minimum_temperature.data.push({address:{mark_or_address:addr}, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_U64, -10 + ABSOLUTE_ZERO_DEGREE)})
+        Maximum_temperature.data.push({address:{mark_or_address:addr}, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_U64, -3 + ABSOLUTE_ZERO_DEGREE)})
+        Ice_scooting_suitable.data.push({address:{mark_or_address:addr}, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_BOOL, true)})
     }
 
     await result('Repository', await call_repository({data:{object:repository_id, data:{op:'add', data:Condition}}}));
@@ -74,7 +75,7 @@ const update_weather = async (repository_id: string, permission_id:string) => {
 const permission = async () : Promise<string | undefined> => {
     const data : CallPermission_Data = { description: 'An entity that provides weather data',  object:{name:'insurance permission'},
         biz_permission:{op:'add', data:[{index:WEATHER_DATA_PERMISSION, name:'Update weather data'}]},    
-        admin:{op:'add', entities:[{name_or_address:TEST_ADDR()}, {name_or_address:TESTOR[6].address}]}
+        admin:{op:'add', addresses:[{mark_or_address:TEST_ADDR()}, {mark_or_address:TESTOR[6].address}]}
     }
     return await result('Permission', (await call_permission({data:data})))  as string;
 }

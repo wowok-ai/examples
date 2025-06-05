@@ -1,5 +1,5 @@
 import { call_demand, call_guard, CallDemand_Data, CallGuard_Data, ResponseData, WOWOK, Account, call_permission, call_permission_json, CallPermission_Data, CallPermissionObject, LocalMark } from 'wowok_agent'
-import { sleep } from './common.js';
+import { sleep, TESTOR } from './common.js';
 
 export const test_call = async () => {
   console.log(await LocalMark.Instance().list())
@@ -38,7 +38,7 @@ export const permission = async () => {
             op: "add entity",
             entities: [
               {
-                entity: {name_or_address:"张1"},
+                address: {mark_or_address:TESTOR[3].address},
                 permissions: [
                   {
                     index: 1000
@@ -46,7 +46,7 @@ export const permission = async () => {
                 ]
               },
               {
-                entity: {name_or_address:"王2"},
+                address: {mark_or_address:TESTOR[4].address},
                 permissions: [
                   {
                     index: 1000
@@ -54,7 +54,7 @@ export const permission = async () => {
                 ]
               },
               {
-                entity: {name_or_address:"刘3"},
+                address: {mark_or_address:TESTOR[5].address},
                 permissions: [
                   {
                     index: 1001

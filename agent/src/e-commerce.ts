@@ -129,15 +129,15 @@ const service = async (machine_id:string, permission_id:string, arbitraion_id:st
         duration_minutes: 60000000,        
     }
     const discounts_dispatch:DicountDispatch[] = [
-        {receiver: {name_or_address:TESTOR[5].address}, count: 2, discount: discount_type_a},
-        {receiver: {name_or_address:TESTOR[6].address}, count: 2, discount: discount_type_a},
-        {receiver: {name_or_address:TESTOR[7].address}, count: 2, discount: discount_type_b},
-        {receiver: {name_or_address:TESTOR[8].address}, count: 2, discount: discount_type_a},
-        {receiver: {name_or_address:TESTOR[9].address}, count: 2, discount: discount_type_a},
+        {receiver: {mark_or_address:TESTOR[5].address}, count: 2, discount: discount_type_a},
+        {receiver: {mark_or_address:TESTOR[6].address}, count: 2, discount: discount_type_a},
+        {receiver: {mark_or_address:TESTOR[7].address}, count: 2, discount: discount_type_b},
+        {receiver: {mark_or_address:TESTOR[8].address}, count: 2, discount: discount_type_a},
+        {receiver: {mark_or_address:TESTOR[9].address}, count: 2, discount: discount_type_a},
     ]
     const data: CallService_Data = { object:{name:'shop service', permission:permission_id, type_parameter:TYPE}, 
         description:'A fun shop selling toys', machine:machine_id, payee_treasury:{name:'shop treasury'},
-        arbitration:{op:'add', arbitrations:[arbitraion_id]},
+        arbitration:{op:'add', objects:[arbitraion_id]},
         gen_discount:discounts_dispatch, customer_required_info:{pubkey:'-----BEGIN PUBLIC KEY----- \
             MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXFyjaaYXvu26BHM4nYQrPhnjL\
             7ZBQhHUyeLo+4GQ6NmjXM3TPH9O1qlRerQ0vihYxVy6u5QbhElsxDNHp6JtRNlFZ \
@@ -468,15 +468,15 @@ const permission = async () : Promise<string | undefined>=> {
     const data : CallPermission_Data = { description: 'A fun shop selling toys',  object:{name:'shop permission'},
         biz_permission:{op:'add', data:biz},
         permission:{op:'add entity', entities:[
-            {entity: {name_or_address:TESTOR[0].address}, permissions: [ {index:BUSINESS.confirmOrder}, ],},
-            {entity: {name_or_address:TESTOR[1].address}, permissions: [ {index:BUSINESS.confirmOrder}, {index:BUSINESS.shipping}],},
-            {entity: {name_or_address:TESTOR[2].address}, permissions: [ {index:BUSINESS.shipping}],},
-            {entity: {name_or_address:TESTOR[3].address}, permissions: [ {index:BUSINESS.express}, ],},
-            {entity: {name_or_address:TESTOR[4].address}, permissions: [ {index:BUSINESS.express}, ],},
-            {entity: {name_or_address:TESTOR[5].address}, permissions: [ {index:BUSINESS.finance},],},
-            {entity: {name_or_address:TESTOR[6].address}, permissions: [ {index:BUSINESS.dispute}, ],},
+            {address: {mark_or_address:TESTOR[0].address}, permissions: [ {index:BUSINESS.confirmOrder}, ],},
+            {address: {mark_or_address:TESTOR[1].address}, permissions: [ {index:BUSINESS.confirmOrder}, {index:BUSINESS.shipping}],},
+            {address: {mark_or_address:TESTOR[2].address}, permissions: [ {index:BUSINESS.shipping}],},
+            {address: {mark_or_address:TESTOR[3].address}, permissions: [ {index:BUSINESS.express}, ],},
+            {address: {mark_or_address:TESTOR[4].address}, permissions: [ {index:BUSINESS.express}, ],},
+            {address: {mark_or_address:TESTOR[5].address}, permissions: [ {index:BUSINESS.finance},],},
+            {address: {mark_or_address:TESTOR[6].address}, permissions: [ {index:BUSINESS.dispute}, ],},
         ]},
-        admin:{op:'add', entities:[{name_or_address:TESTOR[0].address}]}
+        admin:{op:'add', addresses:[{mark_or_address:TESTOR[0].address}]}
     }
     return await result('Permission', await call_permission({data:data}));
 }

@@ -36,7 +36,7 @@ export const run_service = async (insurance_service:ServiceReturn, traval_servic
 
     const progress_insurance : CallMachine_Data = { object:traval_service.machine, 
         progress_next:{progress:travel?.progress!, operation:{next_node_name:TRAVEL_MACHINE_NODE.Insurance, forward:'Purchase'}, 
-            deliverable:{msg:'purchase success!', orders:[{object:ins.order!, pay_token_type:PAY_TYPE}], }}
+            deliverable:{msg:'purchase success!', orders:[ins.order!], }}
     };
     await result('Progress', await call_machine({data:progress_insurance}));
 

@@ -101,12 +101,12 @@ const service = async (machine_id:string, permission_id:string, repository_id:st
         description:`traveling Iceland. There is a small family company for Local Guide of Vatnsjökull and really stand out in terms of quality.
         Hotel Djúpavík - way out on a dirt road in the Westfjords. Just a quiet family hotel in the middle of nowhere on a fjord. And the hot spring on the beach at Krossnes.
         And ice scooting started the next day.`, machine:machine_id,
-        repository:{op:'add', repositories:[repository_id]},
+        repository:{op:'add', objects:[repository_id]},
         customer_required_info:{pubkey:PUBKEY, required_info:[
                 WOWOK.BuyRequiredEnum.address, WOWOK.BuyRequiredEnum.phone, WOWOK.BuyRequiredEnum.name
             ]}, 
         sales:{op:'add', sales:[TRAVEL_PRODUCT]}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink',
-        arbitration:{op:'add', arbitrations:[arbitraion_id]}
+        arbitration:{op:'add', objects:[arbitraion_id]}
     }
     return await result('Service', await call_service({data:data})) as string
 }
@@ -287,11 +287,11 @@ const permission = async () : Promise<string | undefined>=> {
     const data : CallPermission_Data = { description: 'Iceland travel Service Providers', object:{},
         biz_permission:{op:'add', data:biz},
         permission:{op:'add entity', entities:[
-            {entity: {name_or_address:TESTOR[0].address}, permissions: [ {index:BUSINESS.insurance}, ],},
-            {entity: {name_or_address:TESTOR[1].address}, permissions: [ {index:BUSINESS.ice_scooting}, ],},
-            {entity: {name_or_address:TESTOR[2].address}, permissions: [ {index:BUSINESS.finance}],},
+            {address: {mark_or_address:TESTOR[0].address}, permissions: [ {index:BUSINESS.insurance}, ],},
+            {address: {mark_or_address:TESTOR[1].address}, permissions: [ {index:BUSINESS.ice_scooting}, ],},
+            {address: {mark_or_address:TESTOR[2].address}, permissions: [ {index:BUSINESS.finance}],},
         ]},
-        admin:{op:'add', entities:[{name_or_address:TEST_ADDR()}]}
+        admin:{op:'add', addresses:[{mark_or_address:TEST_ADDR()}]}
     }
     return await result('Permission', await call_permission({data:data})) as string;
 }
