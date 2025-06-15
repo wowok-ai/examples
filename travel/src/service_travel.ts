@@ -6,7 +6,7 @@
  */
 
 import { call_arbitration, call_guard, call_machine, call_permission, call_service, CallArbitration_Data, CallGuard_Data, CallMachine_Data, 
-    CallPermission_Data, CallRepository_Data, CallService_Data, GuardNode, WOWOK } from 'wowok_agent'
+    CallPermission_Data, CallRepository_Data, CallService_Data, GuardNode, WOWOK, Machine_Node } from 'wowok_agent'
 import { sleep, TESTOR, TEST_ADDR, result, PAY_TYPE, PUBKEY, TRAVEL_PRODUCT, ServiceReturn, GUARDS_NAME, GUARDS } from './common';
 import { ABSOLUTE_ZERO_DEGREE, Weather, Weather_Condition } from './weather';
 
@@ -27,7 +27,7 @@ export enum TRAVEL_MACHINE_NODE {
 }
 
 
-const Insurance:WOWOK.Machine_Node = {
+const Insurance:Machine_Node = {
     name: TRAVEL_MACHINE_NODE.Insurance,
     pairs: [
         {prior_node: WOWOK.Machine.INITIAL_NODE_NAME, threshold:0, forwards:[
@@ -35,7 +35,7 @@ const Insurance:WOWOK.Machine_Node = {
     ]
 }
 
-const Spa:WOWOK.Machine_Node = {
+const Spa:Machine_Node = {
     name: TRAVEL_MACHINE_NODE.Spa,
     pairs: [
         {prior_node: TRAVEL_MACHINE_NODE.Insurance, threshold:0, forwards:[
@@ -45,7 +45,7 @@ const Spa:WOWOK.Machine_Node = {
     ]
 }
 
-const Ice_scooting:WOWOK.Machine_Node = {
+const Ice_scooting:Machine_Node = {
     name: TRAVEL_MACHINE_NODE.Ice_scooting,
     pairs: [
         {prior_node: TRAVEL_MACHINE_NODE.Spa, threshold:0, forwards:[
@@ -54,7 +54,7 @@ const Ice_scooting:WOWOK.Machine_Node = {
     ]
 }
 
-const Complete:WOWOK.Machine_Node = {
+const Complete:Machine_Node = {
     name: TRAVEL_MACHINE_NODE.Complete,
     pairs: [
         {prior_node: TRAVEL_MACHINE_NODE.Ice_scooting, threshold:0, forwards:[
@@ -62,7 +62,7 @@ const Complete:WOWOK.Machine_Node = {
     ]
 }
 
-const Cancel:WOWOK.Machine_Node = {
+const Cancel:Machine_Node = {
     name: TRAVEL_MACHINE_NODE.Cancel,
     pairs: [
         {prior_node: TRAVEL_MACHINE_NODE.Spa, threshold:0, forwards:[
@@ -70,7 +70,7 @@ const Cancel:WOWOK.Machine_Node = {
     ]
 }
 
-const Insurance_Fail:WOWOK.Machine_Node = {
+const Insurance_Fail:Machine_Node = {
     name: TRAVEL_MACHINE_NODE.Insurance_Fail,
     pairs: [
         {prior_node:WOWOK.Machine.INITIAL_NODE_NAME, threshold:0, forwards:[
@@ -115,7 +115,7 @@ const machine_guards_and_publish = async (machine_id:string, permission_id:strin
     await guard_ice_scooting(machine_id, permission_id, repository_id);
     const data : CallMachine_Data = { object:machine_id, 
         nodes:{op:'add forward', data:[{prior_node_name:WOWOK.Machine.INITIAL_NODE_NAME, node_name:TRAVEL_MACHINE_NODE.Insurance,
-            forward:{name:'Purchase', weight: 1, permission:BUSINESS.insurance, suppliers:insurance_suppliers?.map(v => {return {object:v, pay_token_type:PAY_TYPE, bRequired:false}})}
+            forward:{name:'Purchase', weight: 1, permission:BUSINESS.insurance, suppliers:insurance_suppliers?.map(v => {return {service:v, bRequired:false}})}
         }]},
         bPublished:true
     }

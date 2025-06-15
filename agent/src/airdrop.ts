@@ -97,9 +97,9 @@ const launch_guards = async (treasury_address:string) : Promise<string[] | undef
         ]}
     }
 
-    const day_guard = await launch_guard(day_guard_data);
-    const frequency_guard = await launch_guard(frequency_guard_data);
-    const freshman_guard = await launch_guard(freshman_guard_data);
+    const day_guard = await launch_guard(day_guard_data); await sleep(2000);
+    const frequency_guard = await launch_guard(frequency_guard_data); await sleep(2000);
+    const freshman_guard = await launch_guard(freshman_guard_data);  await sleep(2000);
     //const res = await Promise.all([launch_guard(day_guard_data), launch_guard(frequency_guard_data), launch_guard(freshman_guard_data)]);
     if (day_guard && frequency_guard && freshman_guard) {
         return [day_guard, frequency_guard, freshman_guard]

@@ -4,7 +4,7 @@
  */
 
 import { call_guard, call_machine, call_permission, call_repository, call_service, CallGuard_Data, CallMachine_Data, 
-    CallPermission_Data, CallRepository_Data, CallService_Data, WOWOK } from 'wowok_agent'
+    CallPermission_Data, CallRepository_Data, CallService_Data, WOWOK, Machine_Node } from 'wowok_agent'
 import { sleep, TESTOR, TEST_ADDR, result, PAY_TYPE, PUBKEY, INSURANCE_PRODUCT, ServiceReturn } from './common';
 
 enum BUSINESS { // business permission for Permission Object must >= 1000
@@ -21,7 +21,7 @@ export enum INSURANCE_MACHINE_NODE {
 
 const MEDICAL_ORG = 'medical organization';
 
-const Report_Incident:WOWOK.Machine_Node = {
+const Report_Incident:Machine_Node = {
     name: INSURANCE_MACHINE_NODE.Report_Incident,
     pairs: [
         {prior_node: WOWOK.Machine.INITIAL_NODE_NAME, threshold:2, forwards:[
@@ -30,7 +30,7 @@ const Report_Incident:WOWOK.Machine_Node = {
     ]
 }
 
-const Emergency_Treatment:WOWOK.Machine_Node = {
+const Emergency_Treatment:Machine_Node = {
     name: INSURANCE_MACHINE_NODE.Emergency_Treatment,
     pairs: [
         {prior_node: INSURANCE_MACHINE_NODE.Report_Incident, threshold:2, forwards:[
@@ -40,7 +40,7 @@ const Emergency_Treatment:WOWOK.Machine_Node = {
     ]
 }
 
-const Amount_claim:WOWOK.Machine_Node = {
+const Amount_claim:Machine_Node = {
     name: INSURANCE_MACHINE_NODE.Amount_claim,
     pairs: [
         {prior_node: INSURANCE_MACHINE_NODE.Emergency_Treatment, threshold:2, forwards:[
@@ -49,7 +49,7 @@ const Amount_claim:WOWOK.Machine_Node = {
     ]
 }
 
-const Insurance_Payment:WOWOK.Machine_Node = {
+const Insurance_Payment:Machine_Node = {
     name: INSURANCE_MACHINE_NODE.Insurance_Payment,
     pairs: [
         {prior_node: INSURANCE_MACHINE_NODE.Amount_claim, threshold:0, forwards:[

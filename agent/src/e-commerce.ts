@@ -1,5 +1,6 @@
-import { call_arbitration, call_guard, call_machine, call_permission, call_service, CallArbitration_Data, CallDemand_Data, CallGuard_Data, CallMachine_Data, 
-    CallPermission_Data, CallResult, CallService_Data, ResponseData, WOWOK, Account, 
+import { call_arbitration, call_guard, call_machine, call_permission, call_service, CallArbitration_Data, 
+    CallDemand_Data, CallGuard_Data, CallMachine_Data, 
+    CallPermission_Data, CallResult, CallService_Data, ResponseData, WOWOK, Account, Machine_Node,
     DicountDispatch} from 'wowok_agent'
 import { sleep, TESTOR } from './common.js';
 
@@ -12,7 +13,7 @@ enum BUSINESS { // business permission for Permission Object must >= 1000
     dispute = 1004,
 };
 
-const order_confirmation:WOWOK.Machine_Node = {
+const order_confirmation:Machine_Node = {
     name: 'Order confirmation',
     pairs: [
         {prior_node: WOWOK.Machine.INITIAL_NODE_NAME, threshold:0, forwards:[
@@ -20,7 +21,7 @@ const order_confirmation:WOWOK.Machine_Node = {
         ]},
     ]
 }
-const order_cancellation:WOWOK.Machine_Node = {
+const order_cancellation:Machine_Node = {
     name: 'Order cancellation',
     pairs: [
         {prior_node: WOWOK.Machine.INITIAL_NODE_NAME, threshold:0, forwards:[
@@ -29,7 +30,7 @@ const order_cancellation:WOWOK.Machine_Node = {
         ]},
     ]
 }
-const goods_shippedout:WOWOK.Machine_Node = {
+const goods_shippedout:Machine_Node = {
     name: 'Goods shipped out',
     pairs: [
         {prior_node: 'Order confirmation', threshold:10, forwards:[
@@ -39,7 +40,7 @@ const goods_shippedout:WOWOK.Machine_Node = {
     ]
 }
 
-const order_completed:WOWOK.Machine_Node = {
+const order_completed:Machine_Node = {
     name: 'Order completed',
     pairs: [
         {prior_node: 'Goods shipped out', threshold:10, forwards:[
@@ -55,7 +56,7 @@ const order_completed:WOWOK.Machine_Node = {
     ]
 }
 
-const return_goods: WOWOK.Machine_Node = {
+const return_goods: Machine_Node = {
     name: 'Goods Returned',
     pairs: [
         {prior_node: 'Order completed', threshold:15, forwards:[
@@ -70,7 +71,7 @@ const return_goods: WOWOK.Machine_Node = {
         ]},
     ]
 }
-const goods_lost: WOWOK.Machine_Node = {
+const goods_lost: Machine_Node = {
     name: 'Goods lost',
     pairs: [
         {prior_node: 'Dispute', threshold:10, forwards:[
@@ -83,7 +84,7 @@ const goods_lost: WOWOK.Machine_Node = {
     ]
 }
 
-const dispute: WOWOK.Machine_Node = {
+const dispute: Machine_Node = {
     name: 'Dispute',
     pairs: [
         {prior_node: 'Order completed', threshold:0, forwards:[
@@ -151,17 +152,17 @@ const service = async (machine_id:string, permission_id:string, arbitraion_id:st
 }
 
 const machine_guards_and_publish = async (machine_id:string, permission_id:string) => {
-    await guard_confirmation_24hrs_more(machine_id!, permission_id!);
-    await guard_auto_receipt(machine_id!, permission_id!);
-    await guard_payer_dispute(machine_id!, permission_id!);
-    await guard_lost_comfirm_compensate(machine_id!, permission_id!);
+    await guard_confirmation_24hrs_more(machine_id!, permission_id!); await sleep(2000);
+    await guard_auto_receipt(machine_id!, permission_id!); await sleep(2000);
+    await guard_payer_dispute(machine_id!, permission_id!); await sleep(2000);
+    await guard_lost_comfirm_compensate(machine_id!, permission_id!); await sleep(2000);
     const data : CallMachine_Data = { object:machine_id, bPublished:true}
     await result('Machine', await call_machine({data:data})) // add new forward to machine
 }
 
 const service_guards_and_publish = async (machine_id:string, permission_id:string, service_id:string, arbitration_id:string) => {
-    await guard_service_refund(machine_id!, permission_id!, service_id, arbitration_id);
-    await guard_service_withdraw(machine_id!, permission_id!, service_id, arbitration_id);
+    await guard_service_refund(machine_id!, permission_id!, service_id, arbitration_id); await sleep(2000);
+    await guard_service_withdraw(machine_id!, permission_id!, service_id, arbitration_id); await sleep(2000);
     const data : CallService_Data = { object:service_id, bPublished:true,}
     await result('Service', await call_service({data:data})) // add new forward to machine
 }
@@ -186,7 +187,7 @@ const guard_confirmation_24hrs_more = async (machine_id:string, permission_id:st
             ]}
         ]}
     };
-    const guard_id = await result('Guard', await call_guard({data:data}));
+    const guard_id = await result('Guard', await call_guard({data:data})); sleep(2000);
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_confirmation_24hrs_more');
     const data2 : CallMachine_Data = { object:machine_id, 
         nodes:{op:'add forward', data:[{prior_node_name:order_confirmation.name, node_name:order_cancellation.name,
@@ -216,7 +217,7 @@ const guard_auto_receipt = async (machine_id:string, permission_id:string) => {
             ]}
         ]}
     };
-    const guard_id = await result('Guard', await call_guard({data:data}));
+    const guard_id = await result('Guard', await call_guard({data:data})); await sleep(2000);
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_auto_receipt');
 
     const data2 : CallMachine_Data = { object:machine_id, 
@@ -247,7 +248,7 @@ const guard_payer_dispute = async (machine_id:string, permission_id:string) => {
             ]}
         ]}
     };
-    const guard_id = await result('Guard', await call_guard({data:data}));
+    const guard_id = await result('Guard', await call_guard({data:data})); await sleep(2000);
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_auto_receipt');
 
     const data2 : CallMachine_Data = { object:machine_id,
@@ -301,7 +302,7 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
             ]},
         ]}
     };
-    const guard_id1 = await result('Guard', await call_guard({data:data1}));
+    const guard_id1 = await result('Guard', await call_guard({data:data1})); await sleep(2000);
     if (!guard_id1) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_lost_comfirm_compensate: more than 24hrs');
 
     const data2 : CallGuard_Data = {namedNew:{},
@@ -323,7 +324,7 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
             ]}
         ]}
     };
-    const guard_id2 = await result('Guard', await call_guard({data:data2}));
+    const guard_id2 = await result('Guard', await call_guard({data:data2})); await sleep(2000);
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_lost_comfirm_compensate: less than 24hrs');
 
     const data3 : CallMachine_Data = { object:machine_id, 
@@ -363,7 +364,7 @@ const guard_service_withdraw = async (machine_id:string, permission_id:string, s
         ]}
     };
 
-    const guard_id1 = await result('Guard', await call_guard({data:data1}));
+    const guard_id1 = await result('Guard', await call_guard({data:data1})); await sleep(2000);
     if (!guard_id1) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw: guard 1');
 
     const data2 : CallGuard_Data = {namedNew:{},
@@ -390,7 +391,7 @@ const guard_service_withdraw = async (machine_id:string, permission_id:string, s
         ]}
     };
 
-    const guard_id2 = await result('Guard', await call_guard({data:data2}));
+    const guard_id2 = await result('Guard', await call_guard({data:data2})); await sleep(2000);
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw: guard 2');
 
     const data3 : CallService_Data = { object:service_id,
@@ -422,7 +423,7 @@ const guard_service_refund = async (machine_id:string, permission_id:string, ser
             ]}, 
         ]}
     };
-    const guard_id1 = await result('Guard', await call_guard({data:data1}));
+    const guard_id1 = await result('Guard', await call_guard({data:data1})); await sleep(2000);
     if (!guard_id1) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund: guard 1');
 
     const data2 : CallGuard_Data = {namedNew:{},
@@ -449,7 +450,7 @@ const guard_service_refund = async (machine_id:string, permission_id:string, ser
         ]}
     };
 
-    const guard_id2 = await result('Guard', await call_guard({data:data2}));
+    const guard_id2 = await result('Guard', await call_guard({data:data2})); await sleep(2000);
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund: guard 2');
 
     const data3 : CallService_Data = { object:service_id,

@@ -22,7 +22,6 @@ const main = async () => {
 
     //await Account.Instance().faucet(acc.address);
 
-
     await test_call()
     await airdrop();
     await e_commerce();

@@ -96,7 +96,7 @@ export const demand = async () => {
     if (coin) {
         const data: CallDemand_Data = {
             object:{type_parameter:'0x2::coin::Coin<0x2::sui::SUI>'}, 
-            guard:{address:GUARD},
+            guard:{guard:GUARD},
             description:'this is some sdk test.',
             bounty:{op:'add', object:{address:coin}}
         }
