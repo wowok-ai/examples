@@ -1,5 +1,5 @@
 import { call_demand, call_guard, ResponseData, WOWOK, Account, call_permission, LocalMark } from 'wowok_agent';
-import { sleep } from './common.js';
+import { sleep, TESTOR } from './common.js';
 export const test_call = async () => {
     console.log(await LocalMark.Instance().list());
     console.log(await permission());
@@ -11,14 +11,12 @@ export const permission = async () => {
     const data = {
         data: {
             object: {
-                namedNew: {
-                    name: "外卖",
-                    tags: [
-                        "权限管理"
-                    ],
-                    useAddressIfNameExist: false,
-                    onChain: true
-                }
+                name: "外卖",
+                tags: [
+                    "权限管理"
+                ],
+                useAddressIfNameExist: false,
+                onChain: true
             },
             biz_permission: {
                 op: "add",
@@ -37,7 +35,7 @@ export const permission = async () => {
                 op: "add entity",
                 entities: [
                     {
-                        address: "张1",
+                        address: { mark_or_address: TESTOR[3].address },
                         permissions: [
                             {
                                 index: 1000
@@ -45,7 +43,7 @@ export const permission = async () => {
                         ]
                     },
                     {
-                        address: "王2",
+                        address: { mark_or_address: TESTOR[4].address },
                         permissions: [
                             {
                                 index: 1000
@@ -53,7 +51,7 @@ export const permission = async () => {
                         ]
                     },
                     {
-                        address: "刘3",
+                        address: { mark_or_address: TESTOR[5].address },
                         permissions: [
                             {
                                 index: 1001
@@ -92,8 +90,8 @@ export const demand = async () => {
     await sleep(2000);
     if (coin) {
         const data = {
-            type_parameter: '0x2::coin::Coin<0x2::sui::SUI>',
-            guard: { address: GUARD },
+            object: { type_parameter: '0x2::coin::Coin<0x2::sui::SUI>' },
+            guard: { guard: GUARD },
             description: 'this is some sdk test.',
             bounty: { op: 'add', object: { address: coin } }
         };

@@ -85,7 +85,7 @@ const dispute = {
     ]
 };
 export const e_commerce = async () => {
-    console.log('current account: ' + await Account.Instance().default());
+    console.log('current account: ' + (await Account.Instance().default())?.address);
     const permission_id = await permission();
     await sleep(2000);
     if (!permission_id)
@@ -125,18 +125,15 @@ const service = async (machine_id, permission_id, arbitraion_id) => {
         duration_minutes: 60000000,
     };
     const discounts_dispatch = [
-        { receiver: TESTOR[5].address, count: 2, discount: discount_type_a },
-        { receiver: TESTOR[6].address, count: 2, discount: discount_type_a },
-        { receiver: TESTOR[7].address, count: 2, discount: discount_type_a },
-        { receiver: TESTOR[8].address, count: 2, discount: discount_type_a },
-        { receiver: TESTOR[9].address, count: 2, discount: discount_type_a },
-        { receiver: TESTOR[7].address, count: 2, discount: discount_type_b },
-        { receiver: TESTOR[8].address, count: 2, discount: discount_type_b },
-        { receiver: TESTOR[9].address, count: 3, discount: discount_type_b },
+        { receiver: { mark_or_address: TESTOR[5].address }, count: 2, discount: discount_type_a },
+        { receiver: { mark_or_address: TESTOR[6].address }, count: 2, discount: discount_type_a },
+        { receiver: { mark_or_address: TESTOR[7].address }, count: 2, discount: discount_type_b },
+        { receiver: { mark_or_address: TESTOR[8].address }, count: 2, discount: discount_type_a },
+        { receiver: { mark_or_address: TESTOR[9].address }, count: 2, discount: discount_type_a },
     ];
-    const data = { object: { namedNew: { name: 'shop service' } }, permission: { address: permission_id }, type_parameter: TYPE,
-        description: 'A fun shop selling toys', machine: machine_id, payee_treasury: { namedNew: { name: 'shop treasury' } },
-        arbitration: { op: 'add', arbitrations: [{ address: arbitraion_id, token_type: TYPE }] },
+    const data = { object: { name: 'shop service', permission: permission_id, type_parameter: TYPE },
+        description: 'A fun shop selling toys', machine: machine_id, payee_treasury: { name: 'shop treasury' },
+        arbitration: { op: 'add', objects: [arbitraion_id] },
         gen_discount: discounts_dispatch, customer_required_info: { pubkey: '-----BEGIN PUBLIC KEY----- \
             MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXFyjaaYXvu26BHM4nYQrPhnjL\
             7ZBQhHUyeLo+4GQ6NmjXM3TPH9O1qlRerQ0vihYxVy6u5QbhElsxDNHp6JtRNlFZ \
@@ -150,46 +147,49 @@ const service = async (machine_id, permission_id, arbitraion_id) => {
 };
 const machine_guards_and_publish = async (machine_id, permission_id) => {
     await guard_confirmation_24hrs_more(machine_id, permission_id);
+    await sleep(2000);
     await guard_auto_receipt(machine_id, permission_id);
+    await sleep(2000);
     await guard_payer_dispute(machine_id, permission_id);
+    await sleep(2000);
     await guard_lost_comfirm_compensate(machine_id, permission_id);
-    const data = { object: { address: machine_id }, permission: { address: permission_id },
-        bPublished: true
-    };
+    await sleep(2000);
+    const data = { object: machine_id, bPublished: true };
     await result('Machine', await call_machine({ data: data })); // add new forward to machine
 };
 const service_guards_and_publish = async (machine_id, permission_id, service_id, arbitration_id) => {
     await guard_service_refund(machine_id, permission_id, service_id, arbitration_id);
+    await sleep(2000);
     await guard_service_withdraw(machine_id, permission_id, service_id, arbitration_id);
-    const data = { object: { address: service_id }, permission: { address: permission_id }, type_parameter: TYPE,
-        bPublished: true,
-    };
+    await sleep(2000);
+    const data = { object: service_id, bPublished: true, };
     await result('Service', await call_service({ data: data })); // add new forward to machine
 };
 const guard_confirmation_24hrs_more = async (machine_id, permission_id) => {
     const data = { namedNew: {},
         description: 'current tx time >= (last session time + 24hrs)',
-        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS },
+        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS }, // progress witness
             { identifier: 2, bWitness: false, value_type: WOWOK.ValueType.TYPE_ADDRESS, value: machine_id } // machine
         ],
         root: { logic: WOWOK.OperatorType.TYPE_LOGIC_AND, parameters: [
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 800, object: 1, parameters: [] },
+                        { query: 800, object: 1, parameters: [] }, // progress.machine
                         { identifier: 2 }
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER, parameters: [
                         { context: WOWOK.ContextType.TYPE_CLOCK },
                         { calc: WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters: [
-                                { query: 810, object: 1, parameters: [] },
+                                { query: 810, object: 1, parameters: [] }, // Last Session Time
                                 { value_type: WOWOK.ValueType.TYPE_U64, value: 86400000 } // 24 hrs
                             ] }
                     ] }
             ] }
     };
     const guard_id = await result('Guard', await call_guard({ data: data }));
+    sleep(2000);
     if (!guard_id)
         WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_confirmation_24hrs_more');
-    const data2 = { object: { address: machine_id }, permission: { address: permission_id },
+    const data2 = { object: machine_id,
         nodes: { op: 'add forward', data: [{ prior_node_name: order_confirmation.name, node_name: order_cancellation.name,
                     forward: { name: 'Goods not shipped for more than 24 hours', weight: 1, namedOperator: WOWOK.Machine.OPERATOR_ORDER_PAYER, guard: guard_id }
                 }] }
@@ -199,27 +199,28 @@ const guard_confirmation_24hrs_more = async (machine_id, permission_id) => {
 const guard_auto_receipt = async (machine_id, permission_id) => {
     const data = { namedNew: {},
         description: 'current tx time >= (last session time + 15 days)',
-        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS },
+        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS }, // progress witness
             { identifier: 2, bWitness: false, value_type: WOWOK.ValueType.TYPE_ADDRESS, value: machine_id } // machine
         ],
         root: { logic: WOWOK.OperatorType.TYPE_LOGIC_AND, parameters: [
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 800, object: 1, parameters: [] },
+                        { query: 800, object: 1, parameters: [] }, // progress.machine
                         { identifier: 2 }
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER, parameters: [
                         { context: WOWOK.ContextType.TYPE_CLOCK },
                         { calc: WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters: [
-                                { query: 810, object: 1, parameters: [] },
+                                { query: 810, object: 1, parameters: [] }, // Last Session Time
                                 { value_type: WOWOK.ValueType.TYPE_U64, value: 1296000000 } // 15 days
                             ] }
                     ] }
             ] }
     };
     const guard_id = await result('Guard', await call_guard({ data: data }));
+    await sleep(2000);
     if (!guard_id)
         WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_auto_receipt');
-    const data2 = { object: { address: machine_id }, permission: { address: permission_id },
+    const data2 = { object: machine_id,
         nodes: { op: 'add forward', data: [{ prior_node_name: goods_shippedout.name, node_name: order_completed.name,
                     forward: { name: 'Shipper comfirms after 15 days', weight: 5, permission: BUSINESS.shipping, guard: guard_id }
                 }] }
@@ -229,27 +230,28 @@ const guard_auto_receipt = async (machine_id, permission_id) => {
 const guard_payer_dispute = async (machine_id, permission_id) => {
     const data = { namedNew: {},
         description: 'current tx time <= (last session time + 15 days)',
-        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS },
+        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS }, // progress witness
             { identifier: 2, bWitness: false, value_type: WOWOK.ValueType.TYPE_ADDRESS, value: machine_id } // machine
         ],
         root: { logic: WOWOK.OperatorType.TYPE_LOGIC_AND, parameters: [
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 800, object: 1, parameters: [] },
+                        { query: 800, object: 1, parameters: [] }, // progress.machine
                         { identifier: 2 } // machine id
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_AS_U256_LESSER, parameters: [
                         { context: WOWOK.ContextType.TYPE_CLOCK },
                         { calc: WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters: [
-                                { query: 810, object: 1, parameters: [] },
+                                { query: 810, object: 1, parameters: [] }, // Last Session Time
                                 { value_type: WOWOK.ValueType.TYPE_U64, value: 1296000000 } // 15 days
                             ] }
                     ] }
             ] }
     };
     const guard_id = await result('Guard', await call_guard({ data: data }));
+    await sleep(2000);
     if (!guard_id)
         WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_auto_receipt');
-    const data2 = { object: { address: machine_id }, permission: { address: permission_id },
+    const data2 = { object: machine_id,
         nodes: { op: 'add forward', data: [{ prior_node_name: order_completed.name, node_name: dispute.name,
                     forward: { name: 'Confirm no package received within 15 days', weight: 1, permission: BUSINESS.shipping, guard: guard_id }
                 }] }
@@ -259,36 +261,36 @@ const guard_payer_dispute = async (machine_id, permission_id) => {
 const guard_lost_comfirm_compensate = async (machine_id, permission_id) => {
     const data1 = { namedNew: {},
         description: 'Compensation 1000000 to order payer for responsing exceeding 24 hours',
-        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS },
-            { identifier: 2, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS },
+        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS }, // progress witness
+            { identifier: 2, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS }, // payment witness
             { identifier: 3, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS } // order witness
         ],
         root: { logic: WOWOK.OperatorType.TYPE_LOGIC_AND, parameters: [
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 800, object: 1, parameters: [] },
+                        { query: 800, object: 1, parameters: [] }, // progress.machine
                         { value_type: WOWOK.ValueType.TYPE_ADDRESS, value: machine_id }
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER, parameters: [
                         { context: WOWOK.ContextType.TYPE_CLOCK },
                         { calc: WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters: [
-                                { query: 810, object: 1, parameters: [] },
+                                { query: 810, object: 1, parameters: [] }, // Last Session Time
                                 { value_type: WOWOK.ValueType.TYPE_U64, value: 86400000 } // 24 hrs
                             ] }
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 504, object: 3, parameters: [] },
+                        { query: 504, object: 3, parameters: [] }, // oerder.progress
                         { identifier: 1 } // progress witness
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 1206, object: 2, parameters: [] },
+                        { query: 1206, object: 2, parameters: [] }, // payment.Object for Perpose 
                         { identifier: 1 } // this progress
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 1205, object: 2, parameters: [] },
+                        { query: 1205, object: 2, parameters: [] }, // payment.Guard for Perpose
                         { context: WOWOK.ContextType.TYPE_GUARD } // this guard verifying
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 1213, object: 2, parameters: [] },
+                        { query: 1213, object: 2, parameters: [] }, // payment.Biz-ID
                         { query: 812, object: 1, parameters: [] }, // progress.Current Session-id
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters: [
@@ -300,31 +302,33 @@ const guard_lost_comfirm_compensate = async (machine_id, permission_id) => {
             ] }
     };
     const guard_id1 = await result('Guard', await call_guard({ data: data1 }));
+    await sleep(2000);
     if (!guard_id1)
         WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_lost_comfirm_compensate: more than 24hrs');
     const data2 = { namedNew: {},
         description: 'current tx time <= (last session time + 24hrs)',
-        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS },
+        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS }, // progress witness
             { identifier: 2, bWitness: false, value_type: WOWOK.ValueType.TYPE_ADDRESS, value: machine_id } // machine
         ],
         root: { logic: WOWOK.OperatorType.TYPE_LOGIC_AND, parameters: [
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 800, object: 1, parameters: [] },
+                        { query: 800, object: 1, parameters: [] }, // progress.machine
                         { identifier: 2 }
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_AS_U256_LESSER_EQUAL, parameters: [
                         { context: WOWOK.ContextType.TYPE_CLOCK },
                         { calc: WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters: [
-                                { query: 810, object: 1, parameters: [] },
+                                { query: 810, object: 1, parameters: [] }, // Last Session Time
                                 { value_type: WOWOK.ValueType.TYPE_U64, value: 86400000 } // 24 hrs
                             ] }
                     ] }
             ] }
     };
     const guard_id2 = await result('Guard', await call_guard({ data: data2 }));
+    await sleep(2000);
     if (!guard_id2)
         WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_lost_comfirm_compensate: less than 24hrs');
-    const data3 = { object: { address: machine_id }, permission: { address: permission_id },
+    const data3 = { object: machine_id,
         nodes: { op: 'add forward', data: [
                 { prior_node_name: dispute.name, node_name: goods_lost.name,
                     forward: { name: 'Compensation 100000000 exceeding 24 hours', weight: 5, permission: BUSINESS.express, guard: guard_id1 }
@@ -338,57 +342,59 @@ const guard_lost_comfirm_compensate = async (machine_id, permission_id) => {
 const guard_service_withdraw = async (machine_id, permission_id, service_id, arbitration_id) => {
     const data1 = { namedNew: {},
         description: 'Widthdraw on status: ' + order_completed.name + ' more than 15 days; \nService: ' + service_id,
-        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS },
+        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS }, // progress witness
             { identifier: 2, bWitness: false, value_type: WOWOK.ValueType.TYPE_ADDRESS, value: machine_id } // machine
         ],
         root: { logic: WOWOK.OperatorType.TYPE_LOGIC_AND, parameters: [
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 800, object: 1, parameters: [] },
+                        { query: 800, object: 1, parameters: [] }, // progress.machine
                         { identifier: 2 }
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters: [
                         { context: WOWOK.ContextType.TYPE_CLOCK },
                         { calc: WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters: [
-                                { query: 810, object: 1, parameters: [] },
+                                { query: 810, object: 1, parameters: [] }, // Last Session Time
                                 { value_type: WOWOK.ValueType.TYPE_U64, value: 1296000000 } // 15 days
                             ] }
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 801, object: 1, parameters: [] },
+                        { query: 801, object: 1, parameters: [] }, // 'Current Node'
                         { value_type: WOWOK.ValueType.TYPE_STRING, value: order_completed.name }
                     ] }
             ] }
     };
     const guard_id1 = await result('Guard', await call_guard({ data: data1 }));
+    await sleep(2000);
     if (!guard_id1)
         WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw: guard 1');
     const data2 = { namedNew: {},
         description: 'Widthdraw on status: ' + dispute.name + ' Wait 30 days to receive the results of a trusted Arbitration ' + arbitration_id + '. And within 30 days, the user can initiate a refund at any time based on the Arb arbitration results.',
-        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS },
+        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS }, // progress witness
             { identifier: 2, bWitness: false, value_type: WOWOK.ValueType.TYPE_ADDRESS, value: machine_id } // machine
         ],
         root: { logic: WOWOK.OperatorType.TYPE_LOGIC_AND, parameters: [
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 800, object: 1, parameters: [] },
+                        { query: 800, object: 1, parameters: [] }, // progress.machine
                         { identifier: 2 }
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters: [
                         { context: WOWOK.ContextType.TYPE_CLOCK },
                         { calc: WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters: [
-                                { query: 810, object: 1, parameters: [] },
+                                { query: 810, object: 1, parameters: [] }, // Last Session Time
                                 { value_type: WOWOK.ValueType.TYPE_U64, value: 2592000000 } // 30 days
                             ] }
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 801, object: 1, parameters: [] },
+                        { query: 801, object: 1, parameters: [] }, //'Current Node'
                         { value_type: WOWOK.ValueType.TYPE_STRING, value: dispute.name }
                     ] }
             ] }
     };
     const guard_id2 = await result('Guard', await call_guard({ data: data2 }));
+    await sleep(2000);
     if (!guard_id2)
         WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw: guard 2');
-    const data3 = { object: { address: service_id }, permission: { address: permission_id }, type_parameter: TYPE,
+    const data3 = { object: service_id,
         withdraw_guard: { op: 'add', guards: [{ guard: guard_id1, percent: 100 }, { guard: guard_id2, percent: 100 }] }
     };
     await result('Service', await call_service({ data: data3 }));
@@ -396,56 +402,58 @@ const guard_service_withdraw = async (machine_id, permission_id, service_id, arb
 const guard_service_refund = async (machine_id, permission_id, service_id, arbitration_id) => {
     const data1 = { namedNew: {},
         description: 'Refund Guard for Service: ' + service_id,
-        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS },
+        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS }, // progress witness
             { identifier: 2, bWitness: false, value_type: WOWOK.ValueType.TYPE_ADDRESS, value: machine_id } // machine
         ],
         root: { logic: WOWOK.OperatorType.TYPE_LOGIC_AND, parameters: [
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 800, object: 1, parameters: [] },
+                        { query: 800, object: 1, parameters: [] }, // progress.machine
                         { identifier: 2 }
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_OR, parameters: [
                         { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                                { query: 801, object: 1, parameters: [] },
+                                { query: 801, object: 1, parameters: [] }, // 'Current Node'
                                 { value_type: WOWOK.ValueType.TYPE_STRING, value: goods_lost.name }
                             ] },
                         { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                                { query: 801, object: 1, parameters: [] },
+                                { query: 801, object: 1, parameters: [] }, // 'Current Node'
                                 { value_type: WOWOK.ValueType.TYPE_STRING, value: order_cancellation.name }
                             ] }
                     ] },
             ] }
     };
     const guard_id1 = await result('Guard', await call_guard({ data: data1 }));
+    await sleep(2000);
     if (!guard_id1)
         WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund: guard 1');
     const data2 = { namedNew: {},
         description: 'Returns sent more than 15 days for Service: ' + service_id,
-        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS },
+        table: [{ identifier: 1, bWitness: true, value_type: WOWOK.ValueType.TYPE_ADDRESS }, // progress witness
             { identifier: 2, bWitness: false, value_type: WOWOK.ValueType.TYPE_ADDRESS, value: machine_id } // machine
         ],
         root: { logic: WOWOK.OperatorType.TYPE_LOGIC_AND, parameters: [
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 800, object: 1, parameters: [] },
+                        { query: 800, object: 1, parameters: [] }, // progress.machine
                         { identifier: 2 }
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters: [
-                        { query: 801, object: 1, parameters: [] },
+                        { query: 801, object: 1, parameters: [] }, // 'Current Node'
                         { value_type: WOWOK.ValueType.TYPE_STRING, value: return_goods.name }
                     ] },
                 { logic: WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters: [
                         { context: WOWOK.ContextType.TYPE_CLOCK },
                         { calc: WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters: [
-                                { query: 810, object: 1, parameters: [] },
+                                { query: 810, object: 1, parameters: [] }, // Last Session Time
                                 { value_type: WOWOK.ValueType.TYPE_U64, value: 1296000000 } // 15 days
                             ] }
                     ] },
             ] }
     };
     const guard_id2 = await result('Guard', await call_guard({ data: data2 }));
+    await sleep(2000);
     if (!guard_id2)
         WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund: guard 2');
-    const data3 = { object: { address: service_id }, permission: { address: permission_id }, type_parameter: TYPE,
+    const data3 = { object: service_id,
         refund_guard: { op: 'add', guards: [{ guard: guard_id1, percent: 100 }, { guard: guard_id2, percent: 100 }] }
     };
     await result('Service', await call_service({ data: data3 }));
@@ -457,34 +465,33 @@ const permission = async () => {
             biz.push({ index: parseInt(BUSINESS[key]), name: key });
         }
     }
-    const data = { description: 'A fun shop selling toys', object: { namedNew: { name: 'shop permission' } },
+    const data = { description: 'A fun shop selling toys', object: { name: 'shop permission' },
         biz_permission: { op: 'add', data: biz },
         permission: { op: 'add entity', entities: [
-                { address: TESTOR[0].address, permissions: [{ index: BUSINESS.confirmOrder },], },
-                { address: TESTOR[1].address, permissions: [{ index: BUSINESS.confirmOrder }, { index: BUSINESS.shipping }], },
-                { address: TESTOR[2].address, permissions: [{ index: BUSINESS.shipping }], },
-                { address: TESTOR[3].address, permissions: [{ index: BUSINESS.express },], },
-                { address: TESTOR[4].address, permissions: [{ index: BUSINESS.express },], },
-                { address: TESTOR[5].address, permissions: [{ index: BUSINESS.finance },], },
-                { address: TESTOR[6].address, permissions: [{ index: BUSINESS.dispute },], },
+                { address: { mark_or_address: TESTOR[0].address }, permissions: [{ index: BUSINESS.confirmOrder },], },
+                { address: { mark_or_address: TESTOR[1].address }, permissions: [{ index: BUSINESS.confirmOrder }, { index: BUSINESS.shipping }], },
+                { address: { mark_or_address: TESTOR[2].address }, permissions: [{ index: BUSINESS.shipping }], },
+                { address: { mark_or_address: TESTOR[3].address }, permissions: [{ index: BUSINESS.express },], },
+                { address: { mark_or_address: TESTOR[4].address }, permissions: [{ index: BUSINESS.express },], },
+                { address: { mark_or_address: TESTOR[5].address }, permissions: [{ index: BUSINESS.finance },], },
+                { address: { mark_or_address: TESTOR[6].address }, permissions: [{ index: BUSINESS.dispute },], },
             ] },
-        admin: { op: 'add', addresses: [TESTOR[0].address] }
+        admin: { op: 'add', addresses: [{ mark_or_address: TESTOR[0].address }] }
     };
     return await result('Permission', await call_permission({ data: data }));
 };
 // arbitration with independent permission
 const arbitration = async () => {
-    const data = { description: 'independent arbitration', object: { namedNew: { name: 'arbitration' } },
-        type_parameter: TYPE,
-        permission: { namedNew: { name: 'permission for arbitration' }, description: 'permission for arbitration' },
-        fee_treasury: { namedNew: { name: 'treasury for arbitration' }, description: 'fee treasury for arbitration' },
-        bPaused: false
-    };
+    const data = { description: 'independent arbitration',
+        object: { name: 'arbitration', type_parameter: TYPE, permission: { name: 'permission for arbitration', description: 'permission for arbitration' }, },
+        fee_treasury: { name: 'treasury for arbitration', description: 'fee treasury for arbitration' },
+        bPaused: false };
     return await result('Arbitration', await call_arbitration({ data: data }));
 };
 const machine = async (permission_id) => {
-    const data = { description: 'machine for a fun shop selling toys', object: { namedNew: { name: 'machine' } },
-        permission: { address: permission_id }, endpoint: 'https://wowok.net/',
+    const data = { description: 'machine for a fun shop selling toys',
+        object: { name: 'machine', permission: permission_id, },
+        endpoint: 'https://wowok.net/',
         nodes: { op: 'add', data: [order_confirmation, order_cancellation, order_completed, goods_shippedout, goods_lost, dispute, return_goods] }
     };
     return await result('Machine', await call_machine({ data: data }));
