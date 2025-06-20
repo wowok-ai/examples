@@ -20,8 +20,8 @@ const main = async () => {
         console.log('default account: '+ acc.address);
     }
 
-    //await Account.Instance().faucet(acc.address);
-
+    await Account.Instance().faucet(acc.address);
+   
     await test_call()
     await airdrop();
     await e_commerce();

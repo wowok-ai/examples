@@ -2,13 +2,13 @@ import { call_demand, call_guard, CallDemand_Data, CallGuard_Data, ResponseData,
 import { sleep, TESTOR } from './common.js';
 
 export const test_call = async () => {
-  console.log(await LocalMark.Instance().list())
+  console.log(await LocalMark.Instance().list());
   console.log(await permission());
-    //await guard()
-    //await demand()
+  await guard()
+  //await demand()
 }
 
-var GUARD = '0x569ab7a2efab4ca46ab588bc6730dbc163c6b3e6dc7b6447b89dd99fa8caa1b8';
+var GUARD = '';
 
 export const permission = async () => {
     const data : CallPermissionObject = {
@@ -38,7 +38,7 @@ export const permission = async () => {
             op: "add entity",
             entities: [
               {
-                address: {mark_or_address:TESTOR[3].address},
+                address: {name_or_address:TESTOR[3].address},
                 permissions: [
                   {
                     index: 1000
@@ -46,7 +46,7 @@ export const permission = async () => {
                 ]
               },
               {
-                address: {mark_or_address:TESTOR[4].address},
+                address: {name_or_address:TESTOR[4].address},
                 permissions: [
                   {
                     index: 1000
@@ -54,7 +54,7 @@ export const permission = async () => {
                 ]
               },
               {
-                address: {mark_or_address:TESTOR[5].address},
+                address: {name_or_address:TESTOR[5].address},
                 permissions: [
                   {
                     index: 1001
@@ -76,7 +76,7 @@ export const guard = async () => {
             {identifier:1}
         ]}
     }
-    const r = await call_guard({data:data})
+    const r = await call_guard({data:data}); 
     if ((r as any)?.digest) {
         const res = ResponseData(r as WOWOK.CallResponse);
         const g = res.find(v => v.change === 'created' && v.type === 'Guard');

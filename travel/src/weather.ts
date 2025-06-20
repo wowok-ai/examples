@@ -60,10 +60,10 @@ const update_weather = async (repository_id: string, permission_id:string) => {
     const time = WOWOK.getUTCDayStartByDivision(); 
     for (let i = 0; i < 7; i++) {
         const addr = WOWOK.uint2address(time + 24*60*60*1000*i); 
-        Condition.data.push({address:{mark_or_address:addr}, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_STRING, Weather_Condition.sunny)})
-        Minimum_temperature.data.push({address:{mark_or_address:addr}, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_U64, -10 + ABSOLUTE_ZERO_DEGREE)})
-        Maximum_temperature.data.push({address:{mark_or_address:addr}, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_U64, -3 + ABSOLUTE_ZERO_DEGREE)})
-        Ice_scooting_suitable.data.push({address:{mark_or_address:addr}, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_BOOL, true)})
+        Condition.data.push({address:{name_or_address:addr}, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_STRING, Weather_Condition.sunny)})
+        Minimum_temperature.data.push({address:{name_or_address:addr}, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_U64, -10 + ABSOLUTE_ZERO_DEGREE)})
+        Maximum_temperature.data.push({address:{name_or_address:addr}, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_U64, -3 + ABSOLUTE_ZERO_DEGREE)})
+        Ice_scooting_suitable.data.push({address:{name_or_address:addr}, bcsBytes:WOWOK.Bcs.getInstance().ser(WOWOK.ValueType.TYPE_BOOL, true)})
     }
 
     await result('Repository', await call_repository({data:{object:repository_id, data:{op:'add', data:Condition}}}));
@@ -75,7 +75,7 @@ const update_weather = async (repository_id: string, permission_id:string) => {
 const permission = async () : Promise<string | undefined> => {
     const data : CallPermission_Data = { description: 'An entity that provides weather data',  object:{name:'insurance permission'},
         biz_permission:{op:'add', data:[{index:WEATHER_DATA_PERMISSION, name:'Update weather data'}]},    
-        admin:{op:'add', addresses:[{mark_or_address:TEST_ADDR()}, {mark_or_address:TESTOR[6].address}]}
+        admin:{op:'add', addresses:[{name_or_address:TEST_ADDR()}, {name_or_address:TESTOR[6].address}]}
     }
     return await result('Permission', (await call_permission({data:data})))  as string;
 }

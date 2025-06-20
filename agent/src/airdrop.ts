@@ -7,7 +7,6 @@ export const airdrop = async () => {
     var res: any; 
     var treasury_id: string | undefined;
     var permission_id: string | undefined;
- 
     // treasury
     var desp = 'This airdrop treasury adds three withdrawal guards to define claiming operation criteria:\n';
     desp += 'Guard 1. Freshman who have never claimed can claim 300 at a time; \n';
@@ -17,7 +16,7 @@ export const airdrop = async () => {
         object:{name:'airdrop treasury',type_parameter: TYPE, permission:{name:'my permission', tags:['for treasury']}},    
         deposit:{balance:200}
     }
-    res = await call_treasury({data:treasury});
+    res = await call_treasury({data:treasury}); 
     if (res?.digest) {
         const r = ResponseData(res as WOWOK.CallResponse);
         if (r) {
@@ -100,7 +99,7 @@ const launch_guards = async (treasury_address:string) : Promise<string[] | undef
     const day_guard = await launch_guard(day_guard_data); await sleep(2000);
     const frequency_guard = await launch_guard(frequency_guard_data); await sleep(2000);
     const freshman_guard = await launch_guard(freshman_guard_data);  await sleep(2000);
-    //const res = await Promise.all([launch_guard(day_guard_data), launch_guard(frequency_guard_data), launch_guard(freshman_guard_data)]);
+    //const res = await Promise.all([await launch_guard(day_guard_data), await launch_guard(frequency_guard_data), launch_guard(freshman_guard_data)]);
     if (day_guard && frequency_guard && freshman_guard) {
         return [day_guard, frequency_guard, freshman_guard]
     }

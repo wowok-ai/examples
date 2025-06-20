@@ -287,11 +287,11 @@ const permission = async () : Promise<string | undefined>=> {
     const data : CallPermission_Data = { description: 'Iceland travel Service Providers', object:{},
         biz_permission:{op:'add', data:biz},
         permission:{op:'add entity', entities:[
-            {address: {mark_or_address:TESTOR[0].address}, permissions: [ {index:BUSINESS.insurance}, ],},
-            {address: {mark_or_address:TESTOR[1].address}, permissions: [ {index:BUSINESS.ice_scooting}, ],},
-            {address: {mark_or_address:TESTOR[2].address}, permissions: [ {index:BUSINESS.finance}],},
+            {address: {name_or_address:TESTOR[0].address}, permissions: [ {index:BUSINESS.insurance}, ],},
+            {address: {name_or_address:TESTOR[1].address}, permissions: [ {index:BUSINESS.ice_scooting}, ],},
+            {address: {name_or_address:TESTOR[2].address}, permissions: [ {index:BUSINESS.finance}],},
         ]},
-        admin:{op:'add', addresses:[{mark_or_address:TEST_ADDR()}]}
+        admin:{op:'add', addresses:[{name_or_address:TEST_ADDR()}]}
     }
     return await result('Permission', await call_permission({data:data})) as string;
 }
