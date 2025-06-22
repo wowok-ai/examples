@@ -31,9 +31,8 @@ export const like = (protocol:Protocol, param: any) => {
 
 export const avatar = (protocol:Protocol, param: any) => {
     let wowok_entity =  Entity.From(protocol.sessionCurrent());
-/*    let personal:Entity_Info = {name:'Jack Chou', description:'hahah', avatar:'https://wowok.ai/0x123.png', twitter:'@Wowok_Ai',
-        discord:'https://discord.gg/JbYneRzB8a', homepage:'https://github.com/wowok-ai/sdk/wiki'}*/
-    let personal = {name:'hi'}
+    let personal:Entity_Info = {name:'Jack Chou', description:'这是中文。。。', avatar:'http://img2.woyaogexing.com/2019/08/06/5e1b8f060adb4ffbb4b19d096794ea3b!400x400.jpeg', twitter:'@Wowok_Ai',
+        discord:'https://discord.gg/JbYneRzB8a', homepage:'https://github.com/wowok-ai/sdk/wiki'}
     wowok_entity.update(personal);
 }
 
