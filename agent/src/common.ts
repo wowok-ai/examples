@@ -10,14 +10,36 @@ export interface Testor {
 }
 
 export const TESTOR:Testor[] = [
-    {address:'0xbdc19ffb6e69c418816aabd8cc56ab2328035bedc91506a0e59beace2d992b62', privkey:'0x0f18f2ecd323d8f0bc867c43e0d50dcad186bd01f352993b7ac4933489a996d'},
-    {address:'0xeefc95ef5c5e8284edd64f2d5e1a8929b8652b41f8685365e689bb42981b1de9', privkey:'0x0738f2e986a586bf9212584d8abee63659bafdae7d6543da1339011e27cc5ea'},
-    {address:'0xde3a2f6529fbb3a52efa9edda7b81d73f7ebd8890a54240ab5d5f71b620f594f', privkey:'0x0c9e061d4b82dfdf76b6829e874575b782bf7afebe1c32ecdab4bfd0d399'},
-    {address:'0xb74463d6ab71f98e3637506030592eb23cf03ebef30ee6fc2446e4517e6535d3', privkey:'0x0d7d2b3b6895ee960ebcf26131343b8714162384f81b6bebb96dd93aaa73ff31'},
-    {address:'0x4da05b53d2a1185f6bace167ac7b2c0b10e0390e1b0d7b2bc3846c54c5d962ec', privkey:'0x0b2a4f453c8fe466d647ace8f9b772c28fd47466eebbabedcaf6ae0f646bd6d'},
-    {address:'0x7df2a91bb171fd297f073e2a7aed4665ddc894f710c1320aeeec8b7d7f1714ff', privkey:'0x02e4965aea3e419812df5314eec8e13d32c1fd2ffbfdee717696fdc186aec96c'},
-    {address:'0xc05bd531bfbcf413db14eeea317548ed08b8d037a58694f2b6d0198f96c38248', privkey:'0x0ae294a5f49afd0d8efe171476e893cf1f4e0c7199b5a316eb61ab786b98a96'},
-    {address:'0x6ac47d0e3999b4d87fb85ed6159d03f675db33cbc852cc5efda7f2f2f896e462', privkey:'0x067b0f72fa2e766b22736ca5979182305eebafe332e851ccdbeb6b9821933788'},
-    {address:'0x3ff303d6cb70c500dab3b28feb7520bdab2b219ff4c7dab1622897febe880f48', privkey:'0x0eb2bacd198491a3b1e4d7cbd29adfaff54fc27c82749c81de67ab51c419fb4'},
-    {address:'0x61cf31ff835cd88122be3dae246ebe506d0a1c8693ef70c38867f45357031ee4', privkey:'0x068538ad59e29f0f637cc2196b686c322217ce4cf33b12fa4a932dc5312ca037'},
-];
+    {
+        address: '0xdde0847449b6ed54405053584779ab7c3a29257a5c1a88bb0b16588c67de401f',
+        privkey: 'suiprivkey1qqdk8ggur2tzmddqe6nddc8msy94mhsxa5rtv9wdlew5zjk5ca5nkql0p6a'
+    },
+    {
+        address: '0xa4ec7eb950179f1a051c8cd1fb03d4a0643688a2f4212010cc668fc356cc7066',
+        privkey: 'suiprivkey1qzfjx4chrvpupu6p68nwqs4wst90872d85l859ulsmn2wca04agvkv0z4af'
+    },
+    {
+        address: '0xf274de5e6a9b5ff0f55816be540d2f6f1b0c207c9f958431a32891313e28f3c6',
+        privkey: 'suiprivkey1qz99tzqzat92eak92sture939uzjpvrjnw6lvh9prjwdvx7quvmyja9vjvw'
+    },
+    {
+        address: '0xf7f03a75b8c7326de43808154d1f8b0a1a65aa8fbad56ca0c1119ccb1f256718',
+        privkey: 'suiprivkey1qqxskkrdf3vdkzqqz96g3n9398lmda98lg5knxwxyuh6tsssyx5usz8z0v7'
+    },
+    {
+        address: '0x06aab352bac7013d2c7fdeb3b05cc81579c78681a4d18c640957112c288d51ba',
+        privkey: 'suiprivkey1qrfttf6udc7xuckpmx9qnhjhfluqzyqjlumzz67wgmkjg7k0edsdwkr0cj3'
+    },
+    {
+        address: '0x4d1c0376ec5f384cc5ec4e60a1f13815d1f81c67ca49b4dcb8eaf85c6274887a',
+        privkey: 'suiprivkey1qqxn0mcgyvxap366x7qygn0qhk9w92us4ayhzacm5czrm6rpwjvuzfuw4r7'
+    },
+    {
+        address: '0xb1b7071f330fb98a5f5d650280dde55274cb2c516af479c92d643adae037a51f',
+        privkey: 'suiprivkey1qqndq847xswpndmw7naq7aadzjl45h5c5355pqmqqpmu9dc435ynxd3vm5v'
+    },
+    {
+        address: '0xbb0fbbb2b1df582b93e991af43b776a4c588d48cb055645c631151e013663264',
+        privkey: 'suiprivkey1qp8s2n5l64uudwnus3m3jt738jyh3dyhxprdr7fhl9r8rmtzyd87uhdv59x'
+    }
+  ];

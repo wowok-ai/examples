@@ -1,5 +1,5 @@
 
-import { sleep } from './common.js'
+import { sleep, TESTOR } from './common.js'
 import { test_call } from './call_test.js';
 import { airdrop } from './airdrop.js';
 import { e_commerce } from './e-commerce.js';
@@ -20,9 +20,7 @@ const main = async () => {
     } else {
         console.log('default account: '+ acc.address);
     }
-
-
-
+    
     await Account.Instance().faucet(acc.address);
    
     await test_call()
