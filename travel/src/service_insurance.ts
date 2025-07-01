@@ -212,7 +212,7 @@ const guard_insurance_payment = async (machine_id:string, permission_id:string, 
                 {query:812, object: 1, parameters:[]}, // progress.Current Session-id
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[ // had payed 1000000 at least to order payer, for this progress session
-                {query:1209, object: 2, parameters:[ // payment.Amount for a Recipient
+                    {query:1209, object: 2, parameters:[ // payment.Amount for a Recipient
                     {query:501, object:3, parameters:[]}, // order.payer
                 ]},
                 {query:112, object:repository_id, parameters:[// amount

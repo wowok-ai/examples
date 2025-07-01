@@ -5,7 +5,7 @@ import { Account } from 'wowok_agent';
 const main = async () => {
     var acc = await Account.Instance().default();
     if (!acc) {
-        acc = await Account.Instance().gen(true);
+        acc = await Account.Instance().gen();
     }
     console.log(await Account.Instance().list());
     if (!acc) {
@@ -15,7 +15,7 @@ const main = async () => {
     else {
         console.log('default account: ' + acc.address);
     }
-    //await Account.Instance().faucet(acc.address);
+    await Account.Instance().faucet(acc.address);
     await test_call();
     await airdrop();
     await e_commerce();

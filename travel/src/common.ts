@@ -99,7 +99,7 @@ export enum GUARDS_NAME {
 export const check_account = async (name?:string) => {
     var acc = await Account.Instance().get(name);
     if (!acc) {
-       acc = await Account.Instance().gen(false, name);
+       acc = await Account.Instance().gen(name);
     }
 
     if (!acc) {

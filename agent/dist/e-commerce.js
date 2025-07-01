@@ -125,11 +125,11 @@ const service = async (machine_id, permission_id, arbitraion_id) => {
         duration_minutes: 60000000,
     };
     const discounts_dispatch = [
-        { receiver: { mark_or_address: TESTOR[5].address }, count: 2, discount: discount_type_a },
-        { receiver: { mark_or_address: TESTOR[6].address }, count: 2, discount: discount_type_a },
-        { receiver: { mark_or_address: TESTOR[7].address }, count: 2, discount: discount_type_b },
-        { receiver: { mark_or_address: TESTOR[8].address }, count: 2, discount: discount_type_a },
-        { receiver: { mark_or_address: TESTOR[9].address }, count: 2, discount: discount_type_a },
+        { receiver: { name_or_address: TESTOR[5].address }, count: 2, discount: discount_type_a },
+        { receiver: { name_or_address: TESTOR[6].address }, count: 2, discount: discount_type_a },
+        { receiver: { name_or_address: TESTOR[7].address }, count: 2, discount: discount_type_b },
+        { receiver: { name_or_address: TESTOR[8].address }, count: 2, discount: discount_type_a },
+        { receiver: { name_or_address: TESTOR[9].address }, count: 2, discount: discount_type_a },
     ];
     const data = { object: { name: 'shop service', permission: permission_id, type_parameter: TYPE },
         description: 'A fun shop selling toys', machine: machine_id, payee_treasury: { name: 'shop treasury' },
@@ -468,15 +468,15 @@ const permission = async () => {
     const data = { description: 'A fun shop selling toys', object: { name: 'shop permission' },
         biz_permission: { op: 'add', data: biz },
         permission: { op: 'add entity', entities: [
-                { address: { mark_or_address: TESTOR[0].address }, permissions: [{ index: BUSINESS.confirmOrder },], },
-                { address: { mark_or_address: TESTOR[1].address }, permissions: [{ index: BUSINESS.confirmOrder }, { index: BUSINESS.shipping }], },
-                { address: { mark_or_address: TESTOR[2].address }, permissions: [{ index: BUSINESS.shipping }], },
-                { address: { mark_or_address: TESTOR[3].address }, permissions: [{ index: BUSINESS.express },], },
-                { address: { mark_or_address: TESTOR[4].address }, permissions: [{ index: BUSINESS.express },], },
-                { address: { mark_or_address: TESTOR[5].address }, permissions: [{ index: BUSINESS.finance },], },
-                { address: { mark_or_address: TESTOR[6].address }, permissions: [{ index: BUSINESS.dispute },], },
+                { address: { name_or_address: TESTOR[0].address }, permissions: [{ index: BUSINESS.confirmOrder },], },
+                { address: { name_or_address: TESTOR[1].address }, permissions: [{ index: BUSINESS.confirmOrder }, { index: BUSINESS.shipping }], },
+                { address: { name_or_address: TESTOR[2].address }, permissions: [{ index: BUSINESS.shipping }], },
+                { address: { name_or_address: TESTOR[3].address }, permissions: [{ index: BUSINESS.express },], },
+                { address: { name_or_address: TESTOR[4].address }, permissions: [{ index: BUSINESS.express },], },
+                { address: { name_or_address: TESTOR[5].address }, permissions: [{ index: BUSINESS.finance },], },
+                { address: { name_or_address: TESTOR[6].address }, permissions: [{ index: BUSINESS.dispute },], },
             ] },
-        admin: { op: 'add', addresses: [{ mark_or_address: TESTOR[0].address }] }
+        admin: { op: 'add', addresses: [{ name_or_address: TESTOR[0].address }] }
     };
     return await result('Permission', await call_permission({ data: data }));
 };
@@ -486,7 +486,8 @@ const arbitration = async () => {
         object: { name: 'arbitration', type_parameter: TYPE, permission: { name: 'permission for arbitration', description: 'permission for arbitration' }, },
         fee_treasury: { name: 'treasury for arbitration', description: 'fee treasury for arbitration' },
         bPaused: false };
-    return await result('Arbitration', await call_arbitration({ data: data }));
+    const r = await result('Arbitration', await call_arbitration({ data: data }));
+    return r;
 };
 const machine = async (permission_id) => {
     const data = { description: 'machine for a fun shop selling toys',
