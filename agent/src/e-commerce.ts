@@ -132,8 +132,6 @@ const service = async (machine_id:string, permission_id:string, arbitraion_id:st
         {receiver: {name_or_address:TESTOR[5].address}, count: 2, discount: discount_type_a},
         {receiver: {name_or_address:TESTOR[6].address}, count: 2, discount: discount_type_a},
         {receiver: {name_or_address:TESTOR[7].address}, count: 2, discount: discount_type_b},
-        {receiver: {name_or_address:TESTOR[8].address}, count: 2, discount: discount_type_a},
-        {receiver: {name_or_address:TESTOR[9].address}, count: 2, discount: discount_type_a},
     ]
     const data: CallService_Data = { object:{name:'shop service', permission:permission_id, type_parameter:TYPE}, 
         description:'A fun shop selling toys', machine:machine_id, payee_treasury:{name:'shop treasury'},
