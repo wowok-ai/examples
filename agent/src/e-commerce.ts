@@ -279,24 +279,19 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
                 {query:504, object: 3, parameters:[]}, // oerder.progress
                 {identifier:1} // progress witness
             ]},
-            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:1206, object: 2, parameters:[]}, // payment.Object for Perpose 
-                {identifier:1} // this progress
-            ]},
-            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:1205, object: 2, parameters:[]}, // payment.Guard for Perpose
-                {context:WOWOK.ContextType.TYPE_GUARD} // this guard verifying
-            ]},
-            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:1213, object: 2, parameters:[]}, // payment.Biz-ID
-                {query:812, object: 1, parameters:[]}, // progress.Current Session-id
-            ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[ // had payed 1000000 at least to order payer, for this progress session
-                {query:1209, object: 2, parameters:[ // payment.Amount for a Recipient
-                    {query:501, object:3, parameters:[]}, // order.payer
+                {query: 1215, object:2, parameters:[
+                    {context:WOWOK.ContextType.TYPE_GUARD}, // for_guard: this guard verifying
+                    {identifier:1}, // for_object: this progress
+                    {query:812, object: 1, parameters:[]}, // biz-index: progress.Current Session-id
+                    {identifier:1}, // recipient: the order
                 ]},
-                {value_type:WOWOK.ValueType.TYPE_U64, value:1000000}
+                {value_type:WOWOK.ValueType.TYPE_U64, value:1000000} 
             ]},
+            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // payment token equls order token
+                {query: 1216, object:2, parameters:[]},
+                {query: 515, object:3, parameters:[]} 
+            ]}
         ]}
     };
     const guard_id1 = await result('Guard', await call_guard({data:data1})); await sleep(2000);
