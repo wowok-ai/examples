@@ -246,11 +246,6 @@ const service = async (protocol:Protocol, param:any) => {
         {receiver: TESTOR[5].address, count: 2, discount: discount_type_a},
         {receiver: TESTOR[6].address, count: 2, discount: discount_type_a},
         {receiver: TESTOR[7].address, count: 2, discount: discount_type_a},
-        {receiver: TESTOR[8].address, count: 3, discount: discount_type_a},
-        {receiver: TESTOR[9].address, count: 2, discount: discount_type_a},
-        {receiver: TESTOR[7].address, count: 2, discount: discount_type_b},
-        {receiver: TESTOR[8].address, count: 1, discount: discount_type_b},
-        {receiver: TESTOR[9].address, count: 1, discount: discount_type_b},
     ]
 
     const permission = param.get('permission::Permission')[0] ;
