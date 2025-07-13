@@ -230,7 +230,7 @@ const guard_ice_scooting = async (machine_id:string, permission_id:string, weath
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_ice_scooting');
 
     const data2 : CallGuard_Data = {
-        description:'Determine if the weather conditions are suitable for ice scooter events',
+        description:'Determine if the weather conditions are NOT suitable for ice scooter events',
         root: {logic: WOWOK.OperatorType.TYPE_LOGIC_NOT, parameters:[
             weather_cond
         ]}
