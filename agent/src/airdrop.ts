@@ -41,7 +41,7 @@ export const airdrop = async () => {
     console.log('guards: '+guards);
     await sleep(2000);
     
-    const treasury_modify: CallTreasury_Data = {withdraw_guard:{op:'add', data:guards.map((v,i) => {return {guard:v, amount:1+i}})},
+    const treasury_modify: CallTreasury_Data = {withdraw_guard:{op:'add', data:guards.map((v,i) => {return {guard:v, max_withdrawal_amount:1+i}})},
         object:treasury_id!, withdraw_mode:WOWOK.Treasury_WithdrawMode.GUARD_ONLY_AND_IMMUTABLE};
     res = await call_treasury({data:treasury_modify});        
     console.log(res)
