@@ -24,7 +24,8 @@
   "author": "wowok",
   "license": "ISC",
   "dependencies": {
-    "esm": "^3.2.25"
+    "esm": "^3.2.25",
+    "wowok_agent":"*"
   },
   "devDependencies": {
     "tsx": "^4.7.1",

@@ -80,7 +80,8 @@ export const result = async(type:string, res:CallResult, account?:string, witnes
             await sleep(2000);
         }
         return i;
-    } else if (res) {
+    } else  {
+        console.log(res)
         return res as GuardInfo_forCall
     }
 }

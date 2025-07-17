@@ -89,7 +89,7 @@ export const travel = async (weather_repository:string, insurance_service:string
     const machine_id = await machine(permission_id!); await sleep(2000)
     if (!machine_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'machine object failed.')
     await machine_guards_and_publish(machine_id!, permission_id!, weather_repository!, insurance_service); 
-    
+
     const service_id = await service(machine_id!, permission_id!, weather_repository!, arbitration_id!);
     if (!service_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'service object failed.')
     await service_guards_and_publish(machine_id!, permission_id!, service_id!);

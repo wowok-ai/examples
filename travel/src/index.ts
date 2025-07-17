@@ -30,7 +30,7 @@ const main = async () => {
 
 const run_service_progress = async () => {
     const res = await service();
-    console.log('build services success');
+
     console.log(GUARDS);
     console.log(res.insurance_service);
     console.log(res.travel_service);
