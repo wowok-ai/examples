@@ -70,10 +70,10 @@ const update_weather = async (repository_id: string, permission_id:string) => {
         Ice_scooting_suitable.data.push({address:addr, data:{type:WOWOK.RepositoryValueType.Bool, data:true/*max < 0 ? true : false*/}})
     }
 
-    await result('Repository', await call_repository({data:{object:repository_id, data:{add_by_key:Condition}}}));
-    await result('Repository', await call_repository({data:{object:repository_id, data:{add_by_key:Minimum_temperature}}}));
-    await result('Repository', await call_repository({data:{object:repository_id, data:{add_by_key:Maximum_temperature}}}));
-    await result('Repository', await call_repository({data:{object:repository_id, data:{add_by_key:Ice_scooting_suitable}}}));
+    await result('Repository', await call_repository({data:{object:repository_id, data:{op:'add_by_key', data:Condition}}}));
+    await result('Repository', await call_repository({data:{object:repository_id, data:{op:'add_by_key', data:Minimum_temperature}}}));
+    await result('Repository', await call_repository({data:{object:repository_id, data:{op:'add_by_key', data:Maximum_temperature}}}));
+    await result('Repository', await call_repository({data:{object:repository_id, data:{op:'add_by_key', data:Ice_scooting_suitable}}}));
 }
 
 const permission = async () : Promise<string | undefined> => {
