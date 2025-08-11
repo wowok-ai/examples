@@ -172,13 +172,13 @@ const guard_confirmation_24hrs_more = async (machine_id:string, permission_id:st
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER, parameters:[ //current tx time >= (last session time + 24hrs)
                 {context:WOWOK.ContextType.TYPE_CLOCK},
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[
-                    {query:810, object:1, parameters:[]}, // Last Session Time
+                    {query:810, object:{identifier:1}, parameters:[]}, // Last Session Time
                     {value_type:WOWOK.ValueType.TYPE_U64, value:86400000} // 24 hrs
                 ]}
             ]}
@@ -202,13 +202,13 @@ const guard_auto_receipt = async (machine_id:string, permission_id:string) => {
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER, parameters:[ //current tx time >= (last session time + 15 days)
                 {context:WOWOK.ContextType.TYPE_CLOCK},
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[
-                    {query:810, object:1, parameters:[]}, // Last Session Time
+                    {query:810, object:{identifier:1}, parameters:[]}, // Last Session Time
                     {value_type:WOWOK.ValueType.TYPE_U64, value:1296000000} // 15 days
                 ]}
             ]}
@@ -233,13 +233,13 @@ const guard_payer_dispute = async (machine_id:string, permission_id:string) => {
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2} // machine id
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_LESSER, parameters:[ //current tx time <= (last session time + 15 days)
                 {context:WOWOK.ContextType.TYPE_CLOCK},
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[
-                    {query:810, object:1, parameters:[]}, // Last Session Time
+                    {query:810, object:{identifier:1}, parameters:[]}, // Last Session Time
                     {value_type:WOWOK.ValueType.TYPE_U64, value:1296000000} // 15 days
                 ]}
             ]}
@@ -265,32 +265,32 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {value_type:WOWOK.ValueType.TYPE_ADDRESS, value:machine_id}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER, parameters:[ //current tx time >= (last session time + 24 hrs)
                 {context:WOWOK.ContextType.TYPE_CLOCK},
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[
-                    {query:810, object:1, parameters:[]}, // Last Session Time
+                    {query:810, object:{identifier:1}, parameters:[]}, // Last Session Time
                     {value_type:WOWOK.ValueType.TYPE_U64, value:86400000} // 24 hrs
                 ]}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // order.progress = this progress
-                {query:504, object: 3, parameters:[]}, // oerder.progress
+                {query:504, object: {identifier:3}, parameters:[]}, // oerder.progress
                 {identifier:1} // progress witness
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[ // had payed 1000000 at least to order payer, for this progress session
-                {query: 1215, object:2, parameters:[
+                {query: 1215, object:{identifier:2}, parameters:[
                     {context:WOWOK.ContextType.TYPE_GUARD}, // for_guard: this guard verifying
                     {identifier:1}, // for_object: this progress
-                    {query:812, object: 1, parameters:[]}, // biz-index: progress.Current Session-id
+                    {query:812, object: {identifier:1}, parameters:[]}, // biz-index: progress.Current Session-id
                     {identifier:1}, // recipient: the order
                 ]},
                 {value_type:WOWOK.ValueType.TYPE_U64, value:1000000} 
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // payment token equls order token
-                {query: 1216, object:2, parameters:[]},
-                {query: 515, object:3, parameters:[]} 
+                {query: 1216, object:{identifier:2}, parameters:[]},
+                {query: 515, object:{identifier:3}, parameters:[]} 
             ]}
         ]}
     };
@@ -304,13 +304,13 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_LESSER_EQUAL, parameters:[ //current tx time <= (last session time + 24hrs)
                 {context:WOWOK.ContextType.TYPE_CLOCK},
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[
-                    {query:810, object:1, parameters:[]}, // Last Session Time
+                    {query:810, object:{identifier:1}, parameters:[]}, // Last Session Time
                     {value_type:WOWOK.ValueType.TYPE_U64, value:86400000} // 24 hrs
                 ]}
             ]}
@@ -339,18 +339,18 @@ const guard_service_withdraw = async (machine_id:string, permission_id:string, s
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[ //current tx time >= (last session time + 15 days)
                 {context:WOWOK.ContextType.TYPE_CLOCK},
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[
-                    {query:810, object:1, parameters:[]}, // Last Session Time
+                    {query:810, object:{identifier:1}, parameters:[]}, // Last Session Time
                     {value_type:WOWOK.ValueType.TYPE_U64, value:1296000000} // 15 days
                 ]}
             ]}, 
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
-                {query:801, object:1, parameters:[]}, // 'Current Node'
+                {query:801, object:{identifier:1}, parameters:[]}, // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:order_completed.name}
             ]}
         ]}
@@ -366,18 +366,18 @@ const guard_service_withdraw = async (machine_id:string, permission_id:string, s
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[ //current tx time >= (last session time + 30 days)
                 {context:WOWOK.ContextType.TYPE_CLOCK},
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[
-                    {query:810, object:1, parameters:[]}, // Last Session Time
+                    {query:810, object:{identifier:1}, parameters:[]}, // Last Session Time
                     {value_type:WOWOK.ValueType.TYPE_U64, value:2592000000} // 30 days
                 ]}
             ]}, 
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == dispute
-                {query:801, object:1, parameters:[]}, //'Current Node'
+                {query:801, object:{identifier:1}, parameters:[]}, //'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:dispute.name}
             ]}
         ]}
@@ -400,16 +400,16 @@ const guard_service_refund = async (machine_id:string, permission_id:string, ser
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_OR, parameters:[ 
                 {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == goods_lost
-                    {query:801, object:1, parameters:[]}, // 'Current Node'
+                    {query:801, object:{identifier:1}, parameters:[]}, // 'Current Node'
                     {value_type:WOWOK.ValueType.TYPE_STRING, value:goods_lost.name}
                 ]},
                 {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_cancellation
-                    {query:801, object:1, parameters:[]}, // 'Current Node'
+                    {query:801, object:{identifier:1}, parameters:[]}, // 'Current Node'
                     {value_type:WOWOK.ValueType.TYPE_STRING, value:order_cancellation.name}
                 ]}
             ]}, 
@@ -425,17 +425,17 @@ const guard_service_refund = async (machine_id:string, permission_id:string, ser
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == return_goods
-                {query:801, object:1, parameters:[]},  // 'Current Node'
+                {query:801, object:{identifier:1}, parameters:[]},  // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:return_goods.name}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[ //current tx time >= (last session time + 15 days)
                 {context:WOWOK.ContextType.TYPE_CLOCK},
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[
-                    {query:810, object:1, parameters:[]}, // Last Session Time
+                    {query:810, object:{identifier:1}, parameters:[]}, // Last Session Time
                     {value_type:WOWOK.ValueType.TYPE_U64, value:1296000000} // 15 days
                 ]}
             ]}, 
@@ -496,6 +496,7 @@ const machine = async (permission_id:string) : Promise<string | undefined>=> {
 const result = async(type:string, res:CallResult)  : Promise<string | undefined> => {
     if ((res as any)?.digest) {
         const r = ResponseData(res as WOWOK.CallResponse);
+        
         if (r) {
             const i = r.find(v => v.type === type)?.object;
             console.log(type + ': ' + i);

@@ -54,7 +54,7 @@ const launch_guards = async (treasury_address:string) : Promise<string[] | undef
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[
                 {context:WOWOK.ContextType.TYPE_CLOCK},
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[
-                    {query:1417, object:1, parameters:[ // Recent Time with Op/Sgr
+                    {query:1417, object:{identifier:1}, parameters:[ // Recent Time with Op/Sgr
                         {value_type:WOWOK.ValueType.TYPE_U8, value:WOWOK.Treasury_Operation.WITHDRAW},
                         {context:WOWOK.ContextType.TYPE_SIGNER}
                     ]},
@@ -67,7 +67,7 @@ const launch_guards = async (treasury_address:string) : Promise<string[] | undef
         description:'An address that has never claimed an airdrop from the Treasury may claim an airdrop.',
         table:[{identifier:1, bWitness:false, value_type:WOWOK.ValueType.TYPE_ADDRESS, value:treasury_address}],
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_NOT, parameters:[
-            {query:1424, object:1, parameters:[ // Has Operation with Sgr
+            {query:1424, object:{identifier:1}, parameters:[ // Has Operation with Sgr
                 {value_type:WOWOK.ValueType.TYPE_U8, value:WOWOK.Treasury_Operation.WITHDRAW},
                 {context:WOWOK.ContextType.TYPE_SIGNER}
             ]},
@@ -78,7 +78,7 @@ const launch_guards = async (treasury_address:string) : Promise<string[] | undef
     description:'One airdrop can be collected from the vault every 1 day, and has been collected more than 10 times in the past.',
     table:[{identifier:1, bWitness:false, value_type:WOWOK.ValueType.TYPE_ADDRESS, value:treasury_address}],
     root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[
-            {query:1427, object:1, parameters:[ // Operation at Least Times by a Signer
+            {query:1427, object:{identifier:1}, parameters:[ // Operation at Least Times by a Signer
                 {value_type:WOWOK.ValueType.TYPE_U8, value:WOWOK.Treasury_Operation.WITHDRAW},
                 {context:WOWOK.ContextType.TYPE_SIGNER},
                 {value_type:WOWOK.ValueType.TYPE_U8, value:10},
@@ -86,7 +86,7 @@ const launch_guards = async (treasury_address:string) : Promise<string[] | undef
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[
                 {context:WOWOK.ContextType.TYPE_CLOCK},
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[
-                    {query:1417, object:1, parameters:[ // 'Recent Time with Op/Sgr'
+                    {query:1417, object:{identifier:1}, parameters:[ // 'Recent Time with Op/Sgr'
                         {value_type:WOWOK.ValueType.TYPE_U8, value:WOWOK.Treasury_Operation.WITHDRAW},
                         {context:WOWOK.ContextType.TYPE_SIGNER}
                     ]},

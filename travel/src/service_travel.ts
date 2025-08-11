@@ -130,11 +130,11 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
-                {query:801, object:1, parameters:[]}, // 'Current Node'
+                {query:801, object:{identifier:1}, parameters:[]}, // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:TRAVEL_MACHINE_NODE.Complete}
             ]}
         ]}
@@ -147,11 +147,11 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
-                {query:801, object:1, parameters:[]}, // 'Current Node'
+                {query:801, object:{identifier:1}, parameters:[]}, // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:TRAVEL_MACHINE_NODE.Cancel}
             ]}
         ]}
@@ -169,11 +169,11 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
-                {query:801, object:1, parameters:[]}, // 'Current Node'
+                {query:801, object:{identifier:1}, parameters:[]}, // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:TRAVEL_MACHINE_NODE.Insurance_Fail}
             ]}
         ]}
@@ -185,11 +185,11 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
-                {query:801, object:1, parameters:[]}, // 'Current Node'
+                {query:801, object:{identifier:1}, parameters:[]}, // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:TRAVEL_MACHINE_NODE.Cancel}
             ]}
         ]}
@@ -246,12 +246,12 @@ const guard_ice_scooting = async (machine_id:string, permission_id:string, weath
             {logic: WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER, parameters:[
                 { context:WOWOK.ContextType.TYPE_CLOCK},
                 { calc: WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[ 
-                    {query:810, object:1, parameters:[]},
+                    {query:810, object:{identifier:1}, parameters:[]},
                     {value:/*8*60*60*1000*/1000, value_type:WOWOK.ValueType.TYPE_U64} // 1s for test
                 ]}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]},
+                {query:800, object:{identifier:1}, parameters:[]},
                 {value:machine_id, value_type:WOWOK.ValueType.TYPE_ADDRESS}
             ]}
         ]}
@@ -293,7 +293,8 @@ const permission = async () : Promise<string | undefined>=> {
         ]},
         admin:{op:'add', addresses:[{name_or_address:TEST_ADDR()}]}
     }
-    return await result('Permission', await call_permission({data:data})) as string;
+    const r = await call_permission({data:data});
+    return await result('Permission', r) as string;
 }
 
 // arbitration with independent permission
@@ -304,7 +305,8 @@ const arbitration = async () : Promise<string | undefined>=> {
         fee_treasury:{name:'treasury for arbitration', description:'fee treasury for arbitration'},
         bPaused:false
     }
-    return await result('Arbitration', await call_arbitration({data:data})) as string;
+    const r = await call_arbitration({data:data}); 
+    return await result('Arbitration', r) as string;
 }
 
 const machine = async (permission_id:string) : Promise<string | undefined>=> {
@@ -312,6 +314,7 @@ const machine = async (permission_id:string) : Promise<string | undefined>=> {
         object:{name:'machine', permission:permission_id}, endpoint:'',
         nodes:{op:'add', data:[Insurance, Ice_scooting, Complete, Cancel, Insurance_Fail, Spa]}
     }
-    return await result('Machine', await call_machine({data:data})) as string;
+    const r = await call_machine({data:data});
+    return await result('Machine', r) as string;
 }
 

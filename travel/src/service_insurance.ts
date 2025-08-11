@@ -60,14 +60,11 @@ const Insurance_Payment:Machine_Node = {
 export const insurance = async () : Promise<ServiceReturn> => {
     const permission_id = await permission(); await sleep(2000)
     if (!permission_id)  WOWOK.ERROR(WOWOK.Errors.Fail, 'permission object failed.')
-    
     const repository_id = await repository(permission_id!); await sleep(2000)
-    if (!repository_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'arbitration object failed.')
-
+    if (!repository_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'repository object failed.')
     const machine_id = await machine(permission_id!); await sleep(2000)
     if (!machine_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'machine object failed.')
     await machine_guards_and_publish(machine_id!, permission_id!, repository_id!); 
-    
     const service_id = await service(machine_id!, permission_id!, repository_id!);
     if (!service_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'service object failed.')
     await service_guards_and_publish(machine_id!, permission_id!, service_id!)
@@ -84,7 +81,9 @@ const repository = async (permission_id:string) : Promise<string | undefined> =>
         description:'payout records', mode:WOWOK.Repository_Policy_Mode.POLICY_MODE_STRICT,
         policy:{op:'add', data:policy},
     }
-    return await result('Repository', await call_repository({data:data})) as string;
+    const r = await call_repository({data:data}); 
+    return await result('Repository', r) as string;
+
 }
 
 const service = async (machine_id:string, permission_id:string, repository_id:string) : Promise<string | undefined> => {
@@ -95,7 +94,8 @@ const service = async (machine_id:string, permission_id:string, repository_id:st
                 WOWOK.BuyRequiredEnum.address, WOWOK.BuyRequiredEnum.phone, WOWOK.BuyRequiredEnum.name
             ]}, sales:{op:'add', sales:[INSURANCE_PRODUCT]}, endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink'
     }
-    return await result('Service', await call_service({data:data})) as string
+    const r = await call_service({data:data});
+    return await result('Service', r) as string
 }
 
 const machine_guards_and_publish = async (machine_id:string, permission_id:string, repository_id:string) => {
@@ -114,11 +114,11 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {identifier:2}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // current node == order_completed
-                {query:801, object:1, parameters:[]}, // 'Current Node'
+                {query:801, object:{identifier:1}, parameters:[]}, // 'Current Node'
                 {value_type:WOWOK.ValueType.TYPE_STRING, value:INSURANCE_MACHINE_NODE.Insurance_Payment}
             ]}
         ]}
@@ -144,7 +144,7 @@ const guard_accident_recorded = async (machine_id:string, permission_id:string, 
                 {value:'report', value_type:WOWOK.ValueType.TYPE_STRING} 
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {value:machine_id, value_type:WOWOK.ValueType.TYPE_ADDRESS} // machine id
             ]},
         ]}
@@ -171,7 +171,7 @@ const guard_amount_claim = async (machine_id:string, permission_id:string, repos
                 {value:'amount', value_type:WOWOK.ValueType.TYPE_STRING} 
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {value:machine_id, value_type:WOWOK.ValueType.TYPE_ADDRESS} // machine id
             ]},
         ]}
@@ -196,24 +196,24 @@ const guard_insurance_payment = async (machine_id:string, permission_id:string, 
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:1, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
                 {value_type:WOWOK.ValueType.TYPE_ADDRESS, value:machine_id}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:1206, object: 2, parameters:[]}, // payment.Object for Perpose 
+                {query:1206, object: {identifier:2}, parameters:[]}, // payment.Object for Perpose 
                 {identifier:1} // this progress
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:1205, object: 2, parameters:[]}, // payment.Guard for Perpose
+                {query:1205, object: {identifier:2}, parameters:[]}, // payment.Guard for Perpose
                 {context:WOWOK.ContextType.TYPE_GUARD} // this guard verifying
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:1213, object: 2, parameters:[]}, // payment.Biz-ID
-                {query:812, object: 1, parameters:[]}, // progress.Current Session-id
+                {query:1213, object: {identifier:2}, parameters:[]}, // payment.Biz-ID
+                {query:812, object: {identifier:1}, parameters:[]}, // progress.Current Session-id
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[ // had payed 1000000 at least to order payer, for this progress session
-                    {query:1209, object: 2, parameters:[ // payment.Amount for a Recipient
-                    {query:501, object:3, parameters:[]}, // order.payer
+                    {query:1209, object: {identifier:2}, parameters:[ // payment.Amount for a Recipient
+                    {query:501, object:{identifier:3}, parameters:[]}, // order.payer
                 ]},
                 {query:112, object:repository_id, parameters:[// amount
                     {identifier:1},
@@ -221,7 +221,7 @@ const guard_insurance_payment = async (machine_id:string, permission_id:string, 
                 ]}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // order.progress = this progress
-                {query:504, object: 3, parameters:[]}, // oerder.progress
+                {query:504, object: {identifier:3}, parameters:[]}, // oerder.progress
                 {identifier:1} // progress witness
             ]},
         ]}
@@ -253,7 +253,8 @@ const permission = async () : Promise<string | undefined>=> {
         ]},
         admin:{op:'add', addresses:[{name_or_address:TEST_ADDR()}]}
     }
-    return await result('Permission', await call_permission({data:data})) as string;
+    const r = await call_permission({data:data});
+    return await result('Permission', r) as string;
 }
 
 const machine = async (permission_id:string) : Promise<string | undefined>=> {
@@ -261,6 +262,7 @@ const machine = async (permission_id:string) : Promise<string | undefined>=> {
         endpoint:'https://x4o43luhbc.feishu.cn/docx/IyA4dUXx1o6ilDxQMMKc3CoonGd?from=from_copylink',
         nodes:{op:'add', data:[Report_Incident, Emergency_Treatment, Amount_claim, Amount_claim, Insurance_Payment]}
     }
-    return await result('Machine', await call_machine({data:data})) as string;
+    const r = await call_machine({data:data}); 
+    return await result('Machine', r) as string;
 }
 
