@@ -6,6 +6,7 @@
 import { call_guard, call_machine, call_permission, call_repository, call_service, CallGuard_Data, CallMachine_Data, 
     CallPermission_Data, CallRepository_Data, CallService_Data, WOWOK, Machine_Node } from 'wowok_agent'
 import { sleep, TESTOR, TEST_ADDR, result, PAY_TYPE, PUBKEY, INSURANCE_PRODUCT, ServiceReturn } from './common';
+import { ContextType, ValueType } from '../../../wowok/dist';
 
 enum BUSINESS { // business permission for Permission Object must >= 1000
     adjuster = 1000,
@@ -190,39 +191,26 @@ const guard_amount_claim = async (machine_id:string, permission_id:string, repos
 const guard_insurance_payment = async (machine_id:string, permission_id:string, repository_id:string) => {
     const data : CallGuard_Data = {namedNew:{},
         description:'Claim insurance payment',
-        table:[{identifier:1, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS}, // progress witness
+        table:[{identifier:1, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS}, // order witness
             {identifier:2, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS}, // payment witness
-            {identifier:3, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS} // order witness
         ], 
-        root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
-            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
+        root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // order'machine equals this machine
+            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // machine id matchs
+                {identifier:1, witness:ContextType.TYPE_ORDER_MACHINE}, // order.machine
                 {value_type:WOWOK.ValueType.TYPE_ADDRESS, value:machine_id}
             ]},
-            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:1206, object: {identifier:2}, parameters:[]}, // payment.Object for Perpose 
-                {identifier:1} // this progress
-            ]},
-            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:1205, object: {identifier:2}, parameters:[]}, // payment.Guard for Perpose
-                {context:WOWOK.ContextType.TYPE_GUARD} // this guard verifying
-            ]},
-            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:1213, object: {identifier:2}, parameters:[]}, // payment.Biz-ID
-                {query:812, object: {identifier:1}, parameters:[]}, // progress.Current Session-id
-            ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[ // had payed 1000000 at least to order payer, for this progress session
-                    {query:1209, object: {identifier:2}, parameters:[ // payment.Amount for a Recipient
-                    {query:501, object:{identifier:3}, parameters:[]}, // order.payer
+                {query:1215, object: {identifier:2}, parameters:[ // payed amount
+                    {context:WOWOK.ContextType.TYPE_GUARD}, // this guard verifying
+                    {identifier:1}, //  payment.Object for Perpose: this order
+                    {query:812, object: {identifier:1, witness:ContextType.TYPE_ORDER_PROGRESS}, parameters:[]}, // progress.Current Session-id: progress.Current Session-id
+                    {identifier:1} // payed for order object
                 ]},
-                {query:112, object:repository_id, parameters:[// amount
-                    {identifier:1},
-                    {value:'amount', value_type:WOWOK.ValueType.TYPE_STRING}
-                ]}
+                {value_type:ValueType.TYPE_U64, value:1000000}
             ]},
-            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // order.progress = this progress
-                {query:504, object: {identifier:3}, parameters:[]}, // oerder.progress
-                {identifier:1} // progress witness
+            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // payed token type
+                {query:1217, object: {identifier:2}, parameters:[]}, // payment token type
+                {query:516, object: {identifier:1}, parameters:[]}, // order token type
             ]},
         ]}
     };

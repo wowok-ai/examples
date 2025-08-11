@@ -74,11 +74,21 @@ export const result = async(type:string, res:CallResult, account?:string, witnes
     //console.log(res)
     if ((res as any)?.digest) {
         const r = ResponseData(res as WOWOK.CallResponse);
-        const i = r.find(v => v.type === type)?.object;
+        let i = r.find(v => v.type === type)?.object;
         if (i) {
             console.log(type + ': ' + i);     
             await sleep(2000);
+        } else {
+            // fetch tx again.
+            const n = await WOWOK.Protocol.Client().getTransactionBlock({digest:(res as any)?.digest, options:{showObjectChanges:true}})
+            const r = ResponseData(n as WOWOK.CallResponse);
+            i = r.find(v => v.type === type)?.object;
+            if (i) {
+                console.log(type + ': ' + i);     
+                await sleep(2000);
+            }
         }
+
         return i;
     } else  {
         console.log(res)
