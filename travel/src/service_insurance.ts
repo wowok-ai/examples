@@ -140,7 +140,7 @@ const guard_accident_recorded = async (machine_id:string, permission_id:string, 
         table:[{identifier:1, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS}, // progress witness
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ 
-            {query:105, object:repository_id, parameters:[ // repository contains report for the progress?
+            {query:106, object:repository_id, parameters:[ // repository contains report for the progress?
                 {identifier:1},// progress id
                 {value:'report', value_type:WOWOK.ValueType.TYPE_STRING} 
             ]},
@@ -167,7 +167,7 @@ const guard_amount_claim = async (machine_id:string, permission_id:string, repos
         table:[{identifier:1, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS}, // progress witness
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ 
-            {query:105, object:repository_id, parameters:[ // repository contains amount for the progress?
+            {query:106, object:repository_id, parameters:[ // repository contains amount for the progress?
                 {identifier:1},// progress id
                 {value:'amount', value_type:WOWOK.ValueType.TYPE_STRING} 
             ]},
