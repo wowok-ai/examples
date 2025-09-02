@@ -8,7 +8,7 @@ import { TEST_PRIV, TEST_ADDR, TESTOR } from './common'
 const SERVICE_PAY_TYPE = Protocol.SUI_TOKEN_TYPE; // token for pay
 
 const main = async () => {
-    let protocol = new Protocol(ENTRYPOINT.testnet)
+    let protocol = new Protocol(ENTRYPOINT.suitest)
     let ids = new Map<string, TxbObject[]>();
     
     // permission

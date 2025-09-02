@@ -3,6 +3,7 @@ import { call_arbitration, call_guard, call_machine, call_permission, call_servi
     CallPermission_Data, CallResult, CallService_Data, ResponseData, WOWOK, Account, Machine_Node,
     DicountDispatch} from 'wowok_agent'
 import { sleep, TESTOR } from './common.js';
+import { ContextType } from '../../../wowok/dist/protocol.js';
 
 const TYPE = WOWOK.Protocol.SUI_TOKEN_TYPE;
 enum BUSINESS { // business permission for Permission Object must >= 1000
@@ -259,39 +260,34 @@ const guard_payer_dispute = async (machine_id:string, permission_id:string) => {
 const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:string) => {
     const data1 : CallGuard_Data = {namedNew:{},
         description:'Compensation 1000000 to order payer for responsing exceeding 24 hours',
-        table:[{identifier:1, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS}, // progress witness
+        table:[{identifier:1, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS}, // order witness
             {identifier:2, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS}, // payment witness
-            {identifier:3, bWitness:true, value_type:WOWOK.ValueType.TYPE_ADDRESS} // order witness
         ], 
-        root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // progress'machine equals this machine
+        root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // order'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:{identifier:1}, parameters:[]}, // progress.machine
+                {query:800, object:{identifier:1, witness:ContextType.TYPE_ORDER_MACHINE}, parameters:[]}, // order.machine
                 {value_type:WOWOK.ValueType.TYPE_ADDRESS, value:machine_id}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER, parameters:[ //current tx time >= (last session time + 24 hrs)
                 {context:WOWOK.ContextType.TYPE_CLOCK},
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[
-                    {query:810, object:{identifier:1}, parameters:[]}, // Last Session Time
+                    {query:810, object:{identifier:1, witness:ContextType.TYPE_ORDER_PROGRESS}, parameters:[]}, // Last Session Time
                     {value_type:WOWOK.ValueType.TYPE_U64, value:86400000} // 24 hrs
                 ]}
-            ]},
-            {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // order.progress = this progress
-                {query:504, object: {identifier:3}, parameters:[]}, // oerder.progress
-                {identifier:1} // progress witness
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[ // had payed 1000000 at least to order payer, for this progress session
                 {query: 1215, object:{identifier:2}, parameters:[
                     {context:WOWOK.ContextType.TYPE_GUARD}, // for_guard: this guard verifying
-                    {identifier:1}, // for_object: this progress
-                    {query:812, object: {identifier:1}, parameters:[]}, // biz-index: progress.Current Session-id
+                    {identifier:1}, // for_object: this order
+                    {query:812, object: {identifier:1, witness:ContextType.TYPE_ORDER_PROGRESS}, parameters:[]}, // biz-index: progress.Current Session-id
                     {identifier:1}, // recipient: the order
                 ]},
                 {value_type:WOWOK.ValueType.TYPE_U64, value:1000000} 
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // payment token equls order token
                 {query: 1216, object:{identifier:2}, parameters:[]},
-                {query: 515, object:{identifier:3}, parameters:[]} 
-            ]}
+                {query: 515, object:{identifier:1}, parameters:[]} 
+            ]}, 
         ]}
     };
     const guard_id1 = await result('Guard', await call_guard({data:data1})); await sleep(2000);

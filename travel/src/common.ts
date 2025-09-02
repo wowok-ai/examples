@@ -61,7 +61,7 @@ export function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export const PROTOCOL = new WOWOK.Protocol(WOWOK.ENTRYPOINT.testnet);
+export const PROTOCOL = new WOWOK.Protocol(WOWOK.ENTRYPOINT.suitest);
 export const PAY_TYPE = WOWOK.Protocol.SUI_TOKEN_TYPE; 
 export const PUBKEY = '-----BEGIN PUBLIC KEY----- \
             MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXFyjaaYXvu26BHM4nYQrPhnjL\
