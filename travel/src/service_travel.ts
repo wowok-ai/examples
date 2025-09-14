@@ -209,7 +209,7 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
 }
 
 const guard_ice_scooting = async (machine_id:string, permission_id:string, weather_repository:string) => {
-    const weather_cond:GuardNode = { query: 116, object:weather_repository, parameters: [
+    const weather_cond:GuardNode = { query: 120, object:weather_repository, parameters: [
         {calc:WOWOK.OperatorType.TYPE_NUMBER_ADDRESS, parameters:[ // Align by the start time of each day
             {calc:WOWOK.OperatorType.TYPE_NUMBER_MULTIPLY, parameters:[
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_DEVIDE, parameters:[
