@@ -383,7 +383,7 @@ const guard_service_withdraw = async (machine_id:string, permission_id:string, s
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_withdraw: guard 2');
 
     const data3 : CallService_Data = { object:service_id,
-        withdraw_guard:{op:'add', guards:[{guard:guard_id1!, percent:100}, {guard:guard_id2!, percent:100}]}
+        withdraw_guard:{op:'add', guards:[{guard:guard_id1!, rate:10000}, {guard:guard_id2!, rate:10000}]}
     }
     await result('Service', await call_service({data:data3}))
 }
@@ -442,7 +442,7 @@ const guard_service_refund = async (machine_id:string, permission_id:string, ser
     if (!guard_id2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund: guard 2');
 
     const data3 : CallService_Data = { object:service_id,
-        refund_guard:{op:'add', guards:[{guard:guard_id1!, percent:100}, {guard:guard_id2!, percent:100}]}
+        refund_guard:{op:'add', guards:[{guard:guard_id1!, rate:10000}, {guard:guard_id2!, rate:10000}]}
     };
     await result('Service', await call_service({data:data3}))
 }

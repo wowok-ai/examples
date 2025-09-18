@@ -201,8 +201,8 @@ const service_guards_and_publish = async (machine_id:string, permission_id:strin
     if (!refund2) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_service_refund 2');
 
     const data2 : CallService_Data = { object:service_id,
-        withdraw_guard:{op:'add', guards:[{guard:withdraw1!, percent:100},{guard:withdraw2!, percent:60},]}, 
-        refund_guard:{op:'add', guards:[{guard:refund1!, percent:100},{guard:refund2!, percent:40},]}, 
+        withdraw_guard:{op:'add', guards:[{guard:withdraw1!, rate:10000},{guard:withdraw2!, rate:6000},]}, 
+        refund_guard:{op:'add', guards:[{guard:refund1!, rate:10000},{guard:refund2!, rate:4000},]}, 
         bPublished:true
     }
     await result('Service', await call_service({data:data2}))

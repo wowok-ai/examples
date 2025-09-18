@@ -376,7 +376,7 @@ const guard_withdraw = async (protocol:Protocol, param:any) => {
 
     var desp2 = 'Widthdraw on status: '+dispute.name+' Wait 30 days to receive the results of a trusted Arbitration ' + arbitration +'. And within 30 days, the user can initiate a refund at any time based on the Arb arbitration results.';
     const guard2 = Guard.New(protocol.sessionCurrent(), desp2, withdraw2.build());
-    Service.From(protocol.sessionCurrent(), SERVICE_PAY_TYPE, permission, service).add_withdraw_guards([{guard:guard.get_object(), percent:100}, {guard:guard2.get_object(), percent:100}, ]);
+    Service.From(protocol.sessionCurrent(), SERVICE_PAY_TYPE, permission, service).add_withdraw_guards([{guard:guard.get_object(), rate:10000}, {guard:guard2.get_object(), rate:10000}, ]);
     guard.launch(); guard2.launch(); 
 }
 
@@ -457,7 +457,7 @@ const guard_refund = async (protocol:Protocol, param:any) => {
     const service = param.get('service::Service')[0] ;
     const guard = Guard.New(protocol.sessionCurrent(), 'Refund Guard for Machine nodes for Service: ' + service, refund.build());
     const guard2 = Guard.New(protocol.sessionCurrent(), 'By default, returns have been delivered more than 15 days for Service: ' + service, refund2.build());
-    Service.From(protocol.sessionCurrent(), SERVICE_PAY_TYPE, permission, service).add_refund_guards([{guard:guard.get_object(), percent:100}, {guard:guard2.get_object(), percent:100}]);
+    Service.From(protocol.sessionCurrent(), SERVICE_PAY_TYPE, permission, service).add_refund_guards([{guard:guard.get_object(), rate:10000}, {guard:guard2.get_object(), rate:10000}]);
     guard.launch(); guard2.launch();
 }
 

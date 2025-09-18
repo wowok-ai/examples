@@ -95,7 +95,7 @@ export const demand = async () => {
     const coin = await Account.Instance().coinObject_with_balance(1); await sleep(2000)
     if (coin) {
         const data: CallDemand_Data = {
-            object:{type_parameter:'0x2::coin::Coin<0x2::sui::SUI>'}, 
+            object:{type_parameter:'0x2::coin::Coin<0x2::wow::WOW>'}, 
             guard:{guard:GUARD},
             description:'this is some sdk test.',
             bounty:{op:'add', object:{address:coin}}
