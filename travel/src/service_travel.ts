@@ -115,7 +115,7 @@ const machine_guards_and_publish = async (machine_id:string, permission_id:strin
     await guard_ice_scooting(machine_id, permission_id, repository_id);
     const data : CallMachine_Data = { object:machine_id, 
         nodes:{op:'add forward', data:[{prior_node_name:WOWOK.Machine.INITIAL_NODE_NAME, node_name:TRAVEL_MACHINE_NODE.Insurance,
-            forward:{name:'Purchase', weight: 1, permission:BUSINESS.insurance, suppliers:insurance_suppliers?.map(v => {return {service:v, bRequired:false}})}
+            forward:{name:'Purchase', weight: 1, permission:BUSINESS.insurance}
         }]},
         bPublished:true
     }
