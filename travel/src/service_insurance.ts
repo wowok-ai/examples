@@ -4,7 +4,7 @@
  */
 
 import { call_guard, call_machine, call_permission, call_repository, call_service, CallGuard_Data, CallMachine_Data, 
-    CallPermission_Data, CallRepository_Data, CallService_Data, WOWOK, Machine_Node } from 'wowok_agent'
+    CallPermission_Data, CallRepository_Data, CallService_Data, WOWOK} from 'wowok_agent'
 import { sleep, TESTOR, TEST_ADDR, result, PAY_TYPE, PUBKEY, INSURANCE_PRODUCT, ServiceReturn } from './common';
 import { ContextType, ValueType } from '../../../wowok/dist';
 
@@ -22,7 +22,7 @@ export enum INSURANCE_MACHINE_NODE {
 
 const MEDICAL_ORG = 'medical organization';
 
-const Report_Incident:Machine_Node = {
+const Report_Incident:WOWOK.Machine_Node = {
     name: INSURANCE_MACHINE_NODE.Report_Incident,
     pairs: [
         {prior_node: WOWOK.Machine.INITIAL_NODE_NAME, threshold:2, forwards:[
@@ -31,7 +31,7 @@ const Report_Incident:Machine_Node = {
     ]
 }
 
-const Emergency_Treatment:Machine_Node = {
+const Emergency_Treatment:WOWOK.Machine_Node = {
     name: INSURANCE_MACHINE_NODE.Emergency_Treatment,
     pairs: [
         {prior_node: INSURANCE_MACHINE_NODE.Report_Incident, threshold:2, forwards:[
@@ -41,7 +41,7 @@ const Emergency_Treatment:Machine_Node = {
     ]
 }
 
-const Amount_claim:Machine_Node = {
+const Amount_claim:WOWOK.Machine_Node = {
     name: INSURANCE_MACHINE_NODE.Amount_claim,
     pairs: [
         {prior_node: INSURANCE_MACHINE_NODE.Emergency_Treatment, threshold:2, forwards:[
@@ -50,7 +50,7 @@ const Amount_claim:Machine_Node = {
     ]
 }
 
-const Insurance_Payment:Machine_Node = {
+const Insurance_Payment:WOWOK.Machine_Node = {
     name: INSURANCE_MACHINE_NODE.Insurance_Payment,
     pairs: [
         {prior_node: INSURANCE_MACHINE_NODE.Amount_claim, threshold:0, forwards:[
@@ -155,7 +155,7 @@ const guard_accident_recorded = async (machine_id:string, permission_id:string, 
 
     const data2 : CallMachine_Data = { object:machine_id,
         nodes:{op:'add forward', data:[{prior_node_name:WOWOK.Machine.INITIAL_NODE_NAME, node_name:INSURANCE_MACHINE_NODE.Report_Incident,
-            forward:{name:'Record incident report', weight: 1, permission:BUSINESS.adjuster, guard:guard_id}
+            forward:{name:'Record incident report', weight: 1, permission:BUSINESS.adjuster, guard:{guard:guard_id, order_ids:[]}}
         }]}
     }
     await result('Machine', await call_machine({data:data2})) // add new forward to machine
@@ -182,7 +182,7 @@ const guard_amount_claim = async (machine_id:string, permission_id:string, repos
 
     const data2 : CallMachine_Data = { object:machine_id,
         nodes:{op:'add forward', data:[{prior_node_name:INSURANCE_MACHINE_NODE.Emergency_Treatment, node_name:INSURANCE_MACHINE_NODE.Amount_claim,
-            forward:{name:'The claim cost is determined', weight: 1, permission:BUSINESS.adjuster, guard:guard_id}
+            forward:{name:'The claim cost is determined', weight: 1, permission:BUSINESS.adjuster, guard:{guard:guard_id, order_ids:[]}} 
         }]}
     }
     await result('Machine', await call_machine({data:data2})) // add new forward to machine
@@ -220,7 +220,7 @@ const guard_insurance_payment = async (machine_id:string, permission_id:string, 
 
     const data2 : CallMachine_Data = { object:machine_id,
         nodes:{op:'add forward', data:[{prior_node_name:INSURANCE_MACHINE_NODE.Amount_claim, node_name:INSURANCE_MACHINE_NODE.Insurance_Payment,
-            forward:{name:'Claim insurance payment', weight: 1, permission:BUSINESS.finance, guard:guard_id}
+            forward:{name:'Claim insurance payment', weight: 1, permission:BUSINESS.finance, guard:{guard:guard_id, order_ids:[]}}
         }]}
     }
     await result('Machine', await call_machine({data:data2})) // add new forward to machine

@@ -40,13 +40,13 @@ const run_service_progress = async () => {
 }
 
 const run_progress_only = async () => {
-    GUARDS.set('ice_scooting', '0x0713c6d7e6e66c2d1a414270207a09b19cb98211c1ded48e6814183a14451d6a');
-    GUARDS.set('cancel_ice_scooting', '0x92284108960db1e44646a2f2ff9c54b4037d184a98e7e923f8e34d3c94705db2');
-    GUARDS.set('complete_ice_scooting', '0x77d15b99e228dd82ee13d4fadc2ac688be4f2641865dd7efd04b6f148f0e9950');
-    const insurance_service: ServiceReturn = {service:'0xc876d3aca727422a97ce038b7d00494635323d9d8526b14178cff096bfec84cb',
-        machine:'0xba92cae06675231a6288dfbb0e874a49e32c32e0f3413902f6514cdfdeebc53f'}
-    const travel_service: ServiceReturn = {service:'0x3e04af89d36ba6a8af8d9e0895cb8e9adf49d83ecfd0bc5f43342bef09554706', 
-        machine:'0xf8b02ca29b47e77fc312e2229941ed24890c5e999ec825937bb34d66c02851ff'}
+    GUARDS.set('ice_scooting', '0xf90546f060a5ddf9301e09cb47a2b2062df9494cf568fedc35eb3df97c82396b');
+    GUARDS.set('cancel_ice_scooting', '0x17d7f3db3cc544c1892a2c8a6c6a3f7e0bee29225b7475f79146e81ec6b7dc84');
+    GUARDS.set('complete_ice_scooting', '0x61124f21ca6d49c5d6abc86dc1d4aae865e6b10238c3f410906e879444aec020');
+    const insurance_service: ServiceReturn = {service:'0x7daa98cc40bbd9f1d38a23a72f9035f3648f8a6c86c802bd8b25c2ba9afa7b5f',
+        machine:'0x26546e7c2fcf7076f08cdc945a77478fd6d0684e822a65210f48aa890ee480cc'}
+    const travel_service: ServiceReturn = {service:'0x60e4b7c4bcf9b8f8d9f90d8a71a9b898c775c099fa1c07e81202971649a1a51e', 
+        machine:'0x4ad924a894241b6d557ba89e7136d573b715cab09380b1e73542b34b39c36b39'}
     await run_service(insurance_service, travel_service);
 }
 

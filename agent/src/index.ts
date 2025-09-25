@@ -26,7 +26,6 @@ const main = async () => {
     await test_call()
     await airdrop();
     await e_commerce(); 
-
-}  
+  }  
 
 main().catch(console.error)

@@ -36,21 +36,21 @@ export const run_service = async (insurance_service:ServiceReturn, traval_servic
 
     const progress_insurance : CallMachine_Data = { object:traval_service.machine, 
         progress_next:{progress:travel?.progress!, operation:{next_node_name:TRAVEL_MACHINE_NODE.Insurance, forward:'Purchase'}, 
-            deliverable:{msg:'purchase success!', orders:[ins.order!], }}
+            deliverable:'purchase success!'}
     };
-    await result('Progress', await call_machine({data:progress_insurance}));
+    await result('Progress', await call_machine({data:progress_insurance}));  
 
     console.log('progress start: ' + TRAVEL_MACHINE_NODE.Spa)
-    const progress_spa : CallMachine_Data = { object:traval_service.machine, 
+    const progress_spa : CallMachine_Data = { object:traval_service.machine,     
         progress_next:{progress:travel?.progress!, operation:{next_node_name:TRAVEL_MACHINE_NODE.Spa, forward:'Comfirm'}, 
-            deliverable:{msg:'funny', orders:[]}}
+            deliverable:'funny'}  
     }
     await result('Progress', await call_machine({data:progress_spa, account:BUYER_ACCOUNT}));
     
     console.log('progress start: ' + TRAVEL_MACHINE_NODE.Ice_scooting)
     const progress_ice_scotting : CallMachine_Data = { object:traval_service.machine,
     progress_next:{progress:travel?.progress!, operation:{next_node_name:TRAVEL_MACHINE_NODE.Ice_scooting, forward:'Enter'}, 
-        deliverable:{msg:'go go go', orders:[]}}
+        deliverable:'go go go'}
     }
 
     await result('Progress', await call_machine({data:progress_ice_scotting}));
@@ -58,7 +58,7 @@ export const run_service = async (insurance_service:ServiceReturn, traval_servic
     console.log('progress start: ' + TRAVEL_MACHINE_NODE.Complete)
     const progress_complete : CallMachine_Data = { object:traval_service.machine, 
     progress_next:{progress:travel?.progress!, operation:{next_node_name:TRAVEL_MACHINE_NODE.Complete, forward:'Complete'}, 
-        deliverable:{msg:'happy nice day', orders:[]}}
+        deliverable:'happy nice day'}
     }
     const result_witness = await result('Progress', await call_machine({data:progress_complete}));
     console.log(result_witness);

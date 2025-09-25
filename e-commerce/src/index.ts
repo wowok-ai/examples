@@ -292,7 +292,8 @@ const guard_confirmation_24hrs_more = async (protocol:Protocol, param:any) => {
     const guard = Guard.New(protocol.sessionCurrent(), 'current on node '+order_confirmation.name+ ' and current tx time >= (last session time + 24hrs)', receipt.build());
     const permission = param.get('permission::Permission')[0] ;
     const m = Machine.From(protocol.sessionCurrent(), permission, machine);
-    const cancel:Machine_Forward = {name:'Goods not shipped for more than 24 hours', weight: 1, namedOperator:Machine.OPERATOR_ORDER_PAYER, guard:guard.get_object()};
+    const cancel:Machine_Forward = {name:'Goods not shipped for more than 24 hours', weight: 1, namedOperator:Machine.OPERATOR_ORDER_PAYER, 
+        guard:{guard:guard.get_object(), order_ids:[]}};
     m.add_forward(order_confirmation.name, order_cancellation.name, cancel); 
     guard.launch()
 }
@@ -319,7 +320,8 @@ const guard_receipt = async (protocol:Protocol, param:any) => {
     const guard = Guard.New(protocol.sessionCurrent(), 'current on node '+goods_shippedout.name+ ' and current tx time >= (last session time + 15 days)', receipt.build());
     const permission = param.get('permission::Permission')[0] ;
     const m = Machine.From(protocol.sessionCurrent(), permission, machine);
-    const shipper_with_guard:Machine_Forward = {name:'Shipper comfirms after 15 days', weight: 5, permission:BUSINESS.shipping, guard:guard.get_object()};
+    const shipper_with_guard:Machine_Forward = {name:'Shipper comfirms after 15 days', weight: 5, permission:BUSINESS.shipping, 
+        guard:{guard:guard.get_object(), order_ids:[]}};
     m.add_forward(goods_shippedout.name, order_completed.name, shipper_with_guard);
     guard.launch()
 }
@@ -404,7 +406,8 @@ const guard_payer_lost = async (protocol:Protocol, param:any) => {
     const guard = Guard.New(protocol.sessionCurrent(), 'current on node '+order_completed.name+ ' and current tx time <= (last session time + 15 days)', maker.build());
     const permission = param.get('permission::Permission')[0] ;
     const m = Machine.From(protocol.sessionCurrent(), permission, machine);
-    const f:Machine_Forward = {name:'Confirm no package received within 15 days', weight: 1, namedOperator:Machine.OPERATOR_ORDER_PAYER, guard:guard.get_object()};
+    const f:Machine_Forward = {name:'Confirm no package received within 15 days', weight: 1, namedOperator:Machine.OPERATOR_ORDER_PAYER, 
+        guard:{guard:guard.get_object(), order_ids:[]}};
     m.add_forward(order_completed.name, dispute.name, f); 
     guard.launch()
 }
@@ -500,7 +503,8 @@ const guard_lost_comfirm_compensate = async (protocol:Protocol, param:any) => {
     const guard = Guard.New(protocol.sessionCurrent(), desp, maker.build());
     const permission = param.get('permission::Permission')[0] ;
     const m = Machine.From(protocol.sessionCurrent(), permission, machine);
-    const express:Machine_Forward = {name:'Response within 24hrs if package lost', weight: 5, permission:BUSINESS.express, guard:guard.get_object()};
+    const express:Machine_Forward = {name:'Response within 24hrs if package lost', weight: 5, permission:BUSINESS.express, 
+        guard:{guard:guard.get_object(), order_ids:[]}};
     m.add_forward(dispute.name, goods_lost.name, express);
     guard.launch()
 }
