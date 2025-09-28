@@ -7,7 +7,7 @@ import { TEST_PRIV, TEST_ADDR, TESTOR } from './common'
 
 
 const main = async () => {
-    let protocol = new Protocol(ENTRYPOINT.suitest)
+    let protocol = Protocol.Instance(ENTRYPOINT.suitest)
     let ids = new Map<string, TxbObject[]>();
     
     // permission

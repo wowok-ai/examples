@@ -1,5 +1,6 @@
 
 import { Account, call_service, CallResult, CallService_Data, GuardInfo_forCall, LocalMark, ResponseData, WOWOK } from 'wowok_agent'
+import { Protocol } from '../../../wowok/dist'
 
 export const TEST_ADDR = (): string => {  
     if (process.env.ADDR) {
@@ -61,7 +62,7 @@ export function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export const PROTOCOL = new WOWOK.Protocol(WOWOK.ENTRYPOINT.suitest);
+export const PROTOCOL = Protocol.Instance(WOWOK.ENTRYPOINT.suitest);
 export const PAY_TYPE = WOWOK.Protocol.SUI_TOKEN_TYPE; 
 export const PUBKEY = '-----BEGIN PUBLIC KEY----- \
             MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXFyjaaYXvu26BHM4nYQrPhnjL\

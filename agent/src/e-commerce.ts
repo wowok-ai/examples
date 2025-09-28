@@ -1,6 +1,6 @@
 import { call_arbitration, call_guard, call_machine, call_permission, call_service, CallArbitration_Data, 
     CallDemand_Data, CallGuard_Data, CallMachine_Data, 
-    CallPermission_Data, CallResult, CallService_Data, ResponseData, WOWOK, Account, Machine_Node,
+    CallPermission_Data, CallResult, CallService_Data, ResponseData, WOWOK, Account,
     DicountDispatch} from 'wowok_agent'
 import { sleep, TESTOR } from './common.js';
 import { ContextType } from '../../../wowok/dist/protocol.js';
@@ -14,7 +14,7 @@ enum BUSINESS { // business permission for Permission Object must >= 1000
     dispute = 1004,
 };
 
-const order_confirmation:Machine_Node = {
+const order_confirmation:WOWOK.Machine_Node = {
     name: 'Order confirmation',
     pairs: [
         {prior_node: WOWOK.Machine.INITIAL_NODE_NAME, threshold:0, forwards:[
@@ -22,7 +22,7 @@ const order_confirmation:Machine_Node = {
         ]},
     ]
 }
-const order_cancellation:Machine_Node = {
+const order_cancellation:WOWOK.Machine_Node = {
     name: 'Order cancellation',
     pairs: [
         {prior_node: WOWOK.Machine.INITIAL_NODE_NAME, threshold:0, forwards:[
@@ -31,7 +31,7 @@ const order_cancellation:Machine_Node = {
         ]},
     ]
 }
-const goods_shippedout:Machine_Node = {
+const goods_shippedout:WOWOK.Machine_Node = {
     name: 'Goods shipped out',
     pairs: [
         {prior_node: 'Order confirmation', threshold:10, forwards:[
@@ -41,7 +41,7 @@ const goods_shippedout:Machine_Node = {
     ]
 }
 
-const order_completed:Machine_Node = {
+const order_completed:WOWOK.Machine_Node = {
     name: 'Order completed',
     pairs: [
         {prior_node: 'Goods shipped out', threshold:10, forwards:[
@@ -57,7 +57,7 @@ const order_completed:Machine_Node = {
     ]
 }
 
-const return_goods: Machine_Node = {
+const return_goods: WOWOK.Machine_Node = {
     name: 'Goods Returned',
     pairs: [
         {prior_node: 'Order completed', threshold:15, forwards:[
@@ -72,7 +72,7 @@ const return_goods: Machine_Node = {
         ]},
     ]
 }
-const goods_lost: Machine_Node = {
+const goods_lost: WOWOK.Machine_Node = {
     name: 'Goods lost',
     pairs: [
         {prior_node: 'Dispute', threshold:10, forwards:[
@@ -85,7 +85,7 @@ const goods_lost: Machine_Node = {
     ]
 }
 
-const dispute: Machine_Node = {
+const dispute: WOWOK.Machine_Node = {
     name: 'Dispute',
     pairs: [
         {prior_node: 'Order completed', threshold:0, forwards:[
@@ -189,7 +189,7 @@ const guard_confirmation_24hrs_more = async (machine_id:string, permission_id:st
     if (!guard_id) WOWOK.ERROR(WOWOK.Errors.Fail, 'guard_confirmation_24hrs_more');
     const data2 : CallMachine_Data = { object:machine_id, 
         nodes:{op:'add forward', data:[{prior_node_name:order_confirmation.name, node_name:order_cancellation.name,
-            forward:{name:'Goods not shipped for more than 24 hours', weight: 1, namedOperator:WOWOK.Machine.OPERATOR_ORDER_PAYER, guard:guard_id}
+            forward:{name:'Goods not shipped for more than 24 hours', weight: 1, namedOperator:WOWOK.Machine.OPERATOR_ORDER_PAYER, guard:{guard:guard_id, order_ids:[]}}
         }]}
     }
     await result('Machine', await call_machine({data:data2})) // add new forward to machine
@@ -220,7 +220,7 @@ const guard_auto_receipt = async (machine_id:string, permission_id:string) => {
 
     const data2 : CallMachine_Data = { object:machine_id, 
         nodes:{op:'add forward', data:[{prior_node_name:goods_shippedout.name, node_name:order_completed.name,
-            forward:{name:'Shipper comfirms after 15 days', weight: 5, permission:BUSINESS.shipping, guard:guard_id}
+            forward:{name:'Shipper comfirms after 15 days', weight: 5, permission:BUSINESS.shipping, guard:{guard:guard_id, order_ids:[]}}
         }]}
     }
     await result('Machine', await call_machine({data:data2})) // add new forward to machine
@@ -251,7 +251,7 @@ const guard_payer_dispute = async (machine_id:string, permission_id:string) => {
 
     const data2 : CallMachine_Data = { object:machine_id,
         nodes:{op:'add forward', data:[{prior_node_name:order_completed.name, node_name:dispute.name,
-            forward:{name:'Confirm no package received within 15 days', weight: 1, permission:BUSINESS.shipping, guard:guard_id}
+            forward:{name:'Confirm no package received within 15 days', weight: 1, permission:BUSINESS.shipping, guard:{guard:guard_id, order_ids:[]}}
         }]}
     }
     await result('Machine', await call_machine({data:data2})) // add new forward to machine
@@ -318,9 +318,9 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
     const data3 : CallMachine_Data = { object:machine_id, 
         nodes:{op:'add forward', data:[
             {prior_node_name:dispute.name, node_name:goods_lost.name,
-                forward:{name:'Compensation 100000000 exceeding 24 hours', weight: 5, permission:BUSINESS.express, guard:guard_id1}
+                forward:{name:'Compensation 100000000 exceeding 24 hours', weight: 5, permission:BUSINESS.express, guard:{guard:guard_id1, order_ids:[]}}
             }, {prior_node_name:dispute.name, node_name:goods_lost.name,
-                forward:{name:'Response within 24hrs if package lost', weight: 5, permission:BUSINESS.express, guard:guard_id2}
+                forward:{name:'Response within 24hrs if package lost', weight: 5, permission:BUSINESS.express, guard:{guard:guard_id2, order_ids:[]}}
             }
         ]}
     }

@@ -64,10 +64,10 @@ const update_weather = async (repository_id: string, permission_id:string) => {
         const addr = time + 24*60*60*1000*i;
         const t1 = getRandomInt(); const t2 = getRandomInt();
         const max = t1 > t2 ? t1:t2; const min = t1 > t2 ? t2:t1;
-        Condition.data.push({address:addr, data:{type:WOWOK.RepositoryValueType.String, data:Weather_Condition.sunny}});
-        Minimum_temperature.data.push({address:addr, data:{type:WOWOK.RepositoryValueType.PositiveNumber, data:min  + ABSOLUTE_ZERO_DEGREE}})
-        Maximum_temperature.data.push({address:addr, data:{type:WOWOK.RepositoryValueType.PositiveNumber, data:max + ABSOLUTE_ZERO_DEGREE}})
-        Ice_scooting_suitable.data.push({address:addr, data:{type:WOWOK.RepositoryValueType.Bool, data:true/*max < 0 ? true : false*/}})
+        Condition.data.push({address_or_witness:{address:addr}, data:{type:WOWOK.RepositoryValueType.String, data:Weather_Condition.sunny}});
+        Minimum_temperature.data.push({address_or_witness:{address:addr}, data:{type:WOWOK.RepositoryValueType.PositiveNumber, data:min  + ABSOLUTE_ZERO_DEGREE}})
+        Maximum_temperature.data.push({address_or_witness:{address:addr}, data:{type:WOWOK.RepositoryValueType.PositiveNumber, data:max + ABSOLUTE_ZERO_DEGREE}})
+        Ice_scooting_suitable.data.push({address_or_witness:{address:addr}, data:{type:WOWOK.RepositoryValueType.Bool, data:true/*max < 0 ? true : false*/}})
     }
 
     await result('Repository', await call_repository({data:{object:repository_id, data:{op:'add_by_key', data:Condition}}}));
