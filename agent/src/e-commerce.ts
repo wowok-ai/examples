@@ -3,7 +3,6 @@ import { call_arbitration, call_guard, call_machine, call_permission, call_servi
     CallPermission_Data, CallResult, CallService_Data, ResponseData, WOWOK, Account,
     DicountDispatch} from 'wowok_agent'
 import { sleep, TESTOR } from './common.js';
-import { ContextType } from '../../../wowok/dist/protocol.js';
 
 const TYPE = WOWOK.Protocol.SUI_TOKEN_TYPE;
 enum BUSINESS { // business permission for Permission Object must >= 1000
@@ -265,13 +264,13 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // order'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[
-                {query:800, object:{identifier:1, witness:ContextType.TYPE_ORDER_MACHINE}, parameters:[]}, // order.machine
+                {query:800, object:{identifier:1, witness:WOWOK.ContextType.TYPE_ORDER_MACHINE}, parameters:[]}, // order.machine
                 {value_type:WOWOK.ValueType.TYPE_ADDRESS, value:machine_id}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER, parameters:[ //current tx time >= (last session time + 24 hrs)
                 {context:WOWOK.ContextType.TYPE_CLOCK},
                 {calc:WOWOK.OperatorType.TYPE_NUMBER_ADD, parameters:[
-                    {query:810, object:{identifier:1, witness:ContextType.TYPE_ORDER_PROGRESS}, parameters:[]}, // Last Session Time
+                    {query:810, object:{identifier:1, witness:WOWOK.ContextType.TYPE_ORDER_PROGRESS}, parameters:[]}, // Last Session Time
                     {value_type:WOWOK.ValueType.TYPE_U64, value:86400000} // 24 hrs
                 ]}
             ]},
@@ -279,7 +278,7 @@ const guard_lost_comfirm_compensate = async (machine_id:string, permission_id:st
                 {query: 1215, object:{identifier:2}, parameters:[
                     {context:WOWOK.ContextType.TYPE_GUARD}, // for_guard: this guard verifying
                     {identifier:1}, // for_object: this order
-                    {query:812, object: {identifier:1, witness:ContextType.TYPE_ORDER_PROGRESS}, parameters:[]}, // biz-index: progress.Current Session-id
+                    {query:812, object: {identifier:1, witness:WOWOK.ContextType.TYPE_ORDER_PROGRESS}, parameters:[]}, // biz-index: progress.Current Session-id
                     {identifier:1}, // recipient: the order
                 ]},
                 {value_type:WOWOK.ValueType.TYPE_U64, value:1000000} 

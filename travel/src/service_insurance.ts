@@ -6,7 +6,6 @@
 import { call_guard, call_machine, call_permission, call_repository, call_service, CallGuard_Data, CallMachine_Data, 
     CallPermission_Data, CallRepository_Data, CallService_Data, WOWOK} from 'wowok_agent'
 import { sleep, TESTOR, TEST_ADDR, result, PAY_TYPE, PUBKEY, INSURANCE_PRODUCT, ServiceReturn } from './common';
-import { ContextType, ValueType } from '../../../wowok/dist';
 
 enum BUSINESS { // business permission for Permission Object must >= 1000
     adjuster = 1000,
@@ -196,17 +195,17 @@ const guard_insurance_payment = async (machine_id:string, permission_id:string, 
         ], 
         root: {logic:WOWOK.OperatorType.TYPE_LOGIC_AND, parameters:[ // order'machine equals this machine
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // machine id matchs
-                {identifier:1, witness:ContextType.TYPE_ORDER_MACHINE}, // order.machine
+                {identifier:1, witness:WOWOK.ContextType.TYPE_ORDER_MACHINE}, // order.machine
                 {value_type:WOWOK.ValueType.TYPE_ADDRESS, value:machine_id}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_AS_U256_GREATER_EQUAL, parameters:[ // had payed 1000000 at least to order payer, for this progress session
                 {query:1215, object: {identifier:2}, parameters:[ // payed amount
                     {context:WOWOK.ContextType.TYPE_GUARD}, // this guard verifying
                     {identifier:1}, //  payment.Object for Perpose: this order
-                    {query:812, object: {identifier:1, witness:ContextType.TYPE_ORDER_PROGRESS}, parameters:[]}, // progress.Current Session-id: progress.Current Session-id
+                    {query:812, object: {identifier:1, witness:WOWOK.ContextType.TYPE_ORDER_PROGRESS}, parameters:[]}, // progress.Current Session-id: progress.Current Session-id
                     {identifier:1} // payed for order object
                 ]},
-                {value_type:ValueType.TYPE_U64, value:1000000}
+                {value_type:WOWOK.ValueType.TYPE_U64, value:1000000}
             ]},
             {logic:WOWOK.OperatorType.TYPE_LOGIC_EQUAL, parameters:[ // payed token type
                 {query:1217, object: {identifier:2}, parameters:[]}, // payment token type
